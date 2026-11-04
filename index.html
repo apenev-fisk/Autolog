@@ -7,8 +7,6 @@
     <!-- Favicon & PWA App Icons -->
     <link rel="icon" type="image/jpeg" href="watermarked_img_16635183195398438804.jpg">
     <link rel="apple-touch-icon" href="watermarked_img_16635183195398438804.jpg">
-    
-    <!-- Стандартен манифест с директен път към снимката -->
     <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"AutoLog - Service Tracker","short_name":"AutoLog","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#0f172a","icons":[{"src":"watermarked_img_16635183195398438804.jpg","sizes":"512x512","type":"image/jpeg"}]}'>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,9 +27,9 @@
                 <img src="watermarked_img_16635183195398438804.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-cover border border-orange-500/30 shadow">
                 <span class="font-bold text-lg tracking-tight text-white">Auto<span class="text-orange-500">Log</span></span>
             </div>
-            <div class="text-xs font-semibold text-slate-400">
-                Моите автомобили
-            </div>
+            <button onclick="openBackupModal()" class="text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-shield-halved text-orange-400"></i> Архив
+            </button>
         </div>
     </header>
 
@@ -92,6 +90,24 @@
             </div>
         </section>
 
+        <!-- Quick Statistics Panel -->
+        <section class="glass rounded-2xl p-3.5 space-y-2 border border-slate-800">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <span><i class="fa-solid fa-chart-pie me-1.5 text-orange-500"></i> Статистика за разходите</span>
+                <span id="currentYearLabel" class="text-orange-400 font-mono">2026</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400 block text-[10px]">Тази година</span>
+                    <span id="yearSpent" class="font-bold text-base text-orange-400">€ 0.00</span>
+                </div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400 block text-[10px]">Най-много за:</span>
+                    <span id="topCategory" class="font-bold text-xs text-slate-200 truncate block mt-0.5">Няма данни</span>
+                </div>
+            </div>
+        </section>
+
         <!-- Quick Add Record Action -->
         <button onclick="openRecordModal()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
             <i class="fa-solid fa-plus-circle"></i> Добави обслужване / ремонт
@@ -121,6 +137,40 @@
             </div>
         </section>
     </main>
+
+    <!-- Modal: Backup & Restore -->
+    <div id="backupModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-orange-500"></i> Архив и сигурност
+                </h3>
+                <button onclick="closeBackupModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Email Backup Option -->
+            <div class="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                <label class="text-xs font-semibold text-orange-400 block">Изпрати сервизна история по имейл</label>
+                <input type="email" id="backupEmailInput" placeholder="вашият-имейл@gmail.com" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                <button onclick="sendBackupEmail()" class="w-full py-2 bg-orange-600 hover:bg-orange-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-paper-plane"></i> Изпрати архив по Имейл
+                </button>
+            </div>
+
+            <!-- File Options -->
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="downloadBackupFile()" class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-download text-orange-400"></i> Свали файл (.json)
+                </button>
+                <label class="py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                    <i class="fa-solid fa-upload text-emerald-400"></i> Възстанови архив
+                    <input type="file" id="restoreFileInput" accept=".json" onchange="restoreFromFile(event)" class="hidden">
+                </label>
+            </div>
+
+            <button onclick="closeBackupModal()" class="w-full py-2 bg-slate-900 text-slate-400 rounded-xl text-xs font-semibold hover:bg-slate-800">Затвори</button>
+        </div>
+    </div>
 
     <!-- Modal: Add/Edit Car -->
     <div id="carModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -277,98 +327,30 @@
 
     <script>
         const carDatabase = {
-            'BMW': {
-                models: ['Серия 1', 'Серия 3 (E36/E46/E90/F30)', 'Серия 5 (E39/E60/F10/G30)', 'Серия 7', 'X1', 'X3', 'X5', 'X6', 'Z3 / Z4'],
-                engines: [{ name: '318d / 320d (2.0d)', fuel: 'Дизел' }, { name: '330d / 530d (3.0d)', fuel: 'Дизел' }, { name: '318i / 320i (2.0i)', fuel: 'Бензин' }, { name: '325i / 330i (Petrol)', fuel: 'Бензин' }]
-            },
-            'Volkswagen': {
-                models: ['Golf (Mk3/Mk4/Mk5/Mk6/Mk7)', 'Passat (B5/B6/B7/B8)', 'Polo', 'Bora / Jetta', 'Touran', 'Tiguan', 'Touareg', 'Transporter / Caddy'],
-                engines: [{ name: '1.9 TDI (90/105/131 к.с.)', fuel: 'Дизел' }, { name: '2.0 TDI (140/170/190 к.с.)', fuel: 'Дизел' }, { name: '1.6 MPI / 1.4 16V', fuel: 'Бензин' }, { name: '1.4 TSI / 1.8T / 2.0 TFSI', fuel: 'Бензин' }]
-            },
-            'Audi': {
-                models: ['A3 (8L/8P/8V)', 'A4 (B5/B6/B7/B8/B9)', 'A5', 'A6 (C5/C6/C7/C8)', 'A8', 'Q3', 'Q5', 'Q7', 'TT'],
-                engines: [{ name: '1.9 TDI', fuel: 'Дизел' }, { name: '2.0 TDI', fuel: 'Дизел' }, { name: '3.0 TDI V6', fuel: 'Дизел' }, { name: '1.8T / 2.0 TFSI', fuel: 'Бензин' }]
-            },
-            'Mercedes-Benz': {
-                models: ['A-Class', 'B-Class', 'C-Class (W202/W203/W204/W205)', 'E-Class (W210/W211/W212/W213)', 'S-Class', 'CLK / CLS', 'ML / GLE', 'GLK / GLC', 'Vito / Sprinter'],
-                engines: [{ name: '200 CDI / 220 CDI', fuel: 'Дизел' }, { name: '270 CDI / 320 CDI V6', fuel: 'Дизел' }, { name: 'C180 / E200 Kompressor', fuel: 'Бензин' }, { name: 'C200 / E350 V6', fuel: 'Бензин' }]
-            },
-            'Citroen': {
-                models: ['Saxo / C1', 'C2 / C3', 'C4 (I / II / Cactus / Picasso)', 'C5 (I / II / III)', 'Xsara / Xsara Picasso', 'Berlingo', 'Jumpy'],
-                engines: [{ name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' }, { name: '2.0 HDi', fuel: 'Дизел' }, { name: '1.4i / 1.6i 16V', fuel: 'Бензин' }, { name: '1.6 VTi / 1.6 THP', fuel: 'Бензин' }]
-            },
-            'Peugeot': {
-                models: ['106 / 206 / 207 / 208', '306 / 307 / 308', '406 / 407 / 508', '2008 / 3008 / 5008', 'Partner'],
-                engines: [{ name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' }, { name: '2.0 HDi', fuel: 'Дизел' }, { name: '1.4i / 1.6i 16V', fuel: 'Бензин' }, { name: '1.2 PureTech / 1.6 THP', fuel: 'Бензин' }]
-            },
-            'Toyota': {
-                models: ['Yaris', 'Corolla', 'Auris', 'Avensis', 'Camry', 'RAV4', 'Land Cruiser', 'Prius'],
-                engines: [{ name: '1.4 D-4D / 2.0 D-4D', fuel: 'Дизел' }, { name: '1.33 VVT-i / 1.6 VVT-i', fuel: 'Бензин' }, { name: '1.8 VVT-i / 2.0 VVT-i', fuel: 'Бензин' }, { name: '1.8 Hybrid', fuel: 'Бензин' }]
-            },
-            'Lexus': {
-                models: ['IS (200/250/300h)', 'GS', 'LS', 'RX', 'NX', 'CT200h'],
-                engines: [{ name: '2.2 D-4D', fuel: 'Дизел' }, { name: '2.5 V6 / 3.0 V6 Petrol', fuel: 'Бензин' }, { name: 'Hybrid', fuel: 'Бензин' }]
-            },
-            'Hyundai': {
-                models: ['Getz / Accent', 'i10 / i20 / i30', 'Elantra', 'Tucson', 'Santa Fe', 'Matrix'],
-                engines: [{ name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' }, { name: '2.0 CRDi', fuel: 'Дизел' }, { name: '1.4 MPi / 1.6 CVVT', fuel: 'Бензин' }, { name: '1.6 T-GDI', fuel: 'Бензин' }]
-            },
-            'Kia': {
-                models: ['Rio', 'Ceed / Pro_Ceed', 'Cerato / Optima', 'Sportage', 'Sorento', 'Picanto', 'Carens'],
-                engines: [{ name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' }, { name: '2.0 CRDi', fuel: 'Дизел' }, { name: '1.4 CVVT / 1.6 GDI', fuel: 'Бензин' }, { name: '2.0 DOHC', fuel: 'Бензин' }]
-            },
-            'Mazda': {
-                models: ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3 / CX-5 / CX-7', 'MX-5', 'Premacy / MPV'],
-                engines: [{ name: '1.6 CiTD / 2.0 MZR-CD', fuel: 'Дизел' }, { name: '2.2 SkyActiv-D', fuel: 'Дизел' }, { name: '1.6i / 2.0i MZR', fuel: 'Бензин' }, { name: '2.0 SkyActiv-G', fuel: 'Бензин' }]
-            },
-            'Honda': {
-                models: ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz', 'Prelude'],
-                engines: [{ name: '2.2 i-CTDi / 1.6 i-DTEC', fuel: 'Дизел' }, { name: '1.4 / 1.6 i-VTEC', fuel: 'Бензин' }, { name: '1.8 / 2.0 i-VTEC', fuel: 'Бензин' }, { name: '2.4 K24', fuel: 'Бензин' }]
-            },
-            'Renault': {
-                models: ['Twingo', 'Clio', 'Megane', 'Laguna', 'Scenic', 'Captur / Kadjar', 'Koleos', 'Kangoo'],
-                engines: [{ name: '1.5 dCi', fuel: 'Дизел' }, { name: '1.9 dCi / 2.0 dCi', fuel: 'Дизел' }, { name: '1.2 16V / 1.6 16V', fuel: 'Бензин' }, { name: '1.2 TCe / 1.4 TCe', fuel: 'Бензин' }]
-            },
-            'Dacia': {
-                models: ['Logan', 'Sandero / Stepway', 'Duster', 'Lodgy', 'Dokker'],
-                engines: [{ name: '1.5 dCi', fuel: 'Дизел' }, { name: '1.4 MPI / 1.6 MPI', fuel: 'Бензин' }, { name: '0.9 TCe / 1.0 TCe', fuel: 'Бензин' }, { name: '1.6 LPG / Eco-G', fuel: 'Газ' }]
-            },
-            'Skoda': {
-                models: ['Fabia', 'Octavia (Mk1/Mk2/Mk3)', 'Superb', 'Rapid / Roomster', 'Yeti', 'Kodiaq / Karoq'],
-                engines: [{ name: '1.4 TDI / 1.9 TDI', fuel: 'Дизел' }, { name: '1.6 TDI / 2.0 TDI', fuel: 'Дизел' }, { name: '1.2 HTP / 1.6 MPI', fuel: 'Бензин' }, { name: '1.2 TSI / 1.4 TSI / 2.0 RS', fuel: 'Бензин' }]
-            },
-            'Ford': {
-                models: ['Fiesta', 'Focus', 'Mondeo', 'C-Max / S-Max', 'Kuga', 'Transit'],
-                engines: [{ name: '1.4 / 1.6 TDCi', fuel: 'Дизел' }, { name: '2.0 TDCi', fuel: 'Дизел' }, { name: '1.25 / 1.4 / 1.6 Duratec', fuel: 'Бензин' }, { name: '1.0 / 1.6 EcoBoost', fuel: 'Бензин' }]
-            },
-            'Opel': {
-                models: ['Corsa', 'Astra (F/G/H/J/K)', 'Vectra / Signum', 'Insignia', 'Zafira', 'Meriva', 'Mokka / Antara'],
-                engines: [{ name: '1.3 / 1.7 / 1.9 CDTI', fuel: 'Дизел' }, { name: '2.0 DTI / 2.0 CDTI', fuel: 'Дизел' }, { name: '1.4 / 1.6 / 1.8 16V', fuel: 'Бензин' }, { name: '1.4 Turbo / 1.6 Turbo', fuel: 'Бензин' }]
-            },
-            'Fiat': {
-                models: ['Punto / Grande Punto', 'Bravo / Stilo', 'Panda', '500 / 500X', 'Tipo', 'Doblo', 'Ducato'],
-                engines: [{ name: '1.3 MultiJet', fuel: 'Дизел' }, { name: '1.9 JTD / MultiJet', fuel: 'Дизел' }, { name: '1.2 8V FIRE / 1.4 16V', fuel: 'Бензин' }, { name: '1.4 T-Jet', fuel: 'Бензин' }]
-            },
-            'Alfa Romeo': {
-                models: ['145 / 146 / 147', '156 / 159', '166', 'GT / GTV', 'MiTo', 'Giulietta', 'Stelvio / Giulia'],
-                engines: [{ name: '1.9 JTD / JTDm', fuel: 'Дизел' }, { name: '2.4 JTDm 5-цил', fuel: 'Дизел' }, { name: '1.6 / 1.8 / 2.0 Twin Spark', fuel: 'Бензин' }, { name: '1.75 TBi / 3.2 Busso V6', fuel: 'Бензин' }]
-            },
-            'Seat': {
-                models: ['Ibiza', 'Cordoba', 'Leon', 'Toledo', 'Altea', 'Alhambra', 'Ateca / Arona'],
-                engines: [{ name: '1.9 TDI', fuel: 'Дизел' }, { name: '1.6 TDI / 2.0 TDI', fuel: 'Дизел' }, { name: '1.4 16V / 1.6 MPI', fuel: 'Бензин' }, { name: '1.2 TSI / 1.4 TSI / 2.0 TFSI', fuel: 'Бензин' }]
-            }
+            'BMW': { models: ['Серия 1', 'Серия 3 (E36/E46/E90/F30)', 'Серия 5 (E39/E60/F10/G30)', 'Серия 7', 'X1', 'X3', 'X5', 'X6', 'Z3 / Z4'], engines: [{ name: '318d / 320d (2.0d)', fuel: 'Дизел' }, { name: '330d / 530d (3.0d)', fuel: 'Дизел' }, { name: '318i / 320i (2.0i)', fuel: 'Бензин' }, { name: '325i / 330i (Petrol)', fuel: 'Бензин' }] },
+            'Volkswagen': { models: ['Golf (Mk3/Mk4/Mk5/Mk6/Mk7)', 'Passat (B5/B6/B7/B8)', 'Polo', 'Bora / Jetta', 'Touran', 'Tiguan', 'Touareg', 'Transporter / Caddy'], engines: [{ name: '1.9 TDI (90/105/131 к.с.)', fuel: 'Дизел' }, { name: '2.0 TDI (140/170/190 к.с.)', fuel: 'Дизел' }, { name: '1.6 MPI / 1.4 16V', fuel: 'Бензин' }, { name: '1.4 TSI / 1.8T / 2.0 TFSI', fuel: 'Бензин' }] },
+            'Audi': { models: ['A3 (8L/8P/8V)', 'A4 (B5/B6/B7/B8/B9)', 'A5', 'A6 (C5/C6/C7/C8)', 'A8', 'Q3', 'Q5', 'Q7', 'TT'], engines: [{ name: '1.9 TDI', fuel: 'Дизел' }, { name: '2.0 TDI', fuel: 'Дизел' }, { name: '3.0 TDI V6', fuel: 'Дизел' }, { name: '1.8T / 2.0 TFSI', fuel: 'Бензин' }] },
+            'Mercedes-Benz': { models: ['A-Class', 'B-Class', 'C-Class (W202/W203/W204/W205)', 'E-Class (W210/W211/W212/W213)', 'S-Class', 'CLK / CLS', 'ML / GLE', 'GLK / GLC', 'Vito / Sprinter'], engines: [{ name: '200 CDI / 220 CDI', fuel: 'Дизел' }, { name: '270 CDI / 320 CDI V6', fuel: 'Дизел' }, { name: 'C180 / E200 Kompressor', fuel: 'Бензин' }, { name: 'C200 / E350 V6', fuel: 'Бензин' }] },
+            'Citroen': { models: ['Saxo / C1', 'C2 / C3', 'C4 (I / II / Cactus / Picasso)', 'C5 (I / II / III)', 'Xsara / Xsara Picasso', 'Berlingo', 'Jumpy'], engines: [{ name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' }, { name: '2.0 HDi', fuel: 'Дизел' }, { name: '1.4i / 1.6i 16V', fuel: 'Бензин' }, { name: '1.6 VTi / 1.6 THP', fuel: 'Бензин' }] },
+            'Peugeot': { models: ['106 / 206 / 207 / 208', '306 / 307 / 308', '406 / 407 / 508', '2008 / 3008 / 5008', 'Partner'], engines: [{ name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' }, { name: '2.0 HDi', fuel: 'Дизел' }, { name: '1.4i / 1.6i 16V', fuel: 'Бензин' }, { name: '1.2 PureTech / 1.6 THP', fuel: 'Бензин' }] },
+            'Toyota': { models: ['Yaris', 'Corolla', 'Auris', 'Avensis', 'Camry', 'RAV4', 'Land Cruiser', 'Prius'], engines: [{ name: '1.4 D-4D / 2.0 D-4D', fuel: 'Дизел' }, { name: '1.33 VVT-i / 1.6 VVT-i', fuel: 'Бензин' }, { name: '1.8 VVT-i / 2.0 VVT-i', fuel: 'Бензин' }, { name: '1.8 Hybrid', fuel: 'Бензин' }] },
+            'Lexus': { models: ['IS (200/250/300h)', 'GS', 'LS', 'RX', 'NX', 'CT200h'], engines: [{ name: '2.2 D-4D', fuel: 'Дизел' }, { name: '2.5 V6 / 3.0 V6 Petrol', fuel: 'Бензин' }, { name: 'Hybrid', fuel: 'Бензин' }] },
+            'Hyundai': { models: ['Getz / Accent', 'i10 / i20 / i30', 'Elantra', 'Tucson', 'Santa Fe', 'Matrix'], engines: [{ name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' }, { name: '2.0 CRDi', fuel: 'Дизел' }, { name: '1.4 MPi / 1.6 CVVT', fuel: 'Бензин' }, { name: '1.6 T-GDI', fuel: 'Бензин' }] },
+            'Kia': { models: ['Rio', 'Ceed / Pro_Ceed', 'Cerato / Optima', 'Sportage', 'Sorento', 'Picanto', 'Carens'], engines: [{ name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' }, { name: '2.0 CRDi', fuel: 'Дизел' }, { name: '1.4 CVVT / 1.6 GDI', fuel: 'Бензин' }, { name: '2.0 DOHC', fuel: 'Бензин' }] },
+            'Mazda': { models: ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3 / CX-5 / CX-7', 'MX-5', 'Premacy / MPV'], engines: [{ name: '1.6 CiTD / 2.0 MZR-CD', fuel: 'Дизел' }, { name: '2.2 SkyActiv-D', fuel: 'Дизел' }, { name: '1.6i / 2.0i MZR', fuel: 'Бензин' }, { name: '2.0 SkyActiv-G', fuel: 'Бензин' }] },
+            'Honda': { models: ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz', 'Prelude'], engines: [{ name: '2.2 i-CTDi / 1.6 i-DTEC', fuel: 'Дизел' }, { name: '1.4 / 1.6 i-VTEC', fuel: 'Бензин' }, { name: '1.8 / 2.0 i-VTEC', fuel: 'Бензин' }, { name: '2.4 K24', fuel: 'Бензин' }] },
+            'Renault': { models: ['Twingo', 'Clio', 'Megane', 'Laguna', 'Scenic', 'Captur / Kadjar', 'Koleos', 'Kangoo'], engines: [{ name: '1.5 dCi', fuel: 'Дизел' }, { name: '1.9 dCi / 2.0 dCi', fuel: 'Дизел' }, { name: '1.2 16V / 1.6 16V', fuel: 'Бензин' }, { name: '1.2 TCe / 1.4 TCe', fuel: 'Бензин' }] },
+            'Dacia': { models: ['Logan', 'Sandero / Stepway', 'Duster', 'Lodgy', 'Dokker'], engines: [{ name: '1.5 dCi', fuel: 'Дизел' }, { name: '1.4 MPI / 1.6 MPI', fuel: 'Бензин' }, { name: '0.9 TCe / 1.0 TCe', fuel: 'Бензин' }, { name: '1.6 LPG / Eco-G', fuel: 'Газ' }] },
+            'Skoda': { models: ['Fabia', 'Octavia (Mk1/Mk2/Mk3)', 'Superb', 'Rapid / Roomster', 'Yeti', 'Kodiaq / Karoq'], engines: [{ name: '1.4 TDI / 1.9 TDI', fuel: 'Дизел' }, { name: '1.6 TDI / 2.0 TDI', fuel: 'Дизел' }, { name: '1.2 HTP / 1.6 MPI', fuel: 'Бензин' }, { name: '1.2 TSI / 1.4 TSI / 2.0 RS', fuel: 'Бензин' }] },
+            'Ford': { models: ['Fiesta', 'Focus', 'Mondeo', 'C-Max / S-Max', 'Kuga', 'Transit'], engines: [{ name: '1.4 / 1.6 TDCi', fuel: 'Дизел' }, { name: '2.0 TDCi', fuel: 'Дизел' }, { name: '1.25 / 1.4 / 1.6 Duratec', fuel: 'Бензин' }, { name: '1.0 / 1.6 EcoBoost', fuel: 'Бензин' }] },
+            'Opel': { models: ['Corsa', 'Astra (F/G/H/J/K)', 'Vectra / Signum', 'Insignia', 'Zafira', 'Meriva', 'Mokka / Antara'], engines: [{ name: '1.3 / 1.7 / 1.9 CDTI', fuel: 'Дизел' }, { name: '2.0 DTI / 2.0 CDTI', fuel: 'Дизел' }, { name: '1.4 / 1.6 / 1.8 16V', fuel: 'Бензин' }, { name: '1.4 Turbo / 1.6 Turbo', fuel: 'Бензин' }] },
+            'Fiat': { models: ['Punto / Grande Punto', 'Bravo / Stilo', 'Panda', '500 / 500X', 'Tipo', 'Doblo', 'Ducato'], engines: [{ name: '1.3 MultiJet', fuel: 'Дизел' }, { name: '1.9 JTD / MultiJet', fuel: 'Дизел' }, { name: '1.2 8V FIRE / 1.4 16V', fuel: 'Бензин' }, { name: '1.4 T-Jet', fuel: 'Бензин' }] },
+            'Alfa Romeo': { models: ['145 / 146 / 147', '156 / 159', '166', 'GT / GTV', 'MiTo', 'Giulietta', 'Stelvio / Giulia'], engines: [{ name: '1.9 JTD / JTDm', fuel: 'Дизел' }, { name: '2.4 JTDm 5-цил', fuel: 'Дизел' }, { name: '1.6 / 1.8 / 2.0 Twin Spark', fuel: 'Бензин' }, { name: '1.75 TBi / 3.2 Busso V6', fuel: 'Бензин' }] },
+            'Seat': { models: ['Ibiza', 'Cordoba', 'Leon', 'Toledo', 'Altea', 'Alhambra', 'Ateca / Arona'], engines: [{ name: '1.9 TDI', fuel: 'Дизел' }, { name: '1.6 TDI / 2.0 TDI', fuel: 'Дизел' }, { name: '1.4 16V / 1.6 MPI', fuel: 'Бензин' }, { name: '1.2 TSI / 1.4 TSI / 2.0 TFSI', fuel: 'Бензин' }] }
         };
 
-        const universalEngines = [
-            { name: '1.4 / 1.6 Бензин', fuel: 'Бензин' },
-            { name: '1.8 / 2.0 Бензин', fuel: 'Бензин' },
-            { name: '1.9 TDI / 2.0 TDI Дизел', fuel: 'Дизел' },
-            { name: '1.5 / 1.6 dCi / HDi Дизел', fuel: 'Дизел' },
-            { name: '2.0 / 2.2 CDTI / D-4D Дизел', fuel: 'Дизел' },
-            { name: 'Бензин + Газ (LPG)', fuel: 'Газ' }
-        ];
+        const universalEngines = [{ name: '1.4 / 1.6 Бензин', fuel: 'Бензин' }, { name: '1.8 / 2.0 Бензин', fuel: 'Бензин' }, { name: '1.9 TDI / 2.0 TDI Дизел', fuel: 'Дизел' }, { name: '1.5 / 1.6 dCi / HDi Дизел', fuel: 'Дизел' }, { name: '2.0 / 2.2 CDTI / D-4D Дизел', fuel: 'Дизел' }, { name: 'Бензин + Газ (LPG)', fuel: 'Газ' }];
 
-        // Detailed Checkboxes Configuration per Category
         const categoryCheckboxes = {
             'Масло & Филтри': ['Маслен филтър', 'Въздушен филтър', 'Филтър купе', 'Горивен филтър'],
             'Ходова част & Окачване': ['Носачи / Шарнири', 'Биалети', 'Амортисьори', 'Тампони на амортисьори', 'Шенкели / Лагери', 'Стабилизираща щанга'],
@@ -450,7 +432,39 @@
             }
 
             updateFuelPriceDisplay();
+            updateStatistics();
             renderRecords();
+        }
+
+        function updateStatistics() {
+            const carRecords = appData.records[appData.activeCarId] || [];
+            const currentYear = new Date().getFullYear();
+            document.getElementById('currentYearLabel').innerText = currentYear;
+
+            // Calculate spent this year
+            let yearTotal = 0;
+            let categoryTotals = {};
+
+            carRecords.forEach(r => {
+                const cost = Number(r.cost || 0);
+                if (r.date && r.date.startsWith(String(currentYear))) {
+                    yearTotal += cost;
+                }
+                categoryTotals[r.category] = (categoryTotals[r.category] || 0) + cost;
+            });
+
+            document.getElementById('yearSpent').innerText = `€ ${yearTotal.toFixed(2)}`;
+
+            // Find top category
+            let topCat = 'Няма данни';
+            let maxCost = 0;
+            for (let cat in categoryTotals) {
+                if (categoryTotals[cat] > maxCost) {
+                    maxCost = categoryTotals[cat];
+                    topCat = cat;
+                }
+            }
+            document.getElementById('topCategory').innerText = topCat;
         }
 
         function onBrandChange() {
@@ -540,7 +554,6 @@
                 return;
             }
 
-            // SORTED: Newest records at the top
             const sortedRecords = [...filtered].sort((a, b) => {
                 if (b.date === a.date) {
                     return (b.timestamp || 0) - (a.timestamp || 0);
@@ -558,13 +571,18 @@
                 }
 
                 return `
-                <div class="glass rounded-xl p-3 shadow-md space-y-1">
+                <div class="glass rounded-xl p-3 shadow-md space-y-1 relative group">
                     <div class="flex items-start justify-between">
                         <div>
                             <span class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">${r.category}</span>
                             <h4 class="text-sm font-bold text-slate-100">${r.title}</h4>
                         </div>
-                        <span class="text-sm font-bold text-emerald-400">€ ${Number(r.cost).toFixed(2)}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-emerald-400">€ ${Number(r.cost).toFixed(2)}</span>
+                            <button onclick="deleteRecord('${r.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition" title="Изтрий записа">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
                     </div>
                     ${filtersMarkup}
                     ${r.notes ? `<p class="text-xs text-slate-400 bg-slate-900/40 p-2 rounded-lg mt-1">${r.notes}</p>` : ''}
@@ -574,6 +592,86 @@
                     </div>
                 </div>`;
             }).join('');
+        }
+
+        function deleteRecord(recordId) {
+            if (confirm('Сигурни ли сте, че искате да изтриете този запис от историята?')) {
+                const carId = appData.activeCarId;
+                if (appData.records[carId]) {
+                    appData.records[carId] = appData.records[carId].filter(r => r.id !== recordId);
+                    saveData();
+                    updateUI();
+                }
+            }
+        }
+
+        // BACKUP & RESTORE LOGIC
+        function openBackupModal() {
+            document.getElementById('backupModal').classList.remove('hidden');
+        }
+
+        function closeBackupModal() {
+            document.getElementById('backupModal').classList.add('hidden');
+        }
+
+        function sendBackupEmail() {
+            const email = document.getElementById('backupEmailInput').value.trim();
+            if (!email) {
+                alert('Моля, въведете валиден имейл адрес!');
+                return;
+            }
+
+            const subject = encodeURIComponent("AutoLog - Архив на сервизна история");
+            const jsonString = JSON.stringify(appData, null, 2);
+            
+            let bodyText = "Здравейте,\n\nЕто пълния архив на вашите автомобили и сервизна история от AutoLog:\n\n";
+            appData.cars.forEach(car => {
+                bodyText += `🚗 ${car.name} (Рег. №: ${car.plate || 'Няма'}, VIN: ${car.vin || 'Няма'})\n`;
+                const carRecs = appData.records[car.id] || [];
+                carRecs.forEach(r => {
+                    bodyText += `  • ${r.date} - ${r.title} (${r.category}) - ${r.km} км - €${r.cost}\n`;
+                });
+                bodyText += "\n";
+            });
+
+            bodyText += "\n--- КОД ЗА ВЪЗСТАНОВЯВАНЕ (Запазете следващите редове) ---\n";
+            bodyText += jsonString;
+
+            window.location.href = `mailto:${email}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
+        }
+
+        function downloadBackupFile() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `autolog_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function restoreFromFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (parsed && parsed.cars) {
+                        appData = parsed;
+                        saveData();
+                        updateUI();
+                        alert('Архивът беше възстановен успешно!');
+                        closeBackupModal();
+                    } else {
+                        alert('Грешка: Невалиден файл с архив!');
+                    }
+                } catch (err) {
+                    alert('Грешка при прочитане на файла!');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function openCarModal(isEdit = false) {
@@ -682,7 +780,6 @@
             const category = document.getElementById('recCategory').value;
             const selectedFilters = [];
             
-            // Gather checked items dynamically
             const container = document.getElementById('dynamicCheckboxesContainer');
             const checkboxes = container.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach(chk => {
