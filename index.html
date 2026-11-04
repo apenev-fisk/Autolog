@@ -101,11 +101,11 @@
                 <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1">
                     <option value="all">Всички категории</option>
                     <option value="Масло & Филтри">Масло & Филтри</option>
-                    <option value="Спирачна система">Спирачна система</option>
                     <option value="Ходова част & Окачване">Ходова част & Окачване</option>
-                    <option value="Двигател & Трансмисия">Двигател & Трансмисия</option>
-                    <option value="Запалителна / Горивна система">Запалителна / Горивна система</option>
+                    <option value="Спирачна система">Спирачна система</option>
                     <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
+                    <option value="Двигател & Запалителна система">Двигател & Запалителна система</option>
+                    <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
                     <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
                     <option value="Гуми & Джанти">Гуми & Джанти</option>
                     <option value="Документи & Винетки">Документи & Винетки</option>
@@ -160,14 +160,14 @@
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Модел (1995 - 2020)</label>
                     <select id="carModelSelect" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
-                        <!-- Populated dynamically via JS -->
+                        <!-- Populated dynamically -->
                     </select>
                 </div>
 
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Двигател / Модификация</label>
                     <select id="carEngineSelect" onchange="onEngineChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
-                        <!-- Populated dynamically via JS -->
+                        <!-- Populated dynamically -->
                     </select>
                 </div>
 
@@ -216,23 +216,23 @@
 
     <!-- Modal: Add Record -->
     <div id="recordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+        <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 class="text-lg font-bold text-white">Нов запис за обслужване</h3>
             <form id="recordForm" onsubmit="saveRecord(event)" class="space-y-3">
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Заглавие / Описание</label>
-                    <input type="text" id="recTitle" required placeholder="Смяна на масло и филтри" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    <input type="text" id="recTitle" required placeholder="Смяна на части" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-400 block mb-1">Категория</label>
                         <select id="recCategory" onchange="toggleFilterOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
                             <option value="Масло & Филтри">Масло & Филтри</option>
-                            <option value="Спирачна система">Спирачна система</option>
                             <option value="Ходова част & Окачване">Ходова част & Окачване</option>
-                            <option value="Двигател & Трансмисия">Двигател & Трансмисия</option>
-                            <option value="Запалителна / Горивна система">Запалителна / Горивна система</option>
+                            <option value="Спирачна система">Спирачна система</option>
                             <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
+                            <option value="Двигател & Запалителна система">Двигател & Запалителна система</option>
+                            <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
                             <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
                             <option value="Гуми & Джанти">Гуми & Джанти</option>
                             <option value="Документи & Винетки">Документи & Винетки</option>
@@ -245,27 +245,9 @@
                     </div>
                 </div>
 
-                <!-- Oil Filter Checkboxes -->
-                <div id="filterCheckboxes" class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                    <label class="text-xs font-semibold text-orange-400 block">Сменени филтри:</label>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                            <input type="checkbox" id="chkOilFilter" checked class="accent-orange-500 rounded">
-                            <span>Маслен филтър</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                            <input type="checkbox" id="chkAirFilter" checked class="accent-orange-500 rounded">
-                            <span>Въздушен филтър</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                            <input type="checkbox" id="chkCabinFilter" checked class="accent-orange-500 rounded">
-                            <span>Филтър купе</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                            <input type="checkbox" id="chkFuelFilter" class="accent-orange-500 rounded">
-                            <span>Горивен филтър</span>
-                        </label>
-                    </div>
+                <!-- Dynamic Checkboxes Container -->
+                <div id="dynamicCheckboxesContainer" class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <!-- Injected via JS -->
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
@@ -280,7 +262,7 @@
                 </div>
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Бележки / Марка части</label>
-                    <textarea id="recNotes" rows="2" placeholder="Total 5W30, филтър Mann..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
+                    <textarea id="recNotes" rows="2" placeholder="Марка части, гаранция и др..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
                 </div>
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="closeRecordModal()" class="flex-1 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-700">Отказ</button>
@@ -293,384 +275,109 @@
     <script>
         const carDatabase = {
             'BMW': {
-                models: [
-                    'Серия 1 (E81 / E82 / E87 / E88 / F20 / F21)',
-                    'Серия 3 (E36 / E46 / E90 / E91 / E92 / E93 / F30 / F31 / F34)',
-                    'Серия 5 (E39 / E60 / E61 / F10 / F11 / G30 / G31)',
-                    'Серия 7 (E38 / E65 / F01 / G11)',
-                    'X1 (E84 / F48)',
-                    'X3 (E83 / F25 / G01)',
-                    'X5 (E53 / E70 / F15 / G05)',
-                    'X6 (E71 / F16)',
-                    'Z3 / Z4'
-                ],
-                engines: [
-                    { name: '318d / 320d / 520d (2.0d Diesel)', fuel: 'Дизел' },
-                    { name: '330d / 530d / X5 3.0d (3.0d Diesel)', fuel: 'Дизел' },
-                    { name: '318i / 320i / 520i (2.0i Petrol)', fuel: 'Бензин' },
-                    { name: '325i / 330i / 530i / 535i (Petrol)', fuel: 'Бензин' }
-                ]
+                models: ['Серия 1', 'Серия 3 (E36/E46/E90/F30)', 'Серия 5 (E39/E60/F10/G30)', 'Серия 7', 'X1', 'X3', 'X5', 'X6', 'Z3 / Z4'],
+                engines: [{ name: '318d / 320d (2.0d)', fuel: 'Дизел' }, { name: '330d / 530d (3.0d)', fuel: 'Дизел' }, { name: '318i / 320i (2.0i)', fuel: 'Бензин' }, { name: '325i / 330i (Petrol)', fuel: 'Бензин' }]
             },
             'Volkswagen': {
-                models: [
-                    'Golf (Mk3 / Mk4 / Mk5 / Mk6 / Mk7)',
-                    'Passat (B3 / B4 / B5 / B5.5 / B6 / B7 / B8 / CC)',
-                    'Polo (Mk3 / Mk4 / Mk5 / Mk6)',
-                    'Bora / Jetta / Vento',
-                    'Touran (1 / 2)',
-                    'Tiguan (1 / 2)',
-                    'Touareg (7L / 7P / CR)',
-                    'Sharan (1 / 2)',
-                    'Transporter / Multivan / Caravelle (T4 / T5 / T6)',
-                    'Caddy (2 / 3 / 4)',
-                    'Beetle / Scirocco'
-                ],
-                engines: [
-                    { name: '1.9 TDI (90 / 105 / 110 / 131 к.с.)', fuel: 'Дизел' },
-                    { name: '2.0 TDI (140 / 170 / 190 к.с.)', fuel: 'Дизел' },
-                    { name: '1.4 16V / 1.6 MPI / 2.0 8V', fuel: 'Бензин' },
-                    { name: '1.4 TSI / 1.8T / 2.0 TFSI', fuel: 'Бензин' }
-                ]
+                models: ['Golf (Mk3/Mk4/Mk5/Mk6/Mk7)', 'Passat (B5/B6/B7/B8)', 'Polo', 'Bora / Jetta', 'Touran', 'Tiguan', 'Touareg', 'Transporter / Caddy'],
+                engines: [{ name: '1.9 TDI (90/105/131 к.с.)', fuel: 'Дизел' }, { name: '2.0 TDI (140/170/190 к.с.)', fuel: 'Дизел' }, { name: '1.6 MPI / 1.4 16V', fuel: 'Бензин' }, { name: '1.4 TSI / 1.8T / 2.0 TFSI', fuel: 'Бензин' }]
             },
             'Audi': {
-                models: [
-                    'A2',
-                    'A3 (8L / 8P / 8V)',
-                    'A4 (B5 / B6 / B7 / B8 / B9)',
-                    'A5 (8T / F5)',
-                    'A6 (C4 / C5 / C6 / C7 / C8)',
-                    'A8 (D2 / D3 / D4 / D5)',
-                    'Q3 (8U / F3)',
-                    'Q5 (8R / FY)',
-                    'Q7 (4L / 4M)',
-                    'TT (8N / 8J / 8S)'
-                ],
-                engines: [
-                    { name: '1.9 TDI (110 / 131 к.с.)', fuel: 'Дизел' },
-                    { name: '2.0 TDI (140 / 170 / 190 к.с.)', fuel: 'Дизел' },
-                    { name: '3.0 TDI V6 Quattro', fuel: 'Дизел' },
-                    { name: '1.6 MPI / 1.8 20V', fuel: 'Бензин' },
-                    { name: '1.8T / 2.0 TFSI / 3.0 TFSI', fuel: 'Бензин' }
-                ]
+                models: ['A3 (8L/8P/8V)', 'A4 (B5/B6/B7/B8/B9)', 'A5', 'A6 (C5/C6/C7/C8)', 'A8', 'Q3', 'Q5', 'Q7', 'TT'],
+                engines: [{ name: '1.9 TDI', fuel: 'Дизел' }, { name: '2.0 TDI', fuel: 'Дизел' }, { name: '3.0 TDI V6', fuel: 'Дизел' }, { name: '1.8T / 2.0 TFSI', fuel: 'Бензин' }]
             },
             'Mercedes-Benz': {
-                models: [
-                    'A-Class (W168 / W169 / W176 / W177)',
-                    'B-Class (W245 / W246 / W247)',
-                    'C-Class (W202 / W203 / W204 / W205)',
-                    'E-Class (W210 / W211 / W212 / W213)',
-                    'S-Class (W140 / W220 / W221 / W222)',
-                    'CLK (C208 / C209) / E-Coupe',
-                    'CLS (C219 / C218 / C257)',
-                    'ML / GLE (W163 / W164 / W166 / W167)',
-                    'GLK / GLC (X204 / X253)',
-                    'Vito / Viano / Sprinter'
-                ],
-                engines: [
-                    { name: '200 CDI / 220 CDI (4-цилиндров)', fuel: 'Дизел' },
-                    { name: '270 CDI / 320 CDI / 350 CDI (V6)', fuel: 'Дизел' },
-                    { name: 'C180 / E200 Kompressor', fuel: 'Бензин' },
-                    { name: 'C200 / E250 / E350 CGI (V6 Petrol)', fuel: 'Бензин' }
-                ]
+                models: ['A-Class', 'B-Class', 'C-Class (W202/W203/W204/W205)', 'E-Class (W210/W211/W212/W213)', 'S-Class', 'CLK / CLS', 'ML / GLE', 'GLK / GLC', 'Vito / Sprinter'],
+                engines: [{ name: '200 CDI / 220 CDI', fuel: 'Дизел' }, { name: '270 CDI / 320 CDI V6', fuel: 'Дизел' }, { name: 'C180 / E200 Kompressor', fuel: 'Бензин' }, { name: 'C200 / E350 V6', fuel: 'Бензин' }]
             },
             'Citroen': {
-                models: [
-                    'Saxo / C1',
-                    'C2 / C3 (I / II / III / Aircross)',
-                    'C4 (I / II / Cactus / Picasso / Grand Picasso / Spacetourer)',
-                    'C5 (I / II / III X7)',
-                    'C6 / C8',
-                    'Xsara / Xsara Picasso',
-                    'Berlingo (I / II / III)',
-                    'C-Crosser / C4 Aircross',
-                    'Jumpy / Evasion / Nemo'
-                ],
-                engines: [
-                    { name: '1.4 HDi / 1.6 HDi (90 / 110 / 112 к.с.)', fuel: 'Дизел' },
-                    { name: '2.0 HDi (90 / 110 / 136 / 163 к.с.)', fuel: 'Дизел' },
-                    { name: '2.2 HDi / 3.0 HDi V6', fuel: 'Дизел' },
-                    { name: '1.4i / 1.6i 16V / 1.8i 16V', fuel: 'Бензин' },
-                    { name: '1.6 VTi / 1.6 THP / 2.0i 16V', fuel: 'Бензин' }
-                ]
+                models: ['Saxo / C1', 'C2 / C3', 'C4 (I / II / Cactus / Picasso)', 'C5 (I / II / III)', 'Xsara / Xsara Picasso', 'Berlingo', 'Jumpy'],
+                engines: [{ name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' }, { name: '2.0 HDi', fuel: 'Дизел' }, { name: '1.4i / 1.6i 16V', fuel: 'Бензин' }, { name: '1.6 VTi / 1.6 THP', fuel: 'Бензин' }]
             },
             'Peugeot': {
-                models: [
-                    '106 / 107 / 108',
-                    '206 / 206+ / 207 / 208',
-                    '306 / 307 / 308 (I / II)',
-                    '406 / 407',
-                    '508 (I / II)',
-                    '607',
-                    '806 / 807',
-                    '2008 / 3008 (I / II) / 4007 / 4008',
-                    '5008 (I / II)',
-                    'Partner (I / II / Tepee)',
-                    'Bipper / Expert'
-                ],
-                engines: [
-                    { name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' },
-                    { name: '2.0 HDi (90 / 110 / 136 / 150 / 180 к.с.)', fuel: 'Дизел' },
-                    { name: '1.1i / 1.4i / 1.6i 16V', fuel: 'Бензин' },
-                    { name: '1.2 PureTech / 1.6 VTi / 1.6 THP', fuel: 'Бензин' }
-                ]
+                models: ['106 / 206 / 207 / 208', '306 / 307 / 308', '406 / 407 / 508', '2008 / 3008 / 5008', 'Partner'],
+                engines: [{ name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' }, { name: '2.0 HDi', fuel: 'Дизел' }, { name: '1.4i / 1.6i 16V', fuel: 'Бензин' }, { name: '1.2 PureTech / 1.6 THP', fuel: 'Бензин' }]
             },
             'Toyota': {
-                models: [
-                    'Yaris (Mk1 / Mk2 / Mk3)',
-                    'Corolla (E11 / E12 / E15 / E170 / E210)',
-                    'Auris (Mk1 / Mk2)',
-                    'Avensis (T22 / T25 / T27)',
-                    'Camry (V30 / V40 / V50 / V70)',
-                    'RAV4 (XA10 / XA20 / XA30 / XA40 / XA50)',
-                    'Land Cruiser (J90 / J120 / J150)',
-                    'Aygo / IQ / Prius (2 / 3 / 4)',
-                    'Celica / MR2 / Supra'
-                ],
-                engines: [
-                    { name: '1.4 D-4D / 2.0 D-4D / 2.2 D-CAT', fuel: 'Дизел' },
-                    { name: '1.0 VVT-i / 1.33 VVT-i / 1.6 Dual VVT-i', fuel: 'Бензин' },
-                    { name: '1.8 VVT-i / 2.0 VVT-i', fuel: 'Бензин' },
-                    { name: '1.8 Hybrid / 2.5 Hybrid', fuel: 'Бензин' }
-                ]
+                models: ['Yaris', 'Corolla', 'Auris', 'Avensis', 'Camry', 'RAV4', 'Land Cruiser', 'Prius'],
+                engines: [{ name: '1.4 D-4D / 2.0 D-4D', fuel: 'Дизел' }, { name: '1.33 VVT-i / 1.6 VVT-i', fuel: 'Бензин' }, { name: '1.8 VVT-i / 2.0 VVT-i', fuel: 'Бензин' }, { name: '1.8 Hybrid', fuel: 'Бензин' }]
             },
             'Lexus': {
-                models: [
-                    'IS (200 / 300 / 220d / 250 / 300h)',
-                    'GS (300 / 430 / 450h / 350 / 250)',
-                    'LS (400 / 430 / 460 / 600h)',
-                    'RX (300 / 330 / 350 / 400h / 450h)',
-                    'NX (200t / 300h)',
-                    'UX (250h)',
-                    'CT200h'
-                ],
-                engines: [
-                    { name: '2.2 D-4D (IS220d)', fuel: 'Дизел' },
-                    { name: '2.0 6-цил / 2.5 V6 / 3.0 V6 Petrol', fuel: 'Бензин' },
-                    { name: '1.8 Hybrid (CT200h) / 3.5 V6 Hybrid', fuel: 'Бензин' }
-                ]
+                models: ['IS (200/250/300h)', 'GS', 'LS', 'RX', 'NX', 'CT200h'],
+                engines: [{ name: '2.2 D-4D', fuel: 'Дизел' }, { name: '2.5 V6 / 3.0 V6 Petrol', fuel: 'Бензин' }, { name: 'Hybrid', fuel: 'Бензин' }]
             },
             'Hyundai': {
-                models: [
-                    'Atos / Getz / Accent (X3 / LC / MC / RB)',
-                    'i10 / i20 / i30 (FD / GD / PD)',
-                    'Elantra / Lantra / Sonata',
-                    'Tucson (JM / TL)',
-                    'Santa Fe (SM / CM / DM)',
-                    'Matrix / Trajet / IX35',
-                    'Coupe / Tiburon / Genesis'
-                ],
-                engines: [
-                    { name: '1.4 CRDi / 1.5 CRDi / 1.6 CRDi', fuel: 'Дизел' },
-                    { name: '2.0 CRDi / 2.2 CRDi', fuel: 'Дизел' },
-                    { name: '1.2 MPi / 1.4 MPi / 1.6 CVVT', fuel: 'Бензин' },
-                    { name: '2.0 CVVT / 1.6 T-GDI', fuel: 'Бензин' }
-                ]
+                models: ['Getz / Accent', 'i10 / i20 / i30', 'Elantra', 'Tucson', 'Santa Fe', 'Matrix'],
+                engines: [{ name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' }, { name: '2.0 CRDi', fuel: 'Дизел' }, { name: '1.4 MPi / 1.6 CVVT', fuel: 'Бензин' }, { name: '1.6 T-GDI', fuel: 'Бензин' }]
             },
             'Kia': {
-                models: [
-                    'Pride / Rio (DC / JB / UB / YB)',
-                    'Ceed / Pro_Ceed / XCeed (ED / JD / CD)',
-                    'Cerato / Forte / Magentis / Optima',
-                    'Sportage (JA / JE / SL / QL)',
-                    'Sorento (BL / XM / UM)',
-                    'Picanto (SA / TA / JA)',
-                    'Carens / Carnival / Soul'
-                ],
-                engines: [
-                    { name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' },
-                    { name: '2.0 CRDi / 2.2 CRDi', fuel: 'Дизел' },
-                    { name: '1.4 CVVT / 1.6 GDI', fuel: 'Бензин' },
-                    { name: '2.0 DOHC / 1.6 T-GDI', fuel: 'Бензин' }
-                ]
+                models: ['Rio', 'Ceed / Pro_Ceed', 'Cerato / Optima', 'Sportage', 'Sorento', 'Picanto', 'Carens'],
+                engines: [{ name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' }, { name: '2.0 CRDi', fuel: 'Дизел' }, { name: '1.4 CVVT / 1.6 GDI', fuel: 'Бензин' }, { name: '2.0 DOHC', fuel: 'Бензин' }]
             },
             'Mazda': {
-                models: [
-                    'Mazda 121 / 323 / 626 / Xedos',
-                    'Mazda 2 (DY / DE / DJ)',
-                    'Mazda 3 (BK / BL / BM / BN)',
-                    'Mazda 6 (GG / GY / GH / GJ / GL)',
-                    'CX-3 / CX-5 (KE / KF) / CX-7 / CX-9',
-                    'MX-5 (NB / NC / ND)',
-                    'Premacy / MPV / Tribute'
-                ],
-                engines: [
-                    { name: '1.6 CiTD / 2.0 MZR-CD / 2.2 SkyActiv-D', fuel: 'Дизел' },
-                    { name: '1.4i / 1.6i MZR', fuel: 'Бензин' },
-                    { name: '1.8i / 2.0i MZR / 2.0 SkyActiv-G', fuel: 'Бензин' },
-                    { name: '2.3 DISI Turbo / 2.5 SkyActiv-G', fuel: 'Бензин' }
-                ]
+                models: ['Mazda 2', 'Mazda 3', 'Mazda 6', 'CX-3 / CX-5 / CX-7', 'MX-5', 'Premacy / MPV'],
+                engines: [{ name: '1.6 CiTD / 2.0 MZR-CD', fuel: 'Дизел' }, { name: '2.2 SkyActiv-D', fuel: 'Дизел' }, { name: '1.6i / 2.0i MZR', fuel: 'Бензин' }, { name: '2.0 SkyActiv-G', fuel: 'Бензин' }]
             },
             'Honda': {
-                models: [
-                    'Civic (EJ/EK / EP/EU / FN/FK / FB / FC)',
-                    'Accord (CG/CH / CL/CN / CU/CW)',
-                    'CR-V (RD / RE / RM / RW)',
-                    'HR-V (GH / RU)',
-                    'Jazz (GD / GE / GK)',
-                    'FR-V / Logo',
-                    'Prelude / S2000'
-                ],
-                engines: [
-                    { name: '1.7 CTDi / 2.2 i-CTDi / 1.6 i-DTEC / 2.2 i-DTEC', fuel: 'Дизел' },
-                    { name: '1.4 i-DSI / 1.4 i-VTEC / 1.5 i-VTEC', fuel: 'Бензин' },
-                    { name: '1.6 VTEC / 1.8 i-VTEC / 2.0 i-VTEC', fuel: 'Бензин' },
-                    { name: '2.4 i-VTEC K24', fuel: 'Бензин' }
-                ]
+                models: ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz', 'Prelude'],
+                engines: [{ name: '2.2 i-CTDi / 1.6 i-DTEC', fuel: 'Дизел' }, { name: '1.4 / 1.6 i-VTEC', fuel: 'Бензин' }, { name: '1.8 / 2.0 i-VTEC', fuel: 'Бензин' }, { name: '2.4 K24', fuel: 'Бензин' }]
             },
             'Renault': {
-                models: [
-                    'Twingo (I / II / III)',
-                    'Clio (I / II / III / IV)',
-                    'Megane (I / II / III / IV)',
-                    'Laguna (I / II / III)',
-                    'Scenic / Grand Scenic (I / II / III / IV)',
-                    'Espace (III / IV / V)',
-                    'Captur / Kadjar / Arkana',
-                    'Koleos (I / II)',
-                    'Kangoo (I / II) / Master / Trafic'
-                ],
-                engines: [
-                    { name: '1.5 dCi (65 / 85 / 105 / 110 к.с.)', fuel: 'Дизел' },
-                    { name: '1.9 dCi / 2.0 dCi (130 / 150 / 175 к.с.)', fuel: 'Дизел' },
-                    { name: '1.2 16V / 1.4 16V / 1.6 16V', fuel: 'Бензин' },
-                    { name: '1.2 TCe / 1.4 TCe / 2.0 16V Turbo', fuel: 'Бензин' }
-                ]
+                models: ['Twingo', 'Clio', 'Megane', 'Laguna', 'Scenic', 'Captur / Kadjar', 'Koleos', 'Kangoo'],
+                engines: [{ name: '1.5 dCi', fuel: 'Дизел' }, { name: '1.9 dCi / 2.0 dCi', fuel: 'Дизел' }, { name: '1.2 16V / 1.6 16V', fuel: 'Бензин' }, { name: '1.2 TCe / 1.4 TCe', fuel: 'Бензин' }]
             },
             'Dacia': {
-                models: [
-                    'Logan (I / II / MCV / Express)',
-                    'Sandero (I / II / Stepway)',
-                    'Duster (I / II)',
-                    'Lodgy',
-                    'Dokker',
-                    'Solenza / SuperNova'
-                ],
-                engines: [
-                    { name: '1.5 dCi (68 / 75 / 90 / 110 к.с.)', fuel: 'Дизел' },
-                    { name: '1.4 MPI / 1.6 MPI / 1.6 16V', fuel: 'Бензин' },
-                    { name: '0.9 TCe / 1.0 TCe / 1.2 16V', fuel: 'Бензин' },
-                    { name: '1.6 LPG / 0.9 TCe Eco-G (Фабрична газ)', fuel: 'Газ' }
-                ]
+                models: ['Logan', 'Sandero / Stepway', 'Duster', 'Lodgy', 'Dokker'],
+                engines: [{ name: '1.5 dCi', fuel: 'Дизел' }, { name: '1.4 MPI / 1.6 MPI', fuel: 'Бензин' }, { name: '0.9 TCe / 1.0 TCe', fuel: 'Бензин' }, { name: '1.6 LPG / Eco-G', fuel: 'Газ' }]
             },
             'Skoda': {
-                models: [
-                    'Felicia',
-                    'Fabia (Mk1 6Y / Mk2 5J / Mk3 NJ)',
-                    'Octavia (Mk1 1U / Mk2 1Z / Mk3 5E)',
-                    'Superb (B5 3U / B6 3T / B7 3V)',
-                    'Rapid / Roomster / Citigo',
-                    'Yeti',
-                    'Kodiaq / Karoq / Kamiq'
-                ],
-                engines: [
-                    { name: '1.4 TDI / 1.9 TDI (90 / 105 / 130 к.с.)', fuel: 'Дизел' },
-                    { name: '1.6 TDI / 2.0 TDI (140 / 170 / 190 к.с.)', fuel: 'Дизел' },
-                    { name: '1.2 HTP / 1.4 16V / 1.6 MPI', fuel: 'Бензин' },
-                    { name: '1.2 TSI / 1.4 TSI / 1.8 TSI / 2.0 RS', fuel: 'Бензин' }
-                ]
+                models: ['Fabia', 'Octavia (Mk1/Mk2/Mk3)', 'Superb', 'Rapid / Roomster', 'Yeti', 'Kodiaq / Karoq'],
+                engines: [{ name: '1.4 TDI / 1.9 TDI', fuel: 'Дизел' }, { name: '1.6 TDI / 2.0 TDI', fuel: 'Дизел' }, { name: '1.2 HTP / 1.6 MPI', fuel: 'Бензин' }, { name: '1.2 TSI / 1.4 TSI / 2.0 RS', fuel: 'Бензин' }]
             },
             'Ford': {
-                models: [
-                    'Ka / Fusion',
-                    'Fiesta (Mk4 / Mk5 / Mk6 / Mk7)',
-                    'Focus (Mk1 / Mk2 / Mk3 / Mk4)',
-                    'Mondeo (Mk2 / Mk3 / Mk4 / Mk5)',
-                    'C-Max (I / II) / S-Max / Galaxy',
-                    'Kuga (I / II) / Maverick / Edge',
-                    'Puma (Original / Crossover) / Cougar / Explorer',
-                    'Transit / Transit Connect / Tourneo'
-                ],
-                engines: [
-                    { name: '1.4 TDCi / 1.6 TDCi / 1.8 TDDi / TDCi', fuel: 'Дизел' },
-                    { name: '2.0 TDCi / 2.2 TDCi', fuel: 'Дизел' },
-                    { name: '1.25 / 1.4 / 1.6 Zetec / Duratec', fuel: 'Бензин' },
-                    { name: '1.0 EcoBoost / 1.6 EcoBoost / 2.0 Duratec', fuel: 'Бензин' }
-                ]
+                models: ['Fiesta', 'Focus', 'Mondeo', 'C-Max / S-Max', 'Kuga', 'Transit'],
+                engines: [{ name: '1.4 / 1.6 TDCi', fuel: 'Дизел' }, { name: '2.0 TDCi', fuel: 'Дизел' }, { name: '1.25 / 1.4 / 1.6 Duratec', fuel: 'Бензин' }, { name: '1.0 / 1.6 EcoBoost', fuel: 'Бензин' }]
             },
             'Opel': {
-                models: [
-                    'Corsa (B / C / D / E)',
-                    'Astra (F / G / H / J / K)',
-                    'Vectra (B / C) / Signum',
-                    'Insignia (A / B)',
-                    'Zafira (A / B / Tourer C)',
-                    'Meriva (A / B) / Agila',
-                    'Mokka / Antara / Frontera / Grandland X',
-                    'Tigra / Calibra / Omega B'
-                ],
-                engines: [
-                    { name: '1.3 CDTI / 1.7 DTI/CDTI / 1.9 CDTI', fuel: 'Дизел' },
-                    { name: '2.0 DTI / 2.0 CDTI (130 / 160 / 170 к.с.)', fuel: 'Дизел' },
-                    { name: '1.2 16V / 1.4 16V / 1.6 16V / 1.8 16V Ecotec', fuel: 'Бензин' },
-                    { name: '1.4 Turbo / 1.6 Turbo / 2.0 Turbo', fuel: 'Бензин' }
-                ]
+                models: ['Corsa', 'Astra (F/G/H/J/K)', 'Vectra / Signum', 'Insignia', 'Zafira', 'Meriva', 'Mokka / Antara'],
+                engines: [{ name: '1.3 / 1.7 / 1.9 CDTI', fuel: 'Дизел' }, { name: '2.0 DTI / 2.0 CDTI', fuel: 'Дизел' }, { name: '1.4 / 1.6 / 1.8 16V', fuel: 'Бензин' }, { name: '1.4 Turbo / 1.6 Turbo', fuel: 'Бензин' }]
             },
             'Fiat': {
-                models: [
-                    'Seicento / Cinquecento',
-                    'Punto (176 / 188 / Grande Punto / Punto Evo)',
-                    'Bravo / Brava / Stilo / Bravo II (198)',
-                    'Panda (169 / 319)',
-                    '500 / 500L / 500X',
-                    'Tipo (356) / Marea / Linea',
-                    'Doblo (223 / 263) / Qubo / Fiorino',
-                    'Croma (194) / Ulysse',
-                    'Ducato / Scudo'
-                ],
-                engines: [
-                    { name: '1.3 MultiJet (75 / 90 к.с.)', fuel: 'Дизел' },
-                    { name: '1.9 JTD / MultiJet (105 / 120 / 150 к.с.)', fuel: 'Дизел' },
-                    { name: '2.0 MultiJet / 1.6 MultiJet', fuel: 'Дизел' },
-                    { name: '1.1 / 1.2 8V FIRE / 1.4 16V', fuel: 'Бензин' },
-                    { name: '1.4 T-Jet / MultiAir', fuel: 'Бензин' }
-                ]
+                models: ['Punto / Grande Punto', 'Bravo / Stilo', 'Panda', '500 / 500X', 'Tipo', 'Doblo', 'Ducato'],
+                engines: [{ name: '1.3 MultiJet', fuel: 'Дизел' }, { name: '1.9 JTD / MultiJet', fuel: 'Дизел' }, { name: '1.2 8V FIRE / 1.4 16V', fuel: 'Бензин' }, { name: '1.4 T-Jet', fuel: 'Бензин' }]
             },
             'Alfa Romeo': {
-                models: [
-                    '145 / 146 / 147',
-                    '156 / 159',
-                    '164 / 166',
-                    'GT / GTV / Spider',
-                    'MiTo',
-                    'Giulietta (940)',
-                    'Stelvio / Giulia',
-                    'Brera'
-                ],
-                engines: [
-                    { name: '1.9 JTD / JTDm (105 / 115 / 140 / 150 к.с.)', fuel: 'Дизел' },
-                    { name: '2.4 JTD / JTDm 5-цил (136 / 175 / 200 / 210 к.с.)', fuel: 'Дизел' },
-                    { name: '1.6 TS / 1.8 TS / 2.0 Twin Spark', fuel: 'Бензин' },
-                    { name: '1.4 MultiAir / 1.75 TBi / 2.2 JTS / 3.2 Busso V6', fuel: 'Бензин' }
-                ]
+                models: ['145 / 146 / 147', '156 / 159', '166', 'GT / GTV', 'MiTo', 'Giulietta', 'Stelvio / Giulia'],
+                engines: [{ name: '1.9 JTD / JTDm', fuel: 'Дизел' }, { name: '2.4 JTDm 5-цил', fuel: 'Дизел' }, { name: '1.6 / 1.8 / 2.0 Twin Spark', fuel: 'Бензин' }, { name: '1.75 TBi / 3.2 Busso V6', fuel: 'Бензин' }]
             },
             'Seat': {
-                models: [
-                    'Arosa / Mii',
-                    'Ibiza (2 / 3 / 4 / 5 - 6K / 6L / 6J / KJ)',
-                    'Cordoba',
-                    'Leon (1M / 1P / 5F)',
-                    'Toledo (1L / 1M / 5P / KG)',
-                    'Altea / Altea XL',
-                    'Alhambra (7M / 7N)',
-                    'Ateca / Arona / Tarraco'
-                ],
-                engines: [
-                    { name: '1.4 TDI / 1.9 TDI (90 / 105 / 130 / 150 к.с.)', fuel: 'Дизел' },
-                    { name: '1.6 TDI / 2.0 TDI (140 / 170 / 184 к.с.)', fuel: 'Дизел' },
-                    { name: '1.2 12V / 1.4 16V / 1.6 MPI', fuel: 'Бензин' },
-                    { name: '1.2 TSI / 1.4 TSI / 1.8T / 2.0 TFSI Cupra', fuel: 'Бензин' }
-                ]
+                models: ['Ibiza', 'Cordoba', 'Leon', 'Toledo', 'Altea', 'Alhambra', 'Ateca / Arona'],
+                engines: [{ name: '1.9 TDI', fuel: 'Дизел' }, { name: '1.6 TDI / 2.0 TDI', fuel: 'Дизел' }, { name: '1.4 16V / 1.6 MPI', fuel: 'Бензин' }, { name: '1.2 TSI / 1.4 TSI / 2.0 TFSI', fuel: 'Бензин' }]
             }
         };
 
         const universalEngines = [
-            { name: '1.4 / 1.6 Бензин (Petrol)', fuel: 'Бензин' },
-            { name: '1.8 / 2.0 Бензин (Petrol)', fuel: 'Бензин' },
-            { name: '1.9 TDI / 2.0 TDI (Diesel)', fuel: 'Дизел' },
-            { name: '1.5 / 1.6 dCi / HDi / CDTI (Diesel)', fuel: 'Дизел' },
-            { name: '2.0 / 2.2 CDTI / D-4D / CRDi (Diesel)', fuel: 'Дизел' },
+            { name: '1.4 / 1.6 Бензин', fuel: 'Бензин' },
+            { name: '1.8 / 2.0 Бензин', fuel: 'Бензин' },
+            { name: '1.9 TDI / 2.0 TDI Дизел', fuel: 'Дизел' },
+            { name: '1.5 / 1.6 dCi / HDi Дизел', fuel: 'Дизел' },
+            { name: '2.0 / 2.2 CDTI / D-4D Дизел', fuel: 'Дизел' },
             { name: 'Бензин + Газ (LPG)', fuel: 'Газ' }
         ];
+
+        // Detailed Checkboxes Configuration per Category
+        const categoryCheckboxes = {
+            'Масло & Филтри': ['Маслен филтър', 'Въздушен филтър', 'Филтър купе', 'Горивен филтър'],
+            'Ходова част & Окачване': ['Носачи / Шарнири', 'Биалети', 'Амортисьори', 'Тампони на амортисьори', 'Шенкели / Лагери', 'Стабилизираща щанга'],
+            'Спирачна система': ['Спирачни дискове', 'Спирачни накладки', 'Спирачни маркучи', 'Спирачна течност', 'Спирачни апарати', 'Жило за ръчна'],
+            'Климатик & Охлаждане': ['Радиатор (воден/клима)', 'Разширителен съд', 'Антифриз', 'Водна помпа', 'Термостат', 'Компресор климатик'],
+            'Двигател & Запалителна система': ['Запалителни / Подгревни свещи', 'Бобини', 'Инжектори (дюзи)', 'Дебитомер / МАФ сензор', 'EGR клапан', 'Ангренажен ремък / Верига', 'Пистов ремък'],
+            'Трансмисия & Съединител': ['Съединител комплект (маховик)', 'Масло скоростна кутия / Диф.', 'Полуоски / Карета / Маншони'],
+            'Акумулатор & Електроника': ['Акумулатор', 'Алтернатор (ремонт)', 'Стартер (ремонт)'],
+            'Гуми & Джанти': ['Смяна на гуми (монтаж/баланс)', 'Нови гуми (летни/зимни)', 'Регулиране преден/заден мост (Сгеометрия)'],
+            'Документи & Винетки': ['Годишен технически преглед (ГТП)', 'Винетка (БГ / чужбина)', 'Гражданска отговорност / Каско', 'Данък МПС'],
+            'Други': ['Други дребни ремонти / Консумативи']
+        };
 
         const fuelPrices = {
             'Бензин': { label: 'Цена A95', price: 1.61 },
@@ -723,7 +430,6 @@
             document.getElementById('carTitle').innerText = car.name;
             document.getElementById('carSubTitle').innerText = `${car.year || ''} ${car.engine ? '• ' + car.engine : ''}`;
 
-            // Handle Plate Display
             const plateDisplay = document.getElementById('carPlateDisplay');
             if (car.plate && car.plate.trim() !== '') {
                 document.getElementById('carPlateText').innerText = car.plate;
@@ -732,7 +438,6 @@
                 plateDisplay.classList.add('hidden');
             }
 
-            // Handle VIN Display
             const vinDisplay = document.getElementById('carVinDisplay');
             if (car.vin && car.vin.trim() !== '') {
                 document.getElementById('carVinText').innerText = car.vin;
@@ -764,14 +469,11 @@
                 
                 const brandData = carDatabase[brand] || { models: ['Стандартен модел'], engines: universalEngines };
                 
-                const modelsList = brandData.models || ['Стандартен модел'];
-                modelSelect.innerHTML = modelsList.map(m => `<option value="${m}">${m}</option>`).join('');
-
-                const enginesList = brandData.engines || universalEngines;
-                engineSelect.innerHTML = enginesList.map(e => `<option value="${e.name}" data-fuel="${e.fuel}">${e.name} (${e.fuel})</option>`).join('') + '<option value="Друг двигател (Ръчно)">Друг двигател (Ръчно)</option>';
+                modelSelect.innerHTML = (brandData.models || ['Стандартен модел']).map(m => `<option value="${m}">${m}</option>`).join('');
+                engineSelect.innerHTML = (brandData.engines || universalEngines).map(e => `<option value="${e.name}" data-fuel="${e.fuel}">${e.name} (${e.fuel})</option>`).join('') + '<option value="Друг двигател (Ръчно)">Друг двигател (Ръчно)</option>';
                 
-                if (enginesList.length > 0) {
-                    fuelInput.value = enginesList[0].fuel;
+                if (brandData.engines && brandData.engines.length > 0) {
+                    fuelInput.value = brandData.engines[0].fuel;
                 }
             }
         }
@@ -794,12 +496,27 @@
 
         function toggleFilterOptions() {
             const cat = document.getElementById('recCategory').value;
-            const box = document.getElementById('filterCheckboxes');
-            if (cat === 'Масло & Филтри') {
-                box.classList.remove('hidden');
-            } else {
-                box.classList.add('hidden');
+            const container = document.getElementById('dynamicCheckboxesContainer');
+            const items = categoryCheckboxes[cat] || [];
+
+            if (items.length === 0) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
             }
+
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <label class="text-xs font-semibold text-orange-400 block mb-1">Детайли за ${cat}:</label>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    ${items.map((item, idx) => `
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                            <input type="checkbox" id="chk_item_${idx}" value="${item}" class="accent-orange-500 rounded">
+                            <span>${item}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
         }
 
         function renderRecords() {
@@ -820,7 +537,7 @@
                 return;
             }
 
-            // SORTED: Newest records at the top (by timestamp first, then date)
+            // SORTED: Newest records at the top
             const sortedRecords = [...filtered].sort((a, b) => {
                 if (b.date === a.date) {
                     return (b.timestamp || 0) - (a.timestamp || 0);
@@ -895,16 +612,13 @@
             if (brand === 'Друга') {
                 carName = document.getElementById('carCustomName').value || 'Друг автомобил';
             } else {
-                const modelText = document.getElementById('carModelSelect').value;
-                carName = `${brand} ${modelText}`;
+                carName = `${brand} ${document.getElementById('carModelSelect').value}`;
             }
 
             let engineText = document.getElementById('carEngineSelect').value;
             if (engineText === 'Друг двигател (Ръчно)') {
                 engineText = document.getElementById('carCustomEngine').value || 'Собствен двигател';
             }
-
-            const fuelType = document.getElementById('carFuelInput').value;
 
             const newCar = {
                 id: id || `car_${Date.now()}`,
@@ -913,7 +627,7 @@
                 year: document.getElementById('carYearInput').value,
                 vin: document.getElementById('carVinInput').value.trim().toUpperCase(),
                 engine: engineText,
-                fuel: fuelType,
+                fuel: document.getElementById('carFuelInput').value,
                 km: Number(document.getElementById('carKmInput').value || 0)
             };
 
@@ -948,6 +662,7 @@
         function openRecordModal() {
             document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('recKm').value = getCurrentCar().km || '';
+            document.getElementById('recCategory').value = 'Масло & Филтри';
             toggleFilterOptions();
             document.getElementById('recordModal').classList.remove('hidden');
         }
@@ -963,12 +678,13 @@
 
             const category = document.getElementById('recCategory').value;
             const selectedFilters = [];
-            if (category === 'Масло & Филтри') {
-                if (document.getElementById('chkOilFilter').checked) selectedFilters.push('Маслен филтър');
-                if (document.getElementById('chkAirFilter').checked) selectedFilters.push('Въздушен филтър');
-                if (document.getElementById('chkCabinFilter').checked) selectedFilters.push('Филтър купе');
-                if (document.getElementById('chkFuelFilter').checked) selectedFilters.push('Горивен филтър');
-            }
+            
+            // Gather checked items dynamically
+            const container = document.getElementById('dynamicCheckboxesContainer');
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(chk => {
+                if (chk.checked) selectedFilters.push(chk.value);
+            });
 
             const km = Number(document.getElementById('recKm').value);
             const record = {
