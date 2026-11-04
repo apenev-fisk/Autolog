@@ -67,9 +67,14 @@
                 </div>
             </div>
 
-            <!-- VIN / Frame Display -->
-            <div id="carVinDisplay" class="text-[11px] text-slate-400 font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-800/60 hidden">
-                <i class="fa-solid fa-fingerprint me-1 text-orange-400"></i> VIN: <span id="carVinText" class="text-slate-300">--</span>
+            <!-- Plate & VIN Display -->
+            <div class="flex flex-wrap gap-2 pt-1">
+                <div id="carPlateDisplay" class="text-[11px] text-slate-300 font-mono bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-700 hidden">
+                    <i class="fa-solid fa-car-side me-1 text-orange-400"></i> Рег. №: <span id="carPlateText" class="font-bold text-white">--</span>
+                </div>
+                <div id="carVinDisplay" class="text-[11px] text-slate-400 font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-800/60 hidden">
+                    <i class="fa-solid fa-fingerprint me-1 text-orange-400"></i> VIN: <span id="carVinText" class="text-slate-300">--</span>
+                </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
@@ -173,27 +178,31 @@
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-xs text-slate-400 block mb-1">Гориво (Автоматично/Ръчно)</label>
-                        <select id="carFuelInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900/80 text-orange-400 font-bold">
-                            <option value="Бензин">Бензин (A95)</option>
-                            <option value="Дизел">Дизел</option>
-                            <option value="Газ">Газ (LPG)</option>
-                        </select>
+                        <label class="text-xs text-slate-400 block mb-1">Рег. номер (Табела)</label>
+                        <input type="text" id="carPlateInput" placeholder="A 3574 HX" class="w-full glass-input rounded-xl px-3 py-2 text-sm uppercase">
                     </div>
-                    <div>
-                        <label class="text-xs text-slate-400 block mb-1">Година на производство</label>
-                        <input type="number" id="carYearInput" placeholder="2011" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-400 block mb-1">VIN номер (Рама)</label>
                         <input type="text" id="carVinInput" placeholder="VF7... / WBA..." class="w-full glass-input rounded-xl px-3 py-2 text-sm uppercase">
                     </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
                     <div>
-                        <label class="text-xs text-slate-400 block mb-1">Текущ пробег (км)</label>
-                        <input type="number" id="carKmInput" placeholder="185000" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                        <label class="text-xs text-slate-400 block mb-1">Гориво</label>
+                        <select id="carFuelInput" class="w-full glass-input rounded-xl px-2 py-2 text-xs bg-slate-900/80 text-orange-400 font-bold">
+                            <option value="Бензин">Бензин</option>
+                            <option value="Дизел">Дизел</option>
+                            <option value="Газ">Газ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Година</label>
+                        <input type="number" id="carYearInput" placeholder="2011" class="w-full glass-input rounded-xl px-2 py-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Пробег (км)</label>
+                        <input type="number" id="carKmInput" placeholder="185000" class="w-full glass-input rounded-xl px-2 py-2 text-xs">
                     </div>
                 </div>
 
@@ -672,7 +681,7 @@
         let appData = JSON.parse(localStorage.getItem('autolog_data')) || {
             activeCarId: 'car_1',
             cars: [
-                { id: 'car_1', name: 'Citroen C4 (I / II / Cactus...)', year: '2011', vin: '', engine: '1.4 HDi / 1.6 HDi', fuel: 'Дизел', km: 185000 }
+                { id: 'car_1', name: 'Citroen C4', year: '2011', vin: '', plate: 'A 3574 HX', engine: '1.6 HDi', fuel: 'Дизел', km: 185000 }
             ],
             records: {}
         };
@@ -695,7 +704,7 @@
         function renderCarSelect() {
             const select = document.getElementById('carSelect');
             select.innerHTML = appData.cars.map(c => 
-                `<option value="${c.id}" ${c.id === appData.activeCarId ? 'selected' : ''}>🚗 ${c.name} (${c.engine || c.fuel})</option>`
+                `<option value="${c.id}" ${c.id === appData.activeCarId ? 'selected' : ''}>🚗 ${c.name} ${c.plate ? '[' + c.plate + ']' : ''}</option>`
             ).join('');
         }
 
@@ -714,6 +723,16 @@
             document.getElementById('carTitle').innerText = car.name;
             document.getElementById('carSubTitle').innerText = `${car.year || ''} ${car.engine ? '• ' + car.engine : ''}`;
 
+            // Handle Plate Display
+            const plateDisplay = document.getElementById('carPlateDisplay');
+            if (car.plate && car.plate.trim() !== '') {
+                document.getElementById('carPlateText').innerText = car.plate;
+                plateDisplay.classList.remove('hidden');
+            } else {
+                plateDisplay.classList.add('hidden');
+            }
+
+            // Handle VIN Display
             const vinDisplay = document.getElementById('carVinDisplay');
             if (car.vin && car.vin.trim() !== '') {
                 document.getElementById('carVinText').innerText = car.vin;
@@ -801,7 +820,15 @@
                 return;
             }
 
-            container.innerHTML = filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => {
+            // SORTED: Newest records at the top (by timestamp first, then date)
+            const sortedRecords = [...filtered].sort((a, b) => {
+                if (b.date === a.date) {
+                    return (b.timestamp || 0) - (a.timestamp || 0);
+                }
+                return new Date(b.date) - new Date(a.date);
+            });
+
+            container.innerHTML = sortedRecords.map((r) => {
                 let filtersMarkup = '';
                 if (r.filters && r.filters.length > 0) {
                     filtersMarkup = `
@@ -840,11 +867,13 @@
             onBrandChange();
 
             if (isEdit) {
+                document.getElementById('carPlateInput').value = car.plate || '';
                 document.getElementById('carYearInput').value = car.year || '';
                 document.getElementById('carVinInput').value = car.vin || '';
                 document.getElementById('carKmInput').value = car.km || '';
                 document.getElementById('carFuelInput').value = car.fuel || 'Бензин';
             } else {
+                document.getElementById('carPlateInput').value = '';
                 document.getElementById('carYearInput').value = '';
                 document.getElementById('carVinInput').value = '';
                 document.getElementById('carKmInput').value = '';
@@ -880,8 +909,9 @@
             const newCar = {
                 id: id || `car_${Date.now()}`,
                 name: carName,
+                plate: document.getElementById('carPlateInput').value.trim().toUpperCase(),
                 year: document.getElementById('carYearInput').value,
-                vin: document.getElementById('carVinInput').value,
+                vin: document.getElementById('carVinInput').value.trim().toUpperCase(),
                 engine: engineText,
                 fuel: fuelType,
                 km: Number(document.getElementById('carKmInput').value || 0)
@@ -942,6 +972,8 @@
 
             const km = Number(document.getElementById('recKm').value);
             const record = {
+                id: `rec_${Date.now()}`,
+                timestamp: Date.now(),
                 title: document.getElementById('recTitle').value,
                 category: category,
                 filters: selectedFilters,
