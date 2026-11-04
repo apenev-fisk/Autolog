@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoLog - Сервизна книга</title>
+    <!-- Favicon & PWA App Icon -->
+    <link rel="icon" type="image/jpeg" href="watermarked_img_16635183195398438804.jpg">
+    <link rel="apple-touch-icon" href="watermarked_img_16635183195398438804.jpg">
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkF1dG9Mb2cgLSBTZXJ2aWNlIFRyYWNrZXIiLAogICJzaG9ydF9uYW1lIjogIkF1dG9Mb2ciLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBmMTcyYSIsCiAgInRoZW1lX2NvbG9yIjogIiMwZjE3MmEiLAogICJpY29ucyI6IFt7CiAgICAic3JjIjogIndhdGVybWFya2VkX2ltZ18xNjYzNTE4MzE5NTM5ODQzODgwNC5qcGciLAogICAgInNpemVzIjogIjUxMng1MTIiLAogICAgInR5cGUiOiAiaW1hZ2UvanBlbgogIH0V0g">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-input { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; }
+        .glass-input:focus { border-color: #ea580c; outline: none; }
+    </style>
+</head>
+<body class="pb-12">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="watermarked_img_16635183195398438804.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-cover border border-orange-500/30 shadow">
+                <span class="font-bold text-lg tracking-tight text-white">Auto<span class="text-orange-500">Log</span></span>
+            </div>
+            <div class="text-xs font-semibold text-slate-400">
+                Моите автомобили
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
+
+        <!-- Car Selection Bar -->
+        <div class="flex items-center justify-between gap-2 glass p-2 rounded-xl">
+            <div class="flex items-center gap-2 flex-1">
+                <i class="fa-solid fa-garage text-slate-400 text-xs ms-1"></i>
+                <select id="carSelect" onchange="switchCar(this.value)" class="glass-input text-xs font-semibold rounded-lg px-2 py-1.5 w-full">
+                    <!-- Dynamic Cars -->
+                </select>
+            </div>
+            <button onclick="openCarModal()" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow">
+                <i class="fa-solid fa-plus"></i> Кола
+            </button>
+        </div>
+
+        <!-- Vehicle Profile Card -->
+        <section class="glass rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span id="carFuelBadge" class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-slate-800 text-orange-400 rounded-md mb-1 border border-slate-700">
+                        --
+                    </span>
+                    <h2 id="carTitle" class="text-xl font-bold text-white tracking-tight">Зареждане...</h2>
+                    <p id="carSubTitle" class="text-xs text-slate-400 mt-0.5">--</p>
+                </div>
+                <div class="flex gap-1">
+                    <button onclick="openCarModal(true)" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-pen-to-square text-sm"></i>
+                    </button>
+                    <button onclick="deleteCurrentCar()" class="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-trash text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIN / Frame Display -->
+            <div id="carVinDisplay" class="text-[11px] text-slate-400 font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-800/60 hidden">
+                <i class="fa-solid fa-fingerprint me-1 text-orange-400"></i> VIN: <span id="carVinText" class="text-slate-300">--</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+                <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
+                    <span id="fuelLabel" class="text-[11px] text-slate-400 block font-medium">Цена гориво (днес)</span>
+                    <span id="carFuelPrice" class="text-base font-bold text-orange-400">€ 0.00 / л</span>
+                </div>
+                <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
+                    <span class="text-[11px] text-slate-400 block font-medium">Общо разходи</span>
+                    <span id="totalSpent" class="text-base font-bold text-emerald-400">€ 0.00</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Add Record Action -->
+        <button onclick="openRecordModal()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
+            <i class="fa-solid fa-plus-circle"></i> Добави обслужване / ремонт
+        </button>
+
+        <!-- Filter & Service History -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">История</h3>
+                <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1">
+                    <option value="all">Всички категории</option>
+                    <option value="Масло & Филтри">Масло & Филтри</option>
+                    <option value="Спирачна система">Спирачна система</option>
+                    <option value="Ходова част & Окачване">Ходова част & Окачване</option>
+                    <option value="Двигател & Трансмисия">Двигател & Трансмисия</option>
+                    <option value="Запалителна / Горивна система">Запалителна / Горивна система</option>
+                    <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
+                    <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
+                    <option value="Гуми & Джанти">Гуми & Джанти</option>
+                    <option value="Документи & Винетки">Документи & Винетки</option>
+                    <option value="Други">Други</option>
+                </select>
+            </div>
+
+            <div id="recordsList" class="space-y-2.5">
+                <!-- Records injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal: Add/Edit Car -->
+    <div id="carModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <h3 id="carModalTitle" class="text-lg font-bold text-white">Добавяне на автомобил</h3>
+            <form id="carForm" onsubmit="saveCar(event)" class="space-y-3">
+                <input type="hidden" id="carId">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Марка автомобил</label>
+                    <select id="carBrandSelect" onchange="onBrandChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                        <option value="BMW">BMW</option>
+                        <option value="Volkswagen">Volkswagen (VW)</option>
+                        <option value="Audi">Audi</option>
+                        <option value="Mercedes-Benz">Mercedes-Benz</option>
+                        <option value="Citroen">Citroen</option>
+                        <option value="Peugeot">Peugeot</option>
+                        <option value="Toyota">Toyota</option>
+                        <option value="Lexus">Lexus</option>
+                        <option value="Hyundai">Hyundai</option>
+                        <option value="Kia">Kia</option>
+                        <option value="Mazda">Mazda</option>
+                        <option value="Honda">Honda</option>
+                        <option value="Renault">Renault</option>
+                        <option value="Dacia">Dacia</option>
+                        <option value="Skoda">Skoda</option>
+                        <option value="Ford">Ford</option>
+                        <option value="Opel">Opel</option>
+                        <option value="Fiat">Fiat</option>
+                        <option value="Alfa Romeo">Alfa Romeo</option>
+                        <option value="Seat">Seat</option>
+                        <option value="Друга">Друга марка (Ръчно)</option>
+                    </select>
+                </div>
+                
+                <div id="customBrandContainer" class="hidden">
+                    <label class="text-xs text-slate-400 block mb-1">Въведете марка и модел</label>
+                    <input type="text" id="carCustomName" placeholder="напр. Subaru Outback" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                </div>
+
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Модел (1995 - 2020)</label>
+                    <select id="carModelSelect" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Двигател / Модификация</label>
+                    <select id="carEngineSelect" onchange="onEngineChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+
+                <div id="customEngineContainer" class="hidden">
+                    <label class="text-xs text-slate-400 block mb-1">Въведете двигател (Ръчно)</label>
+                    <input type="text" id="carCustomEngine" placeholder="напр. 2.5 V6 (170 hp)" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Гориво (Автоматично/Ръчно)</label>
+                        <select id="carFuelInput" class="w-full glass-input rounded-xl px-3 py-2 text-sm bg-slate-900/80 text-orange-400 font-bold">
+                            <option value="Бензин">Бензин (A95)</option>
+                            <option value="Дизел">Дизел</option>
+                            <option value="Газ">Газ (LPG)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Година на производство</label>
+                        <input type="number" id="carYearInput" placeholder="2011" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">VIN номер (Рама)</label>
+                        <input type="text" id="carVinInput" placeholder="VF7... / WBA..." class="w-full glass-input rounded-xl px-3 py-2 text-sm uppercase">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Текущ пробег (км)</label>
+                        <input type="number" id="carKmInput" placeholder="185000" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeCarModal()" class="flex-1 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-700">Отказ</button>
+                    <button type="submit" class="flex-1 py-2 bg-orange-600 text-white rounded-xl text-sm font-semibold hover:bg-orange-500">Запази</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Record -->
+    <div id="recordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white">Нов запис за обслужване</h3>
+            <form id="recordForm" onsubmit="saveRecord(event)" class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Заглавие / Описание</label>
+                    <input type="text" id="recTitle" required placeholder="Смяна на масло и филтри" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Категория</label>
+                        <select id="recCategory" onchange="toggleFilterOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                            <option value="Масло & Филтри">Масло & Филтри</option>
+                            <option value="Спирачна система">Спирачна система</option>
+                            <option value="Ходова част & Окачване">Ходова част & Окачване</option>
+                            <option value="Двигател & Трансмисия">Двигател & Трансмисия</option>
+                            <option value="Запалителна / Горивна система">Запалителна / Горивна система</option>
+                            <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
+                            <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
+                            <option value="Гуми & Джанти">Гуми & Джанти</option>
+                            <option value="Документи & Винетки">Документи & Винетки</option>
+                            <option value="Други">Други</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Дата</label>
+                        <input type="date" id="recDate" required class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    </div>
+                </div>
+
+                <!-- Oil Filter Checkboxes -->
+                <div id="filterCheckboxes" class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <label class="text-xs font-semibold text-orange-400 block">Сменени филтри:</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                            <input type="checkbox" id="chkOilFilter" checked class="accent-orange-500 rounded">
+                            <span>Маслен филтър</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                            <input type="checkbox" id="chkAirFilter" checked class="accent-orange-500 rounded">
+                            <span>Въздушен филтър</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                            <input type="checkbox" id="chkCabinFilter" checked class="accent-orange-500 rounded">
+                            <span>Филтър купе</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                            <input type="checkbox" id="chkFuelFilter" class="accent-orange-500 rounded">
+                            <span>Горивен филтър</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Километраж (км)</label>
+                        <input type="number" id="recKm" required placeholder="185000" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Цена (€)</label>
+                        <input type="number" step="0.01" id="recCost" required placeholder="120.00" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Бележки / Марка части</label>
+                    <textarea id="recNotes" rows="2" placeholder="Total 5W30, филтър Mann..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeRecordModal()" class="flex-1 py-2 bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold hover:bg-slate-700">Отказ</button>
+                    <button type="submit" class="flex-1 py-2 bg-orange-600 text-white rounded-xl text-sm font-semibold hover:bg-orange-500">Запази запис</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const carDatabase = {
+            'BMW': {
+                models: [
+                    'Серия 1 (E81 / E82 / E87 / E88 / F20 / F21)',
+                    'Серия 3 (E36 / E46 / E90 / E91 / E92 / E93 / F30 / F31 / F34)',
+                    'Серия 5 (E39 / E60 / E61 / F10 / F11 / G30 / G31)',
+                    'Серия 7 (E38 / E65 / F01 / G11)',
+                    'X1 (E84 / F48)',
+                    'X3 (E83 / F25 / G01)',
+                    'X5 (E53 / E70 / F15 / G05)',
+                    'X6 (E71 / F16)',
+                    'Z3 / Z4'
+                ],
+                engines: [
+                    { name: '318d / 320d / 520d (2.0d Diesel)', fuel: 'Дизел' },
+                    { name: '330d / 530d / X5 3.0d (3.0d Diesel)', fuel: 'Дизел' },
+                    { name: '318i / 320i / 520i (2.0i Petrol)', fuel: 'Бензин' },
+                    { name: '325i / 330i / 530i / 535i (Petrol)', fuel: 'Бензин' }
+                ]
+            },
+            'Volkswagen': {
+                models: [
+                    'Golf (Mk3 / Mk4 / Mk5 / Mk6 / Mk7)',
+                    'Passat (B3 / B4 / B5 / B5.5 / B6 / B7 / B8 / CC)',
+                    'Polo (Mk3 / Mk4 / Mk5 / Mk6)',
+                    'Bora / Jetta / Vento',
+                    'Touran (1 / 2)',
+                    'Tiguan (1 / 2)',
+                    'Touareg (7L / 7P / CR)',
+                    'Sharan (1 / 2)',
+                    'Transporter / Multivan / Caravelle (T4 / T5 / T6)',
+                    'Caddy (2 / 3 / 4)',
+                    'Beetle / Scirocco'
+                ],
+                engines: [
+                    { name: '1.9 TDI (90 / 105 / 110 / 131 к.с.)', fuel: 'Дизел' },
+                    { name: '2.0 TDI (140 / 170 / 190 к.с.)', fuel: 'Дизел' },
+                    { name: '1.4 16V / 1.6 MPI / 2.0 8V', fuel: 'Бензин' },
+                    { name: '1.4 TSI / 1.8T / 2.0 TFSI', fuel: 'Бензин' }
+                ]
+            },
+            'Audi': {
+                models: [
+                    'A2',
+                    'A3 (8L / 8P / 8V)',
+                    'A4 (B5 / B6 / B7 / B8 / B9)',
+                    'A5 (8T / F5)',
+                    'A6 (C4 / C5 / C6 / C7 / C8)',
+                    'A8 (D2 / D3 / D4 / D5)',
+                    'Q3 (8U / F3)',
+                    'Q5 (8R / FY)',
+                    'Q7 (4L / 4M)',
+                    'TT (8N / 8J / 8S)'
+                ],
+                engines: [
+                    { name: '1.9 TDI (110 / 131 к.с.)', fuel: 'Дизел' },
+                    { name: '2.0 TDI (140 / 170 / 190 к.с.)', fuel: 'Дизел' },
+                    { name: '3.0 TDI V6 Quattro', fuel: 'Дизел' },
+                    { name: '1.6 MPI / 1.8 20V', fuel: 'Бензин' },
+                    { name: '1.8T / 2.0 TFSI / 3.0 TFSI', fuel: 'Бензин' }
+                ]
+            },
+            'Mercedes-Benz': {
+                models: [
+                    'A-Class (W168 / W169 / W176 / W177)',
+                    'B-Class (W245 / W246 / W247)',
+                    'C-Class (W202 / W203 / W204 / W205)',
+                    'E-Class (W210 / W211 / W212 / W213)',
+                    'S-Class (W140 / W220 / W221 / W222)',
+                    'CLK (C208 / C209) / E-Coupe',
+                    'CLS (C219 / C218 / C257)',
+                    'ML / GLE (W163 / W164 / W166 / W167)',
+                    'GLK / GLC (X204 / X253)',
+                    'Vito / Viano / Sprinter'
+                ],
+                engines: [
+                    { name: '200 CDI / 220 CDI (4-цилиндров)', fuel: 'Дизел' },
+                    { name: '270 CDI / 320 CDI / 350 CDI (V6)', fuel: 'Дизел' },
+                    { name: 'C180 / E200 Kompressor', fuel: 'Бензин' },
+                    { name: 'C200 / E250 / E350 CGI (V6 Petrol)', fuel: 'Бензин' }
+                ]
+            },
+            'Citroen': {
+                models: [
+                    'Saxo / C1',
+                    'C2 / C3 (I / II / III / Aircross)',
+                    'C4 (I / II / Cactus / Picasso / Grand Picasso / Spacetourer)',
+                    'C5 (I / II / III X7)',
+                    'C6 / C8',
+                    'Xsara / Xsara Picasso',
+                    'Berlingo (I / II / III)',
+                    'C-Crosser / C4 Aircross',
+                    'Jumpy / Evasion / Nemo'
+                ],
+                engines: [
+                    { name: '1.4 HDi / 1.6 HDi (90 / 110 / 112 к.с.)', fuel: 'Дизел' },
+                    { name: '2.0 HDi (90 / 110 / 136 / 163 к.с.)', fuel: 'Дизел' },
+                    { name: '2.2 HDi / 3.0 HDi V6', fuel: 'Дизел' },
+                    { name: '1.4i / 1.6i 16V / 1.8i 16V', fuel: 'Бензин' },
+                    { name: '1.6 VTi / 1.6 THP / 2.0i 16V', fuel: 'Бензин' }
+                ]
+            },
+            'Peugeot': {
+                models: [
+                    '106 / 107 / 108',
+                    '206 / 206+ / 207 / 208',
+                    '306 / 307 / 308 (I / II)',
+                    '406 / 407',
+                    '508 (I / II)',
+                    '607',
+                    '806 / 807',
+                    '2008 / 3008 (I / II) / 4007 / 4008',
+                    '5008 (I / II)',
+                    'Partner (I / II / Tepee)',
+                    'Bipper / Expert'
+                ],
+                engines: [
+                    { name: '1.4 HDi / 1.6 HDi', fuel: 'Дизел' },
+                    { name: '2.0 HDi (90 / 110 / 136 / 150 / 180 к.с.)', fuel: 'Дизел' },
+                    { name: '1.1i / 1.4i / 1.6i 16V', fuel: 'Бензин' },
+                    { name: '1.2 PureTech / 1.6 VTi / 1.6 THP', fuel: 'Бензин' }
+                ]
+            },
+            'Toyota': {
+                models: [
+                    'Yaris (Mk1 / Mk2 / Mk3)',
+                    'Corolla (E11 / E12 / E15 / E170 / E210)',
+                    'Auris (Mk1 / Mk2)',
+                    'Avensis (T22 / T25 / T27)',
+                    'Camry (V30 / V40 / V50 / V70)',
+                    'RAV4 (XA10 / XA20 / XA30 / XA40 / XA50)',
+                    'Land Cruiser (J90 / J120 / J150)',
+                    'Aygo / IQ / Prius (2 / 3 / 4)',
+                    'Celica / MR2 / Supra'
+                ],
+                engines: [
+                    { name: '1.4 D-4D / 2.0 D-4D / 2.2 D-CAT', fuel: 'Дизел' },
+                    { name: '1.0 VVT-i / 1.33 VVT-i / 1.6 Dual VVT-i', fuel: 'Бензин' },
+                    { name: '1.8 VVT-i / 2.0 VVT-i', fuel: 'Бензин' },
+                    { name: '1.8 Hybrid / 2.5 Hybrid', fuel: 'Бензин' }
+                ]
+            },
+            'Lexus': {
+                models: [
+                    'IS (200 / 300 / 220d / 250 / 300h)',
+                    'GS (300 / 430 / 450h / 350 / 250)',
+                    'LS (400 / 430 / 460 / 600h)',
+                    'RX (300 / 330 / 350 / 400h / 450h)',
+                    'NX (200t / 300h)',
+                    'UX (250h)',
+                    'CT200h'
+                ],
+                engines: [
+                    { name: '2.2 D-4D (IS220d)', fuel: 'Дизел' },
+                    { name: '2.0 6-цил / 2.5 V6 / 3.0 V6 Petrol', fuel: 'Бензин' },
+                    { name: '1.8 Hybrid (CT200h) / 3.5 V6 Hybrid', fuel: 'Бензин' }
+                ]
+            },
+            'Hyundai': {
+                models: [
+                    'Atos / Getz / Accent (X3 / LC / MC / RB)',
+                    'i10 / i20 / i30 (FD / GD / PD)',
+                    'Elantra / Lantra / Sonata',
+                    'Tucson (JM / TL)',
+                    'Santa Fe (SM / CM / DM)',
+                    'Matrix / Trajet / IX35',
+                    'Coupe / Tiburon / Genesis'
+                ],
+                engines: [
+                    { name: '1.4 CRDi / 1.5 CRDi / 1.6 CRDi', fuel: 'Дизел' },
+                    { name: '2.0 CRDi / 2.2 CRDi', fuel: 'Дизел' },
+                    { name: '1.2 MPi / 1.4 MPi / 1.6 CVVT', fuel: 'Бензин' },
+                    { name: '2.0 CVVT / 1.6 T-GDI', fuel: 'Бензин' }
+                ]
+            },
+            'Kia': {
+                models: [
+                    'Pride / Rio (DC / JB / UB / YB)',
+                    'Ceed / Pro_Ceed / XCeed (ED / JD / CD)',
+                    'Cerato / Forte / Magentis / Optima',
+                    'Sportage (JA / JE / SL / QL)',
+                    'Sorento (BL / XM / UM)',
+                    'Picanto (SA / TA / JA)',
+                    'Carens / Carnival / Soul'
+                ],
+                engines: [
+                    { name: '1.4 CRDi / 1.6 CRDi', fuel: 'Дизел' },
+                    { name: '2.0 CRDi / 2.2 CRDi', fuel: 'Дизел' },
+                    { name: '1.4 CVVT / 1.6 GDI', fuel: 'Бензин' },
+                    { name: '2.0 DOHC / 1.6 T-GDI', fuel: 'Бензин' }
+                ]
+            },
+            'Mazda': {
+                models: [
+                    'Mazda 121 / 323 / 626 / Xedos',
+                    'Mazda 2 (DY / DE / DJ)',
+                    'Mazda 3 (BK / BL / BM / BN)',
+                    'Mazda 6 (GG / GY / GH / GJ / GL)',
+                    'CX-3 / CX-5 (KE / KF) / CX-7 / CX-9',
+                    'MX-5 (NB / NC / ND)',
+                    'Premacy / MPV / Tribute'
+                ],
+                engines: [
+                    { name: '1.6 CiTD / 2.0 MZR-CD / 2.2 SkyActiv-D', fuel: 'Дизел' },
+                    { name: '1.4i / 1.6i MZR', fuel: 'Бензин' },
+                    { name: '1.8i / 2.0i MZR / 2.0 SkyActiv-G', fuel: 'Бензин' },
+                    { name: '2.3 DISI Turbo / 2.5 SkyActiv-G', fuel: 'Бензин' }
+                ]
+            },
+            'Honda': {
+                models: [
+                    'Civic (EJ/EK / EP/EU / FN/FK / FB / FC)',
+                    'Accord (CG/CH / CL/CN / CU/CW)',
+                    'CR-V (RD / RE / RM / RW)',
+                    'HR-V (GH / RU)',
+                    'Jazz (GD / GE / GK)',
+                    'FR-V / Logo',
+                    'Prelude / S2000'
+                ],
+                engines: [
+                    { name: '1.7 CTDi / 2.2 i-CTDi / 1.6 i-DTEC / 2.2 i-DTEC', fuel: 'Дизел' },
+                    { name: '1.4 i-DSI / 1.4 i-VTEC / 1.5 i-VTEC', fuel: 'Бензин' },
+                    { name: '1.6 VTEC / 1.8 i-VTEC / 2.0 i-VTEC', fuel: 'Бензин' },
+                    { name: '2.4 i-VTEC K24', fuel: 'Бензин' }
+                ]
+            },
+            'Renault': {
+                models: [
+                    'Twingo (I / II / III)',
+                    'Clio (I / II / III / IV)',
+                    'Megane (I / II / III / IV)',
+                    'Laguna (I / II / III)',
+                    'Scenic / Grand Scenic (I / II / III / IV)',
+                    'Espace (III / IV / V)',
+                    'Captur / Kadjar / Arkana',
+                    'Koleos (I / II)',
+                    'Kangoo (I / II) / Master / Trafic'
+                ],
+                engines: [
+                    { name: '1.5 dCi (65 / 85 / 105 / 110 к.с.)', fuel: 'Дизел' },
+                    { name: '1.9 dCi / 2.0 dCi (130 / 150 / 175 к.с.)', fuel: 'Дизел' },
+                    { name: '1.2 16V / 1.4 16V / 1.6 16V', fuel: 'Бензин' },
+                    { name: '1.2 TCe / 1.4 TCe / 2.0 16V Turbo', fuel: 'Бензин' }
+                ]
+            },
+            'Dacia': {
+                models: [
+                    'Logan (I / II / MCV / Express)',
+                    'Sandero (I / II / Stepway)',
+                    'Duster (I / II)',
+                    'Lodgy',
+                    'Dokker',
+                    'Solenza / SuperNova'
+                ],
+                engines: [
+                    { name: '1.5 dCi (68 / 75 / 90 / 110 к.с.)', fuel: 'Дизел' },
+                    { name: '1.4 MPI / 1.6 MPI / 1.6 16V', fuel: 'Бензин' },
+                    { name: '0.9 TCe / 1.0 TCe / 1.2 16V', fuel: 'Бензин' },
+                    { name: '1.6 LPG / 0.9 TCe Eco-G (Фабрична газ)', fuel: 'Газ' }
+                ]
+            },
+            'Skoda': {
+                models: [
+                    'Felicia',
+                    'Fabia (Mk1 6Y / Mk2 5J / Mk3 NJ)',
+                    'Octavia (Mk1 1U / Mk2 1Z / Mk3 5E)',
+                    'Superb (B5 3U / B6 3T / B7 3V)',
+                    'Rapid / Roomster / Citigo',
+                    'Yeti',
+                    'Kodiaq / Karoq / Kamiq'
+                ],
+                engines: [
+                    { name: '1.4 TDI / 1.9 TDI (90 / 105 / 130 к.с.)', fuel: 'Дизел' },
+                    { name: '1.6 TDI / 2.0 TDI (140 / 170 / 190 к.с.)', fuel: 'Дизел' },
+                    { name: '1.2 HTP / 1.4 16V / 1.6 MPI', fuel: 'Бензин' },
+                    { name: '1.2 TSI / 1.4 TSI / 1.8 TSI / 2.0 RS', fuel: 'Бензин' }
+                ]
+            },
+            'Ford': {
+                models: [
+                    'Ka / Fusion',
+                    'Fiesta (Mk4 / Mk5 / Mk6 / Mk7)',
+                    'Focus (Mk1 / Mk2 / Mk3 / Mk4)',
+                    'Mondeo (Mk2 / Mk3 / Mk4 / Mk5)',
+                    'C-Max (I / II) / S-Max / Galaxy',
+                    'Kuga (I / II) / Maverick / Edge',
+                    'Puma (Original / Crossover) / Cougar / Explorer',
+                    'Transit / Transit Connect / Tourneo'
+                ],
+                engines: [
+                    { name: '1.4 TDCi / 1.6 TDCi / 1.8 TDDi / TDCi', fuel: 'Дизел' },
+                    { name: '2.0 TDCi / 2.2 TDCi', fuel: 'Дизел' },
+                    { name: '1.25 / 1.4 / 1.6 Zetec / Duratec', fuel: 'Бензин' },
+                    { name: '1.0 EcoBoost / 1.6 EcoBoost / 2.0 Duratec', fuel: 'Бензин' }
+                ]
+            },
+            'Opel': {
+                models: [
+                    'Corsa (B / C / D / E)',
+                    'Astra (F / G / H / J / K)',
+                    'Vectra (B / C) / Signum',
+                    'Insignia (A / B)',
+                    'Zafira (A / B / Tourer C)',
+                    'Meriva (A / B) / Agila',
+                    'Mokka / Antara / Frontera / Grandland X',
+                    'Tigra / Calibra / Omega B'
+                ],
+                engines: [
+                    { name: '1.3 CDTI / 1.7 DTI/CDTI / 1.9 CDTI', fuel: 'Дизел' },
+                    { name: '2.0 DTI / 2.0 CDTI (130 / 160 / 170 к.с.)', fuel: 'Дизел' },
+                    { name: '1.2 16V / 1.4 16V / 1.6 16V / 1.8 16V Ecotec', fuel: 'Бензин' },
+                    { name: '1.4 Turbo / 1.6 Turbo / 2.0 Turbo', fuel: 'Бензин' }
+                ]
+            },
+            'Fiat': {
+                models: [
+                    'Seicento / Cinquecento',
+                    'Punto (176 / 188 / Grande Punto / Punto Evo)',
+                    'Bravo / Brava / Stilo / Bravo II (198)',
+                    'Panda (169 / 319)',
+                    '500 / 500L / 500X',
+                    'Tipo (356) / Marea / Linea',
+                    'Doblo (223 / 263) / Qubo / Fiorino',
+                    'Croma (194) / Ulysse',
+                    'Ducato / Scudo'
+                ],
+                engines: [
+                    { name: '1.3 MultiJet (75 / 90 к.с.)', fuel: 'Дизел' },
+                    { name: '1.9 JTD / MultiJet (105 / 120 / 150 к.с.)', fuel: 'Дизел' },
+                    { name: '2.0 MultiJet / 1.6 MultiJet', fuel: 'Дизел' },
+                    { name: '1.1 / 1.2 8V FIRE / 1.4 16V', fuel: 'Бензин' },
+                    { name: '1.4 T-Jet / MultiAir', fuel: 'Бензин' }
+                ]
+            },
+            'Alfa Romeo': {
+                models: [
+                    '145 / 146 / 147',
+                    '156 / 159',
+                    '164 / 166',
+                    'GT / GTV / Spider',
+                    'MiTo',
+                    'Giulietta (940)',
+                    'Stelvio / Giulia',
+                    'Brera'
+                ],
+                engines: [
+                    { name: '1.9 JTD / JTDm (105 / 115 / 140 / 150 к.с.)', fuel: 'Дизел' },
+                    { name: '2.4 JTD / JTDm 5-цил (136 / 175 / 200 / 210 к.с.)', fuel: 'Дизел' },
+                    { name: '1.6 TS / 1.8 TS / 2.0 Twin Spark', fuel: 'Бензин' },
+                    { name: '1.4 MultiAir / 1.75 TBi / 2.2 JTS / 3.2 Busso V6', fuel: 'Бензин' }
+                ]
+            },
+            'Seat': {
+                models: [
+                    'Arosa / Mii',
+                    'Ibiza (2 / 3 / 4 / 5 - 6K / 6L / 6J / KJ)',
+                    'Cordoba',
+                    'Leon (1M / 1P / 5F)',
+                    'Toledo (1L / 1M / 5P / KG)',
+                    'Altea / Altea XL',
+                    'Alhambra (7M / 7N)',
+                    'Ateca / Arona / Tarraco'
+                ],
+                engines: [
+                    { name: '1.4 TDI / 1.9 TDI (90 / 105 / 130 / 150 к.с.)', fuel: 'Дизел' },
+                    { name: '1.6 TDI / 2.0 TDI (140 / 170 / 184 к.с.)', fuel: 'Дизел' },
+                    { name: '1.2 12V / 1.4 16V / 1.6 MPI', fuel: 'Бензин' },
+                    { name: '1.2 TSI / 1.4 TSI / 1.8T / 2.0 TFSI Cupra', fuel: 'Бензин' }
+                ]
+            }
+        };
+
+        const universalEngines = [
+            { name: '1.4 / 1.6 Бензин (Petrol)', fuel: 'Бензин' },
+            { name: '1.8 / 2.0 Бензин (Petrol)', fuel: 'Бензин' },
+            { name: '1.9 TDI / 2.0 TDI (Diesel)', fuel: 'Дизел' },
+            { name: '1.5 / 1.6 dCi / HDi / CDTI (Diesel)', fuel: 'Дизел' },
+            { name: '2.0 / 2.2 CDTI / D-4D / CRDi (Diesel)', fuel: 'Дизел' },
+            { name: 'Бензин + Газ (LPG)', fuel: 'Газ' }
+        ];
+
+        const fuelPrices = {
+            'Бензин': { label: 'Цена A95', price: 1.61 },
+            'Дизел': { label: 'Цена Дизел', price: 1.92 },
+            'Газ': { label: 'Цена Газ (LPG)', price: 0.68 }
+        };
+
+        let appData = JSON.parse(localStorage.getItem('autolog_data')) || {
+            activeCarId: 'car_1',
+            cars: [
+                { id: 'car_1', name: 'Citroen C4 (I / II / Cactus...)', year: '2011', vin: '', engine: '1.4 HDi / 1.6 HDi', fuel: 'Дизел', km: 185000 }
+            ],
+            records: {}
+        };
+
+        function saveData() {
+            localStorage.setItem('autolog_data', JSON.stringify(appData));
+        }
+
+        function getCurrentCar() {
+            return appData.cars.find(c => c.id === appData.activeCarId) || appData.cars[0];
+        }
+
+        function updateFuelPriceDisplay() {
+            const car = getCurrentCar();
+            const fuelInfo = fuelPrices[car.fuel] || fuelPrices['Бензин'];
+            document.getElementById('fuelLabel').innerText = `${fuelInfo.label}`;
+            document.getElementById('carFuelPrice').innerText = `€ ${fuelInfo.price.toFixed(2)} / л`;
+        }
+
+        function renderCarSelect() {
+            const select = document.getElementById('carSelect');
+            select.innerHTML = appData.cars.map(c => 
+                `<option value="${c.id}" ${c.id === appData.activeCarId ? 'selected' : ''}>🚗 ${c.name} (${c.engine || c.fuel})</option>`
+            ).join('');
+        }
+
+        function switchCar(carId) {
+            appData.activeCarId = carId;
+            saveData();
+            updateUI();
+        }
+
+        function updateUI() {
+            renderCarSelect();
+            const car = getCurrentCar();
+            if (!car) return;
+
+            document.getElementById('carFuelBadge').innerText = car.fuel;
+            document.getElementById('carTitle').innerText = car.name;
+            document.getElementById('carSubTitle').innerText = `${car.year || ''} ${car.engine ? '• ' + car.engine : ''}`;
+
+            const vinDisplay = document.getElementById('carVinDisplay');
+            if (car.vin && car.vin.trim() !== '') {
+                document.getElementById('carVinText').innerText = car.vin;
+                vinDisplay.classList.remove('hidden');
+            } else {
+                vinDisplay.classList.add('hidden');
+            }
+
+            updateFuelPriceDisplay();
+            renderRecords();
+        }
+
+        function onBrandChange() {
+            const brand = document.getElementById('carBrandSelect').value;
+            const customContainer = document.getElementById('customBrandContainer');
+            const modelSelect = document.getElementById('carModelSelect');
+            const engineSelect = document.getElementById('carEngineSelect');
+            const customEngineContainer = document.getElementById('customEngineContainer');
+            const fuelInput = document.getElementById('carFuelInput');
+
+            if (brand === 'Друга') {
+                customContainer.classList.remove('hidden');
+                modelSelect.innerHTML = '<option value="Друг модел">Друг модел</option>';
+                engineSelect.innerHTML = '<option value="Друг двигател" data-fuel="Бензин">Друг двигател</option>';
+                customEngineContainer.classList.remove('hidden');
+            } else {
+                customContainer.classList.add('hidden');
+                customEngineContainer.classList.add('hidden');
+                
+                const brandData = carDatabase[brand] || { models: ['Стандартен модел'], engines: universalEngines };
+                
+                const modelsList = brandData.models || ['Стандартен модел'];
+                modelSelect.innerHTML = modelsList.map(m => `<option value="${m}">${m}</option>`).join('');
+
+                const enginesList = brandData.engines || universalEngines;
+                engineSelect.innerHTML = enginesList.map(e => `<option value="${e.name}" data-fuel="${e.fuel}">${e.name} (${e.fuel})</option>`).join('') + '<option value="Друг двигател (Ръчно)">Друг двигател (Ръчно)</option>';
+                
+                if (enginesList.length > 0) {
+                    fuelInput.value = enginesList[0].fuel;
+                }
+            }
+        }
+
+        function onEngineChange() {
+            const engineSelect = document.getElementById('carEngineSelect');
+            const customEngineContainer = document.getElementById('customEngineContainer');
+            const fuelInput = document.getElementById('carFuelInput');
+
+            if (engineSelect.value === 'Друг двигател (Ръчно)') {
+                customEngineContainer.classList.remove('hidden');
+            } else {
+                customEngineContainer.classList.add('hidden');
+                const selectedOption = engineSelect.options[engineSelect.selectedIndex];
+                if (selectedOption && selectedOption.dataset.fuel) {
+                    fuelInput.value = selectedOption.dataset.fuel;
+                }
+            }
+        }
+
+        function toggleFilterOptions() {
+            const cat = document.getElementById('recCategory').value;
+            const box = document.getElementById('filterCheckboxes');
+            if (cat === 'Масло & Филтри') {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        function renderRecords() {
+            const container = document.getElementById('recordsList');
+            const carRecords = appData.records[appData.activeCarId] || [];
+            const categoryFilter = document.getElementById('filterCategory').value;
+
+            const filtered = carRecords.filter(r => categoryFilter === 'all' || r.category === categoryFilter);
+            
+            const total = carRecords.reduce((sum, r) => sum + Number(r.cost || 0), 0);
+            document.getElementById('totalSpent').innerText = `€ ${total.toFixed(2)}`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 glass rounded-xl text-slate-500 text-xs">
+                        Няма намерени записи за този автомобил.
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.sort((a, b) => new Date(b.date) - new Date(a.date)).map((r) => {
+                let filtersMarkup = '';
+                if (r.filters && r.filters.length > 0) {
+                    filtersMarkup = `
+                        <div class="flex flex-wrap gap-1 mt-1.5">
+                            ${r.filters.map(f => `<span class="bg-orange-950/70 text-orange-300 border border-orange-500/30 text-[10px] px-2 py-0.5 rounded-md">✓ ${f}</span>`).join('')}
+                        </div>`;
+                }
+
+                return `
+                <div class="glass rounded-xl p-3 shadow-md space-y-1">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">${r.category}</span>
+                            <h4 class="text-sm font-bold text-slate-100">${r.title}</h4>
+                        </div>
+                        <span class="text-sm font-bold text-emerald-400">€ ${Number(r.cost).toFixed(2)}</span>
+                    </div>
+                    ${filtersMarkup}
+                    ${r.notes ? `<p class="text-xs text-slate-400 bg-slate-900/40 p-2 rounded-lg mt-1">${r.notes}</p>` : ''}
+                    <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-800/50 mt-1">
+                        <span><i class="fa-regular fa-calendar me-1"></i>${r.date}</span>
+                        <span><i class="fa-solid fa-gauge me-1"></i>${Number(r.km).toLocaleString()} км</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openCarModal(isEdit = false) {
+            const modal = document.getElementById('carModal');
+            const car = isEdit ? getCurrentCar() : null;
+
+            document.getElementById('carModalTitle').innerText = isEdit ? 'Редактирай автомобил' : 'Добави автомобил';
+            document.getElementById('carId').value = isEdit ? car.id : '';
+            
+            document.getElementById('carBrandSelect').value = 'Citroen';
+            onBrandChange();
+
+            if (isEdit) {
+                document.getElementById('carYearInput').value = car.year || '';
+                document.getElementById('carVinInput').value = car.vin || '';
+                document.getElementById('carKmInput').value = car.km || '';
+                document.getElementById('carFuelInput').value = car.fuel || 'Бензин';
+            } else {
+                document.getElementById('carYearInput').value = '';
+                document.getElementById('carVinInput').value = '';
+                document.getElementById('carKmInput').value = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeCarModal() {
+            document.getElementById('carModal').classList.add('hidden');
+        }
+
+        function saveCar(e) {
+            e.preventDefault();
+            const id = document.getElementById('carId').value;
+            const brand = document.getElementById('carBrandSelect').value;
+            
+            let carName = brand;
+            if (brand === 'Друга') {
+                carName = document.getElementById('carCustomName').value || 'Друг автомобил';
+            } else {
+                const modelText = document.getElementById('carModelSelect').value;
+                carName = `${brand} ${modelText}`;
+            }
+
+            let engineText = document.getElementById('carEngineSelect').value;
+            if (engineText === 'Друг двигател (Ръчно)') {
+                engineText = document.getElementById('carCustomEngine').value || 'Собствен двигател';
+            }
+
+            const fuelType = document.getElementById('carFuelInput').value;
+
+            const newCar = {
+                id: id || `car_${Date.now()}`,
+                name: carName,
+                year: document.getElementById('carYearInput').value,
+                vin: document.getElementById('carVinInput').value,
+                engine: engineText,
+                fuel: fuelType,
+                km: Number(document.getElementById('carKmInput').value || 0)
+            };
+
+            if (id) {
+                const idx = appData.cars.findIndex(c => c.id === id);
+                appData.cars[idx] = newCar;
+            } else {
+                appData.cars.push(newCar);
+                appData.activeCarId = newCar.id;
+            }
+
+            saveData();
+            closeCarModal();
+            updateUI();
+        }
+
+        function deleteCurrentCar() {
+            if (appData.cars.length <= 1) {
+                alert('Трябва да имате поне един автомобил!');
+                return;
+            }
+            if (confirm('Сигурни ли сте, че искате да изтриете този автомобил и цялата му история?')) {
+                const carId = appData.activeCarId;
+                appData.cars = appData.cars.filter(c => c.id !== carId);
+                delete appData.records[carId];
+                appData.activeCarId = appData.cars[0].id;
+                saveData();
+                updateUI();
+            }
+        }
+
+        function openRecordModal() {
+            document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('recKm').value = getCurrentCar().km || '';
+            toggleFilterOptions();
+            document.getElementById('recordModal').classList.remove('hidden');
+        }
+
+        function closeRecordModal() {
+            document.getElementById('recordModal').classList.add('hidden');
+        }
+
+        function saveRecord(e) {
+            e.preventDefault();
+            const carId = appData.activeCarId;
+            if (!appData.records[carId]) appData.records[carId] = [];
+
+            const category = document.getElementById('recCategory').value;
+            const selectedFilters = [];
+            if (category === 'Масло & Филтри') {
+                if (document.getElementById('chkOilFilter').checked) selectedFilters.push('Маслен филтър');
+                if (document.getElementById('chkAirFilter').checked) selectedFilters.push('Въздушен филтър');
+                if (document.getElementById('chkCabinFilter').checked) selectedFilters.push('Филтър купе');
+                if (document.getElementById('chkFuelFilter').checked) selectedFilters.push('Горивен филтър');
+            }
+
+            const km = Number(document.getElementById('recKm').value);
+            const record = {
+                title: document.getElementById('recTitle').value,
+                category: category,
+                filters: selectedFilters,
+                date: document.getElementById('recDate').value,
+                km: km,
+                cost: Number(document.getElementById('recCost').value),
+                notes: document.getElementById('recNotes').value
+            };
+
+            appData.records[carId].push(record);
+
+            const car = getCurrentCar();
+            if (km > car.km) {
+                car.km = km;
+            }
+
+            saveData();
+            closeRecordModal();
+            document.getElementById('recordForm').reset();
+            updateUI();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            onBrandChange();
+            updateUI();
+        });
+    </script>
+</body>
+</html>
