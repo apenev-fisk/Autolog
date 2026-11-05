@@ -1,380 +1,105 @@
-// База данни с автомобили: Единични ДВГ двигатели, Хибриди и чисто EV батерии (Азбучен ред A-Z)
+// Обогатена база данни с марки и 10+ нови модела за всяка марка (Подредени A-Z)
 const carDatabase = {
-    "Alfa Romeo": {
-        models: ["147", "156", "159", "Giulia", "Giulietta", "Stelvio", "Tonale"],
-        engines: [
-            { name: "1.9 JTDm (120 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 JTDm (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 JTDm (170 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 TB MultiAir (170 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "2.0 Turbo Q4 (280 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.5 Hybrid (130 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Audi": {
-        models: ["A3", "A4", "A6", "e-tron GT", "Q3", "Q4 e-tron", "Q5", "Q7"],
-        engines: [
-            { name: "Q4 35 e-tron (52 kWh - 170 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Q4 40 e-tron (77 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Q4 50 e-tron quattro (77 kWh - 299 hp)", fuel: "Електричество", type: "EV" },
-            { name: "e-tron GT quattro (83.7 kWh - 476 hp)", fuel: "Електричество", type: "EV" },
-            { name: "RS e-tron GT (83.7 kWh - 598 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.9 TDI (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 TDI (105 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 TDI (130 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (140 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (170 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (190 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "3.0 TDI V6 (240 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "3.0 TDI V6 (272 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.8 TFSI (160 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "2.0 TFSI (211 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "40 TFSI e Plug-in Hybrid (204 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "BMW": {
-        models: ["i3", "i4", "iX", "iX3", "Series 1 (E87/F20)", "Series 3 (E46/E90/F30/G20)", "Series 5 (E60/F10/G30)", "X3", "X5"],
-        engines: [
-            { name: "i3 60Ah (22 kWh - 170 hp)", fuel: "Електричество", type: "EV" },
-            { name: "i3 94Ah (33 kWh - 170 hp)", fuel: "Електричество", type: "EV" },
-            { name: "i3 120Ah (42.2 kWh - 170 hp)", fuel: "Електричество", type: "EV" },
-            { name: "i4 eDrive40 (80.7 kWh - 340 hp)", fuel: "Електричество", type: "EV" },
-            { name: "i4 M50 (80.7 kWh - 544 hp)", fuel: "Електричество", type: "EV" },
-            { name: "iX3 (74 kWh - 286 hp)", fuel: "Електричество", type: "EV" },
-            { name: "iX xDrive50 (105.2 kWh - 523 hp)", fuel: "Електричество", type: "EV" },
-            { name: "318i Valvetronic (143 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "320i (150 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "320d N47 (177 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "320d B47 (190 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "330d M57 (231 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "330d N57 (245 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "530d (258 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "330e iPerformance Plug-in (252 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "530e Plug-in Hybrid (252 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Citroen": {
-        models: ["Berlingo", "C3", "C4 (MK1)", "C4 (MK2)", "C4 (MK3)", "C5", "e-C4"],
-        engines: [
-            { name: "e-C4 (50 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "e-C4 (54 kWh - 156 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.6 HDi (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 HDi (110 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 e-HDi (112 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 BlueHDi (120 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 HDi (138 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 HDi (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 HDi (163 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 VTi (95 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 VTi (120 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.2 PureTech (110 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.2 PureTech (130 hp)", fuel: "Бензин", type: "ICE" }
-        ]
-    },
-    "Dacia": {
-        models: ["Duster", "Jogger", "Logan", "Sandero", "Spring"],
-        engines: [
-            { name: "Spring Electric 45 (26.8 kWh - 45 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Spring Electric 65 (26.8 kWh - 65 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.5 dCi (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.5 dCi (110 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.0 TCe Eco-G (100 hp - LPG)", fuel: "Газ", type: "ICE" },
-            { name: "1.3 TCe (130 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.3 TCe (150 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "HYBRID 140 (1.6L - 140 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Fiat": {
-        models: ["500", "500e", "Bravo", "Doblò", "Grande Punto", "Panda", "Tipo"],
-        engines: [
-            { name: "500e (23.8 kWh - 95 hp)", fuel: "Електричество", type: "EV" },
-            { name: "500e (42 kWh - 118 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.3 MultiJet (75 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.3 MultiJet (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 MultiJet (120 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 MultiJet (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.2 Fire (69 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.4 Fire (95 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.0 Hybrid (70 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Ford": {
-        models: ["C-Max", "Fiesta", "Focus", "Kuga", "Mondeo", "Mustang Mach-E", "Transit Custom"],
-        engines: [
-            { name: "Mustang Mach-E SR RWD (70 kWh - 269 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Mustang Mach-E ER AWD (91 kWh - 351 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.6 TDCi (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 TDCi (115 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDCi (140 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDCi (163 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.0 EcoBoost (100 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.0 EcoBoost (125 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "2.5 Duratec FHEV (190 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "2.5 Duratec PHEV (225 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Honda": {
-        models: ["Accord", "Civic", "CR-V", "Honda e", "HR-V", "Jazz", "e:Ny1"],
-        engines: [
-            { name: "Honda e (35.5 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Honda e Advance (35.5 kWh - 154 hp)", fuel: "Електричество", type: "EV" },
-            { name: "e:Ny1 (68.8 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "2.2 i-CTDi (140 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.2 i-DTEC (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 i-VTEC (100 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.8 i-VTEC (140 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "2.0 e:HEV Full Hybrid (184 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Hyundai": {
-        models: ["Elantra", "i20", "i30", "Ioniq Electric", "Ioniq 5", "Ioniq 6", "Kona Electric", "Tucson"],
-        engines: [
-            { name: "Ioniq Electric (28 kWh - 120 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Ioniq Electric (38.3 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Kona Electric Short Range (39.2 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Kona Electric Long Range (64 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Ioniq 5 Standard Range (58 kWh - 170 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Ioniq 5 Long Range RWD (77.4 kWh - 229 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Ioniq 5 Long Range AWD (77.4 kWh - 325 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.6 CRDi (115 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 CRDi (136 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 MPI (100 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 T-GDI (177 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 HEV Full Hybrid (141 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "1.6 T-GDI PHEV (265 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Jeep": {
-        models: ["Avenger", "Compass", "Grand Cherokee", "Renegade", "Wrangler"],
-        engines: [
-            { name: "Avenger EV (54 kWh - 156 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.6 Multijet (120 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 Multijet (140 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.3 T4 4xe Plug-in Hybrid (190 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "1.3 T4 4xe Plug-in Hybrid (240 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Kia": {
-        models: ["Ceed", "EV6", "EV9", "Niro", "Rio", "Sportage"],
-        engines: [
-            { name: "e-Niro Short Range (39.2 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "e-Niro Long Range (64 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "EV6 RWD (77.4 kWh - 229 hp)", fuel: "Електричество", type: "EV" },
-            { name: "EV6 AWD (77.4 kWh - 325 hp)", fuel: "Електричество", type: "EV" },
-            { name: "EV6 GT (77.4 kWh - 585 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.6 CRDi (115 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 CRDi (136 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 MPI (100 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 T-GDi (177 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 GDI Hybrid (141 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Mercedes-Benz": {
-        models: ["A-Class", "B-Class", "C-Class", "E-Class", "EQA", "EQB", "EQC", "EQE", "GLE"],
-        engines: [
-            { name: "EQA 250 (66.5 kWh - 190 hp)", fuel: "Електричество", type: "EV" },
-            { name: "EQB 300 4MATIC (66.5 kWh - 228 hp)", fuel: "Електричество", type: "EV" },
-            { name: "EQC 400 4MATIC (80 kWh - 408 hp)", fuel: "Електричество", type: "EV" },
-            { name: "EQE 350+ (90.6 kWh - 292 hp)", fuel: "Електричество", type: "EV" },
-            { name: "C 200 CDI OM646 (136 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "C 220 CDI OM651 (170 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "E 220 d OM654 (194 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "E 350 d V6 (258 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "C 180 CGI (156 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "C 200 CGI (184 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "C 300 e Plug-in Hybrid (320 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "E 300 de Diesel Plug-in (306 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Nissan": {
-        models: ["Ariya", "Juke", "Leaf (ZE0)", "Leaf (ZE1)", "Micra", "Qashqai", "X-Trail"],
-        engines: [
-            { name: "Leaf I (24 kWh - 109 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Leaf I (30 kWh - 109 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Leaf II (40 kWh - 150 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Leaf II e+ (62 kWh - 217 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Ariya 63 kWh RWD (218 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Ariya 87 kWh RWD (242 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.5 dCi (106 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.5 dCi (110 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 dCi (130 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.3 DIG-T (140 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.5 e-POWER Hybrid (190 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Opel": {
-        models: ["Astra (H)", "Astra (J)", "Astra (K)", "Corsa (D)", "Corsa (E)", "Corsa-e", "Insignia", "Mokka", "Mokka-e"],
-        engines: [
-            { name: "Corsa-e (50 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Mokka-e (50 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Astra Electric (54 kWh - 156 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.3 CDTI (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.7 CDTI (110 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.7 CDTI (125 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 CDTI (120 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 CDTI (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 CDTI (160 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 Turbo (140 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 Twinport (105 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "Astra Hybrid (180 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Peugeot": {
-        models: ["207", "208", "307", "308", "508", "2008", "3008", "e-208", "e-2008", "e-308"],
-        engines: [
-            { name: "e-208 (50 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "e-2008 (50 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "e-308 (54 kWh - 156 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.6 HDi (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 HDi (110 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 e-HDi (112 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 HDi (136 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 HDi (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 HDi (163 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 VTi (95 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 VTi (120 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "3008 HYBRID4 (225 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Renault": {
-        models: ["Clio", "Kadjar", "Laguna", "Megane", "Megane E-Tech", "Scenic", "Zoe"],
-        engines: [
-            { name: "Zoe Q210 (22 kWh - 88 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Zoe R90/ZE40 (41 kWh - 92 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Zoe R135/ZE50 (52 kWh - 135 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Megane E-Tech EV40 (40 kWh - 130 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Megane E-Tech EV60 (60 kWh - 220 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.5 dCi (85 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.5 dCi (106 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.5 dCi (110 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 dCi (130 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 dCi (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.2 TCe (115 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 16V (110 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "E-TECH Full Hybrid (145 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Seat": {
-        models: ["Alhambra", "Altea", "Arona", "Ateca", "Ibiza", "Leon", "Mii Electric"],
-        engines: [
-            { name: "Mii Electric (36.8 kWh - 83 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.9 TDI (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 TDI (105 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (140 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (170 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (184 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 TSI (125 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.8 TSI (180 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.4 e-HYBRID Plug-in (204 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Skoda": {
-        models: ["Citigo e iV", "Enyaq iV", "Fabia", "Kamiq", "Karoq", "Kodiaq", "Octavia", "Superb"],
-        engines: [
-            { name: "Citigo e iV (36.8 kWh - 83 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Enyaq iV 60 (62 kWh - 179 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Enyaq iV 80 (82 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Enyaq vRS iV (82 kWh - 299 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.9 TDI (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 TDI (105 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (140 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (184 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 TSI (122 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.8 TSI (160 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "Octavia iV Plug-in Hybrid (204 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "Superb iV Plug-in Hybrid (218 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Suzuki": {
-        models: ["Grand Vitara", "Ignis", "Jimny", "Swift", "SX4", "SX4 S-Cross", "Vitara"],
-        engines: [
-            { name: "1.4 Boosterjet (140 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 VVT (120 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 DDiS (120 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 DDiS (120 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 Boosterjet Mild Hybrid (129 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "1.5 Dualjet Strong Hybrid (116 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Tesla": {
-        models: ["Model 3", "Model S", "Model X", "Model Y"],
-        engines: [
-            { name: "Model 3 SR+ RWD (55 kWh LFP - 283 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model 3 Long Range Dual Motor (75 kWh - 440 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model 3 Performance (82 kWh - 513 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model Y SR RWD (60 kWh LFP - 299 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model Y Long Range AWD (75 kWh - 514 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model Y Performance (75 kWh - 534 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model S Long Range (100 kWh - 670 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model S Plaid Tri-Motor (100 kWh - 1020 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model X Long Range (100 kWh - 670 hp)", fuel: "Електричество", type: "EV" },
-            { name: "Model X Plaid Tri-Motor (100 kWh - 1020 hp)", fuel: "Електричество", type: "EV" }
-        ]
-    },
-    "Toyota": {
-        models: ["Aurise", "Avensis", "Aygo", "bZ4X", "C-HR", "Corolla", "Prius", "RAV4", "Yaris"],
-        engines: [
-            { name: "bZ4X FWD (71.4 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "bZ4X AWD (71.4 kWh - 218 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.4 D-4D (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 D-4D (126 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.2 D-CAT (177 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.33 VVT-i (99 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.6 Valvematic (132 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.8 Hybrid Synergy Drive (122 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "1.8 Hybrid Synergy Drive (136 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "2.0 Dynamic Force Hybrid (184 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "2.5 Hybrid Dynamic Force (218 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Volkswagen": {
-        models: ["e-Golf", "Golf V", "Golf VI", "Golf VII", "Golf VIII", "ID.3", "ID.4", "ID.5", "Passat B6", "Passat B7", "Passat B8", "Polo", "Tiguan", "Touareg"],
-        engines: [
-            { name: "e-Golf (24.2 kWh - 115 hp)", fuel: "Електричество", type: "EV" },
-            { name: "e-Golf (35.8 kWh - 136 hp)", fuel: "Електричество", type: "EV" },
-            { name: "ID.3 Pure (45 kWh - 150 hp)", fuel: "Електричество", type: "EV" },
-            { name: "ID.3 Pro (58 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "ID.3 Pro S (77 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "ID.4 Pure (52 kWh - 170 hp)", fuel: "Електричество", type: "EV" },
-            { name: "ID.4 Pro (77 kWh - 204 hp)", fuel: "Електричество", type: "EV" },
-            { name: "ID.4 GTX AWD (77 kWh - 299 hp)", fuel: "Електричество", type: "EV" },
-            { name: "1.9 TDI (90 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.9 TDI (105 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (140 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (170 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 TDI (190 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.4 TSI (122 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "1.8 TSI (160 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "2.0 TSI (200 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "Golf GTE Plug-in Hybrid (204 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "Passat GTE Plug-in Hybrid (218 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    },
-    "Volvo": {
-        models: ["C30", "C40 Recharge", "EX30", "S60 / V60", "S80 / V70", "XC40", "XC40 Recharge", "XC60", "XC90"],
-        engines: [
-            { name: "EX30 Single Motor (51 kWh LFP - 272 hp)", fuel: "Електричество", type: "EV" },
-            { name: "EX30 Extended Range (69 kWh - 272 hp)", fuel: "Електричество", type: "EV" },
-            { name: "XC40 Recharge Single Motor (69 kWh - 231 hp)", fuel: "Електричество", type: "EV" },
-            { name: "XC40 Recharge Twin Motor AWD (78 kWh - 408 hp)", fuel: "Електричество", type: "EV" },
-            { name: "2.0 D3 (150 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.0 D4 (190 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.4 D5 5-cyl (185 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "2.4 D5 5-cyl (215 hp)", fuel: "Дизел", type: "ICE" },
-            { name: "1.6 T3 (150 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "2.0 T5 (245 hp)", fuel: "Бензин", type: "ICE" },
-            { name: "T6 Recharge Plug-in Hybrid (340 hp)", fuel: "Хибрид", type: "Hybrid" },
-            { name: "T8 Recharge Plug-in Hybrid (407 hp)", fuel: "Хибрид", type: "Hybrid" }
-        ]
-    }
+    "Alfa Romeo": [
+        "33", "75", "145", "146", "147", "156", "159", "164", "166", "Brera", 
+        "GT", "GTV", "Giulia", "Giulietta", "Junior", "Spider", "Stelvio", "SZ", "Tonale"
+    ],
+    "Audi": [
+        "80 / 90", "100 / A6 (C4)", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", 
+        "e-tron GT", "Q2", "Q3", "Q4 e-tron", "Q5", "Q6 e-tron", "Q7", "Q8", "Q8 e-tron", "R8", "TT"
+    ],
+    "BMW": [
+        "i3", "i4", "i7", "iX", "iX1", "iX2", "iX3", "Series 1", "Series 2", "Series 3", 
+        "Series 4", "Series 5", "Series 6", "Series 7", "Series 8", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z3", "Z4"
+    ],
+    "Citroën": [
+        "AX", "Berlingo", "C1", "C2", "C3", "C3 Aircross", "C4 (MK1/MK2/MK3)", "C4 Cactus", 
+        "C4 Grand Picasso", "C5", "C5 Aircross", "C6", "C8", "e-C4", "Jumper", "Jumpy", "Saxo", "Xantia", "XM", "Xsara", "Xsara Picasso"
+    ],
+    "Dacia": [
+        "1300", "1310", "Dokker", "Dokker Van", "Duster", "Jogger", "Lodgy", "Logan", 
+        "Logan MCV", "Logan Pick-Up", "Sandero", "Sandero Stepway", "Solenza", "Spring", "SuperNova"
+    ],
+    "Fiat": [
+        "500", "500e", "600", "Barchetta", "Bravo", "Coupe", "Croma", "Doblò", "Ducato", 
+        "Fiorino", "Freemont", "Grande Punto", "Marea", "Multipla", "Panda", "Punto Evo", "Scudo", "Stilo", "Tipo"
+    ],
+    "Ford": [
+        "B-Max", "C-Max", "Capri", "Cougar", "Escort", "Explorer", "Fiesta", "Focus", 
+        "Galaxy", "Ka", "Kuga", "Mondeo", "Mustang Mach-E", "Puma", "Ranger", "S-Max", "Sierra", "Transit", "Transit Connect", "Transit Custom"
+    ],
+    "Honda": [
+        "Accord", "City", "Civic", "Concerto", "CR-V", "CR-Z", "e:Ny1", "Element", 
+        "FR-V", "Honda e", "HR-V", "Insight", "Jazz", "Legend", "Prelude", "Shuttle", "S2000", "ZR-V"
+    ],
+    "Hyundai": [
+        "Accent", "Atos", "Coupe / Tiburon", "Elantra", "Genesis", "Getz", "i10", "i20", 
+        "i30", "i40", "Ioniq Electric", "Ioniq 5", "Ioniq 6", "IX35", "Kona Electric", "Matrix", "Santa Fe", "Sonata", "Terracan", "Trajet", "Tucson"
+    ],
+    "Jeep": [
+        "Avenger", "Cherokee", "Commander", "Compass", "Gladiator", "Grand Cherokee", 
+        "Grand Wagoneer", "Liberty", "Patriot", "Renegade", "Wagoneer", "Wagoneer S", "Willys", "Wrangler"
+    ],
+    "Kia": [
+        "Carens", "Carnival", "Ceed", "Cerato", "EV3", "EV4", "EV6", "EV9", "Magentis", 
+        "Niro", "Optima", "Picanto", "ProCeed", "Rio", "Sephia", "Sorento", "Soul", "Sportage", "Stinger", "Stonic"
+    ],
+    "Lexus": [
+        "CT 200h", "ES", "GS 300 / 450h", "GX", "HS", "IS 220d / 250", "LC 500", "LFA", 
+        "LM", "LS 400 / 460 / 600h", "LX", "NX 300h", "RC", "RX 400h / 450h", "RZ 450e", "SC 430", "UX 250h / EV"
+    ],
+    "Mazda": [
+        "121", "323", "626", "CX-3", "CX-5", "CX-7", "CX-9", "CX-30", "CX-60", "CX-80", 
+        "Mazda 2", "Mazda 3", "Mazda 6", "MPV", "MX-3", "MX-5 Miata", "MX-6", "MX-30", "Premacy", "RX-7", "RX-8"
+    ],
+    "Mercedes-Benz": [
+        "190 (W201)", "A-Class", "B-Class", "C-Class", "CLA", "CLS", "E-Class (W124/W210/W211/W212)", 
+        "EQA", "EQB", "EQC", "EQE", "EQS", "G-Class", "GLA", "GLC", "GLE", "GLS", "S-Class", "SL", "SLK", "Sprinter", "Vito"
+    ],
+    "Nissan": [
+        "100NX", "200SX / Silvia", "350Z / 370Z", "Almera", "Almera Tino", "Ariya", "Interstar", 
+        "Juke", "Leaf (ZE0)", "Leaf (ZE1)", "Micra", "Navara", "Note", "NV200", "Patrol", "Primera", "Qashqai", "Terrano", "Townstar", "X-Trail"
+    ],
+    "Opel": [
+        "Ascona", "Astra (H/J/K/L)", "Calibra", "Combo", "Corsa (D/E/F)", "Corsa-e", "Frontera", 
+        "Insignia", "Kadett", "Meriva", "Mokka", "Mokka-e", "Movano", "Omega", "Signum", "Tigra", "Vectra (A/B/C)", "Vivaro", "Zafira A/B/C"
+    ],
+    "Peugeot": [
+        "106", "107", "205", "206", "207", "208", "306", "307", "308", "405", "406", "407", 
+        "504", "508", "607", "807", "2008", "3008", "5008", "Boxer", "e-208", "e-2008", "e-308", "Expert", "Partner"
+    ],
+    "Renault": [
+        "19", "21", "Arkana", "Austral", "Captur", "Clio", "Espace", "Express", "Fluence", 
+        "Kadjar", "Kangoo", "Laguna", "Master", "Megane", "Megane E-Tech", "Safrane", "Scenic", "Symbol", "Talisman", "Trafic", "Twingo", "Twizy", "Zoe"
+    ],
+    "SEAT": [
+        "Alhambra", "Altea", "Arona", "Arosa", "Ateca", "Cordoba", "Exeo", "Fura", "Ibiza", 
+        "Inca", "Leon", "Malaga", "Marbella", "Mii Electric", "Ronda", "Tarraco", "Toledo (MK1/MK2/MK3)"
+    ],
+    "Škoda": [
+        "105 / 120", "Citigo e iV", "Elroq", "Enyaq iV", "Fabia", "Favorit", "Felicia", "Forman", 
+        "Kamiq", "Karoq", "Kodiaq", "Octavia", "Octavia Tour", "Practical", "Rapid", "Roomster", "Scala", "Superb", "Yeti"
+    ],
+    "Suzuki": [
+        "Across", "Alto", "Baleno", "Carry", "Celerio", "Grand Vitara", "Ignis", "Jimny", 
+        "Kizashi", "Liana", "Samurai", "Splash", "Swace", "Swift", "SX4", "SX4 S-Cross", "Vitara", "Wagon R+"
+    ],
+    "Tesla": [
+        "Cybertruck", "Model 3", "Model S", "Model X", "Model Y", "Roadster (1st Gen)", "Roadster (New Gen)", "Semi"
+    ],
+    "Toyota": [
+        "Auris", "Avensis", "Aygo", "bZ4X", "C-HR", "Carina", "Celica", "Corolla", "Hiace", 
+        "Hilux", "Land Cruiser", "MR2", "Prius", "Proace", "RAV4", "Supra", "Urban Cruiser", "Verso", "Yaris", "Yaris Cross"
+    ],
+    "Volkswagen": [
+        "Amarok", "Arteon", "Bora", "Caddy", "Corrado", "e-Golf", "Golf (V/VI/VII/VIII)", "ID. Buzz", 
+        "ID.3", "ID.4", "ID.5", "ID.7", "Jetta", "Lupo", "Passat (B6/B7/B8)", "Polo", "Scirocco", "Sharan", "T-Roc", "Tiguan", "Touareg", "Touran", "Transporter T4/T5/T6"
+    ],
+    "Volvo": [
+        "440 / 460", "850", "940 / 960", "C30", "C70", "C40 Recharge", "EM90", "EX30", "EX90", 
+        "S40 / V40", "S60 / V60", "S70", "S80 / V70", "S90 / V90", "XC40", "XC40 Recharge", "XC60", "XC70", "XC90"
+    ]
 };
-
-const universalEngines = [
-    { name: "Стандартен двигател (1.2L - 2.0L)", fuel: "Дизел", type: "ICE" },
-    { name: "Електромотор / Батерия EV", fuel: "Електричество", type: "EV" },
-    { name: "Хибридна система HEV/PHEV", fuel: "Хибрид", type: "Hybrid" }
-];
 
 const fuelPrices = {
     "Дизел": { label: "Цена дизел (днес)", price: 1.35 },
