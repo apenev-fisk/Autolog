@@ -238,32 +238,7 @@
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Марка автомобил</label>
                     <select id="carBrandSelect" onchange="onBrandChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
-                        <option value="Tesla">Tesla</option>
-                        <option value="Alfa Romeo">Alfa Romeo</option>
-                        <option value="Audi">Audi</option>
-                        <option value="BMW">BMW</option>
-                        <option value="Citroen">Citroen</option>
-                        <option value="Dacia">Dacia</option>
-                        <option value="Fiat">Fiat</option>
-                        <option value="Ford">Ford</option>
-                        <option value="Honda">Honda</option>
-                        <option value="Hyundai">Hyundai</option>
-                        <option value="Jeep">Jeep</option>
-                        <option value="Kia">Kia</option>
-                        <option value="Lexus">Lexus</option>
-                        <option value="Mazda">Mazda</option>
-                        <option value="Mercedes-Benz">Mercedes-Benz</option>
-                        <option value="Nissan">Nissan</option>
-                        <option value="Opel">Opel</option>
-                        <option value="Peugeot">Peugeot</option>
-                        <option value="Renault">Renault</option>
-                        <option value="Seat">Seat</option>
-                        <option value="Skoda">Skoda</option>
-                        <option value="Suzuki">Suzuki</option>
-                        <option value="Toyota">Toyota</option>
-                        <option value="Volkswagen">Volkswagen (VW)</option>
-                        <option value="Volvo">Volvo</option>
-                        <option value="Друга">Друга марка (Ръчно)</option>
+                        <!-- Dynamic Brands Injected A-Z -->
                     </select>
                 </div>
                 
@@ -274,7 +249,7 @@
 
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Модел</label>
-                    <select id="carModelSelect" class="w-full glass-input rounded-xl px-3 py-2 text-sm"></select>
+                    <select id="carModelSelect" onchange="onModelChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm"></select>
                 </div>
 
                 <div id="engineSection">
@@ -397,7 +372,7 @@
         let appData = JSON.parse(localStorage.getItem('autolog_data')) || {
             activeCarId: 'car_1',
             cars: [
-                { id: 'car_1', name: 'Citroen C4', year: '2011', vin: '', plate: 'A 3574 HX', engine: '1.6 HDi', fuel: 'Дизел', powertrain: 'ICE', km: 185000 }
+                { id: 'car_1', name: 'Citroen C4', year: '2011', vin: '', plate: 'A 3574 HX', engine: '1.6 e-HDi (112 hp)', fuel: 'Дизел', powertrain: 'ICE', km: 185000 }
             ],
             records: {}
         };
@@ -715,14 +690,35 @@
 
             if (pt === 'EV') {
                 fuelSelect.value = 'Електричество';
-                engLabel.innerText = 'Капацитет батерия (kWh) / Версия';
+                engLabel.innerText = 'Батерия & Мощност (kWh)';
             } else if (pt === 'Hybrid') {
                 fuelSelect.value = 'Хибрид';
-                engLabel.innerText = 'Двигател & Батерия';
+                engLabel.innerText = 'Хибридна система & Двигател';
             } else {
                 fuelSelect.value = 'Дизел';
                 engLabel.innerText = 'Двигател / Модификация';
             }
+            populateBrandDropdown();
+        }
+
+        function populateBrandDropdown() {
+            const pt = document.getElementById('carPowertrainInput').value;
+            const brandSelect = document.getElementById('carBrandSelect');
+
+            const allBrands = Object.keys(carDatabase).sort();
+            let filteredBrands = [];
+
+            if (pt === 'EV') {
+                filteredBrands = allBrands.filter(b => carDatabase[b].engines.some(e => e.type === 'EV'));
+            } else if (pt === 'Hybrid') {
+                filteredBrands = allBrands.filter(b => carDatabase[b].engines.some(e => e.type === 'Hybrid'));
+            } else {
+                filteredBrands = allBrands;
+            }
+
+            brandSelect.innerHTML = filteredBrands.map(b => `<option value="${b}">${b}</option>`).join('') + 
+                `<option value="Друга">Друга марка (Ръчно)</option>`;
+
             onBrandChange();
         }
 
@@ -730,32 +726,74 @@
             const brand = document.getElementById('carBrandSelect').value;
             const customContainer = document.getElementById('customBrandContainer');
             const modelSelect = document.getElementById('carModelSelect');
-            const engineSelect = document.getElementById('carEngineSelect');
-            const customEngineContainer = document.getElementById('customEngineContainer');
 
             if (brand === 'Друга') {
                 customContainer.classList.remove('hidden');
                 modelSelect.innerHTML = '<option value="Друг модел">Друг модел</option>';
-                engineSelect.innerHTML = '<option value="Собствена спецификация">Собствена спецификация</option>';
-                customEngineContainer.classList.remove('hidden');
+                onModelChange();
             } else {
                 customContainer.classList.add('hidden');
-                customEngineContainer.classList.add('hidden');
-                
-                const brandData = carDatabase[brand] || { models: ['Стандартен модел'], engines: universalEngines };
-                
+                const brandData = carDatabase[brand] || { models: ['Стандартен модел'] };
                 modelSelect.innerHTML = (brandData.models || ['Стандартен модел']).map(m => `<option value="${m}">${m}</option>`).join('');
-                engineSelect.innerHTML = (brandData.engines || universalEngines).map(e => `<option value="${e.name}">${e.name} (${e.fuel})</option>`).join('') + '<option value="Друга спецификация (Ръчно)">Друга спецификация (Ръчно)</option>';
+                onModelChange();
+            }
+        }
+
+        function onModelChange() {
+            const brand = document.getElementById('carBrandSelect').value;
+            const pt = document.getElementById('carPowertrainInput').value;
+            const engineSelect = document.getElementById('carEngineSelect');
+            const fuelInput = document.getElementById('carFuelInput');
+            const customEngineContainer = document.getElementById('customEngineContainer');
+
+            customEngineContainer.classList.add('hidden');
+
+            if (brand === 'Друга') {
+                engineSelect.innerHTML = '<option value="Собствена спецификация">Собствена спецификация</option>';
+                return;
+            }
+
+            const brandData = carDatabase[brand];
+            if (!brandData || !brandData.engines) {
+                engineSelect.innerHTML = '<option value="Собствена спецификация">Собствена спецификация</option>';
+                return;
+            }
+
+            let filteredEngines = [];
+            if (pt === 'EV') {
+                filteredEngines = brandData.engines.filter(e => e.type === 'EV');
+            } else if (pt === 'Hybrid') {
+                filteredEngines = brandData.engines.filter(e => e.type === 'Hybrid');
+            } else {
+                filteredEngines = brandData.engines.filter(e => e.type === 'ICE' || !e.type);
+            }
+
+            if (filteredEngines.length === 0) {
+                filteredEngines = brandData.engines;
+            }
+
+            engineSelect.innerHTML = filteredEngines.map(e => 
+                `<option value="${e.name}" data-fuel="${e.fuel}">${e.name} (${e.fuel})</option>`
+            ).join('') + '<option value="Друга спецификация (Ръчно)">Друга спецификация (Ръчно)</option>';
+
+            if (filteredEngines.length > 0 && filteredEngines[0].fuel) {
+                fuelInput.value = filteredEngines[0].fuel;
             }
         }
 
         function onEngineChange() {
             const engineSelect = document.getElementById('carEngineSelect');
             const customEngineContainer = document.getElementById('customEngineContainer');
+            const fuelInput = document.getElementById('carFuelInput');
+
             if (engineSelect.value.includes('Ръчно')) {
                 customEngineContainer.classList.remove('hidden');
             } else {
                 customEngineContainer.classList.add('hidden');
+                const selectedOption = engineSelect.options[engineSelect.selectedIndex];
+                if (selectedOption && selectedOption.dataset.fuel) {
+                    fuelInput.value = selectedOption.dataset.fuel;
+                }
             }
         }
 
