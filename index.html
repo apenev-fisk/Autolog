@@ -369,13 +369,24 @@
 
     <!-- Main App Logic -->
     <script>
-        let appData = JSON.parse(localStorage.getItem('autolog_data')) || {
-            activeCarId: 'car_1',
-            cars: [
-                { id: 'car_1', name: 'Citroën C4', year: '2011', vin: '', plate: 'A 3574 HX', engine: '1.6L • 112 hp', fuel: 'Дизел', powertrain: 'ICE', km: 185000 }
-            ],
-            records: {}
-        };
+        let rawData = localStorage.getItem('autolog_data');
+        let appData;
+        try {
+            appData = rawData ? JSON.parse(rawData) : null;
+        } catch (e) {
+            appData = null;
+        }
+
+        if (!appData || !appData.cars || !Array.isArray(appData.cars) || appData.cars.length === 0) {
+            appData = {
+                activeCarId: 'car_1',
+                cars: [
+                    { id: 'car_1', name: 'Citroën C4', year: '2011', vin: '', plate: 'A 3574 HX', engine: '1.6L • 112 hp', fuel: 'Дизел', powertrain: 'ICE', km: 185000 }
+                ],
+                records: {}
+            };
+        }
+        if (!appData.records) appData.records = {};
 
         const iceCategories = [
             "Масло & Филтри", "Гуми & Джанти", "Спирачна система", 
@@ -418,6 +429,7 @@
             const container = document.getElementById('tempPreviewContainer');
             const counter = document.getElementById('photoCounter');
             
+            if (!container || !counter) return;
             counter.innerText = `${temporaryPhotos.length} / 4 снимки`;
 
             if (temporaryPhotos.length === 0) {
@@ -443,6 +455,7 @@
         }
 
         function getCurrentCar() {
+            if (!appData || !appData.cars || appData.cars.length === 0) return null;
             return appData.cars.find(c => c.id === appData.activeCarId) || appData.cars[0];
         }
 
@@ -462,13 +475,15 @@
 
         function updateFuelPriceDisplay() {
             const car = getCurrentCar();
-            const fuelInfo = fuelPrices[car.fuel] || fuelPrices['Бензин'];
+            if (!car) return;
+            const fuelInfo = (typeof fuelPrices !== 'undefined' ? fuelPrices[car.fuel] : null) || { label: 'Цена гориво', price: 1.40 };
             document.getElementById('fuelLabel').innerText = `${fuelInfo.label}`;
             document.getElementById('carFuelPrice').innerText = `€ ${fuelInfo.price.toFixed(2)} / ${car.powertrain === 'EV' ? 'kWh' : 'л'}`;
         }
 
         function renderCarSelect() {
             const select = document.getElementById('carSelect');
+            if (!select || !appData || !appData.cars) return;
             select.innerHTML = appData.cars.map(c => 
                 `<option value="${c.id}" ${c.id === appData.activeCarId ? 'selected' : ''}>${c.powertrain === 'EV' ? '⚡' : '🚗'} ${c.name} ${c.plate ? '[' + c.plate + ']' : ''}</option>`
             ).join('');
@@ -482,6 +497,7 @@
 
         function promptUpdateKm() {
             const car = getCurrentCar();
+            if (!car) return;
             const newKm = prompt(`Въведете нов актуален километраж за ${car.name}:`, car.km || 0);
             if (newKm !== null && !isNaN(newKm) && Number(newKm) >= 0) {
                 car.km = Number(newKm);
@@ -492,6 +508,7 @@
 
         function checkSmartReminders() {
             const car = getCurrentCar();
+            if (!car) return;
             const records = appData.records[car.id] || [];
             const banner = document.getElementById('reminderBanner');
             const text = document.getElementById('reminderText');
@@ -521,8 +538,8 @@
             const car = getCurrentCar();
             if (!car) return;
 
-            document.getElementById('carFuelBadge').innerText = car.fuel;
-            document.getElementById('carTitle').innerText = car.name;
+            document.getElementById('carFuelBadge').innerText = car.fuel || 'Дизел';
+            document.getElementById('carTitle').innerText = car.name || 'Автомобил';
             document.getElementById('carSubTitle').innerText = `${car.year || ''} ${car.engine ? '• ' + car.engine : ''}`;
             document.getElementById('carKmDisplay').innerText = Number(car.km || 0).toLocaleString();
 
@@ -559,6 +576,7 @@
 
         function updateAdaptiveCategories() {
             const car = getCurrentCar();
+            if (!car) return;
             const categories = car.powertrain === 'EV' ? evCategories : iceCategories;
             
             const filterSelect = document.getElementById('filterCategory');
@@ -683,7 +701,6 @@
             `;
         }
 
-        // Dynamic Specs Inputs Generator based on Powertrain (ICE, EV, Hybrid)
         function onPowertrainChange() {
             const pt = document.getElementById('carPowertrainInput').value;
             const fuelSelect = document.getElementById('carFuelInput');
@@ -741,7 +758,8 @@
 
         function populateBrandDropdown() {
             const brandSelect = document.getElementById('carBrandSelect');
-            const allBrands = Object.keys(carDatabase).sort();
+            if (!brandSelect) return;
+            const allBrands = typeof carDatabase !== 'undefined' ? Object.keys(carDatabase).sort() : ['Citroën', 'Volkswagen'];
 
             brandSelect.innerHTML = allBrands.map(b => `<option value="${b}">${b}</option>`).join('') + 
                 `<option value="Друга">Друга марка (Ръчно)</option>`;
@@ -760,7 +778,7 @@
                 onModelChange();
             } else {
                 customContainer.classList.add('hidden');
-                const models = carDatabase[brand] || ['Стандартен модел'];
+                const models = (typeof carDatabase !== 'undefined' && carDatabase[brand]) ? carDatabase[brand] : ['Стандартен модел'];
                 modelSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('') + 
                     '<option value="Друг модел">Друг модел (Ръчно)</option>';
                 onModelChange();
@@ -771,9 +789,9 @@
             const modelSelect = document.getElementById('carModelSelect');
             const customModelContainer = document.getElementById('customModelContainer');
 
-            if (modelSelect.value === 'Друг модел') {
+            if (modelSelect && modelSelect.value === 'Друг модел') {
                 customModelContainer.classList.remove('hidden');
-            } else {
+            } else if (customModelContainer) {
                 customModelContainer.classList.add('hidden');
             }
         }
@@ -781,7 +799,7 @@
         function toggleFilterOptions(preselectedFilters = []) {
             const cat = document.getElementById('recCategory').value;
             const container = document.getElementById('dynamicCheckboxesContainer');
-            const items = categoryCheckboxes[cat] || [];
+            const items = (typeof categoryCheckboxes !== 'undefined' ? categoryCheckboxes[cat] : null) || [];
 
             if (items.length === 0) {
                 container.classList.add('hidden');
@@ -939,7 +957,7 @@
             document.getElementById('carPowertrainInput').value = isEdit ? (car.powertrain || 'ICE') : 'ICE';
             onPowertrainChange();
 
-            if (isEdit) {
+            if (isEdit && car) {
                 document.getElementById('carPlateInput').value = car.plate || '';
                 document.getElementById('carYearInput').value = car.year || '';
                 document.getElementById('carVinInput').value = car.vin || '';
@@ -969,10 +987,9 @@
                 carName = document.getElementById('carCustomName').value || 'Автомобил';
             } else {
                 const modelName = modelSelect === 'Друг модел' ? (document.getElementById('carCustomModel').value || '') : modelSelect;
-                carName = `${brand} ${modelName}`;
+                carName = `${brand} ${modelName}`.trim();
             }
 
-            // Construct Engine Specs Text dynamically based on user inputs
             let engineText = '';
             const disp = document.getElementById('carDisplacement') ? document.getElementById('carDisplacement').value : '';
             const kwh = document.getElementById('carBatteryKwh') ? document.getElementById('carBatteryKwh').value : '';
@@ -1000,7 +1017,7 @@
 
             if (id) {
                 const idx = appData.cars.findIndex(c => c.id === id);
-                appData.cars[idx] = newCar;
+                if (idx !== -1) appData.cars[idx] = newCar;
             } else {
                 appData.cars.push(newCar);
                 appData.activeCarId = newCar.id;
@@ -1031,7 +1048,7 @@
             const titleEl = document.getElementById('recordModalTitle');
             const catSelect = document.getElementById('recCategory');
             const car = getCurrentCar();
-            const categories = car.powertrain === 'EV' ? evCategories : iceCategories;
+            const categories = (car && car.powertrain === 'EV') ? evCategories : iceCategories;
 
             catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
 
@@ -1059,7 +1076,7 @@
                 titleEl.innerText = 'Нов запис за обслужване';
                 document.getElementById('recordForm').reset();
                 document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('recKm').value = car.km || '';
+                document.getElementById('recKm').value = car ? car.km : '';
                 document.getElementById('recCategory').value = categories[0];
                 temporaryPhotos = [];
                 toggleFilterOptions();
@@ -1081,8 +1098,10 @@
             const selectedFilters = [];
             
             const container = document.getElementById('dynamicCheckboxesContainer');
-            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(chk => { if (chk.checked) selectedFilters.push(chk.value); });
+            if (container) {
+                const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(chk => { if (chk.checked) selectedFilters.push(chk.value); });
+            }
 
             const km = Number(document.getElementById('recKm').value);
 
@@ -1119,7 +1138,7 @@
             }
 
             const car = getCurrentCar();
-            if (km > car.km) car.km = km;
+            if (car && km > car.km) car.km = km;
 
             saveData();
             closeRecordModal();
