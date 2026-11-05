@@ -48,6 +48,15 @@
             </button>
         </div>
 
+        <!-- Smart Reminder Banner -->
+        <div id="reminderBanner" class="hidden glass border-l-4 border-amber-500 rounded-xl p-3 text-xs space-y-1">
+            <div class="flex items-center justify-between font-bold text-amber-400">
+                <span><i class="fa-solid fa-bell me-1.5"></i> Напомняне за автомобила</span>
+                <button onclick="dismissReminder()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p id="reminderText" class="text-slate-300">--</p>
+        </div>
+
         <!-- Vehicle Profile Card -->
         <section class="glass rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
             <div class="flex items-start justify-between">
@@ -66,6 +75,16 @@
                         <i class="fa-solid fa-trash text-sm"></i>
                     </button>
                 </div>
+            </div>
+
+            <!-- Quick Mileage Update Bar -->
+            <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-xs">
+                <span class="text-slate-400 flex items-center gap-1">
+                    <i class="fa-solid fa-gauge text-orange-400"></i> Пробег: <strong id="carKmDisplay" class="text-white">0</strong> км
+                </span>
+                <button onclick="promptUpdateKm()" class="text-[10px] font-semibold bg-orange-600/80 hover:bg-orange-500 text-white px-2 py-1 rounded-lg transition">
+                    <i class="fa-solid fa-arrows-rotate"></i> Обнови км
+                </button>
             </div>
 
             <!-- Plate & VIN Display -->
@@ -117,13 +136,15 @@
         <section class="space-y-3">
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">История</h3>
-                <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1">
+                <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1 max-w-[170px]">
                     <option value="all">Всички категории</option>
                     <option value="Масло & Филтри">Масло & Филтри</option>
+                    <option value="Газова уредба (LPG/CNG)">Газова уредба (LPG)</option>
+                    <option value="Екология & Изпускателна сист.">Екология & Гърнета</option>
                     <option value="Ходова част & Окачване">Ходова част & Окачване</option>
                     <option value="Спирачна система">Спирачна система</option>
                     <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
-                    <option value="Двигател & Запалителна система">Двигател & Запалителна система</option>
+                    <option value="Двигател & Запалителна система">Двигател & Свещи</option>
                     <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
                     <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
                     <option value="Гуми & Джанти">Гуми & Джанти</option>
@@ -185,6 +206,10 @@
                         <option value="Mercedes-Benz">Mercedes-Benz</option>
                         <option value="Citroen">Citroen</option>
                         <option value="Peugeot">Peugeot</option>
+                        <option value="Suzuki">Suzuki</option>
+                        <option value="Nissan">Nissan</option>
+                        <option value="Volvo">Volvo</option>
+                        <option value="Jeep">Jeep</option>
                         <option value="Toyota">Toyota</option>
                         <option value="Lexus">Lexus</option>
                         <option value="Hyundai">Hyundai</option>
@@ -275,10 +300,12 @@
                         <label class="text-xs text-slate-400 block mb-1">Категория</label>
                         <select id="recCategory" onchange="toggleFilterOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
                             <option value="Масло & Филтри">Масло & Филтри</option>
+                            <option value="Газова уредба (LPG/CNG)">Газова уредба (LPG)</option>
+                            <option value="Екология & Изпускателна сист.">Екология & Гърнета</option>
                             <option value="Ходова част & Окачване">Ходова част & Окачване</option>
                             <option value="Спирачна система">Спирачна система</option>
                             <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
-                            <option value="Двигател & Запалителна система">Двигател & Запалителна система</option>
+                            <option value="Двигател & Запалителна система">Двигател & Свещи</option>
                             <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
                             <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
                             <option value="Гуми & Джанти">Гуми & Джанти</option>
@@ -307,8 +334,8 @@
                 </div>
 
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1">Бележки / Марка части</label>
-                    <textarea id="recNotes" rows="2" placeholder="Марка части, гаранция и др..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
+                    <label class="text-xs text-slate-400 block mb-1">Бележки / Марка части (Рециклирано/Ново)</label>
+                    <textarea id="recNotes" rows="2" placeholder="Марка части, рециклирани дюзи/турбо, гаранция..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
                 </div>
 
                 <!-- Camera / Image Capture Field -->
@@ -366,6 +393,47 @@
             updateUI();
         }
 
+        function promptUpdateKm() {
+            const car = getCurrentCar();
+            const newKm = prompt(`Въведете нов актуален километраж за ${car.name}:`, car.km || 0);
+            if (newKm !== null && !isNaN(newKm) && Number(newKm) >= 0) {
+                car.km = Number(newKm);
+                saveData();
+                updateUI();
+            }
+        }
+
+        function checkSmartReminders() {
+            const car = getCurrentCar();
+            const records = appData.records[car.id] || [];
+            const banner = document.getElementById('reminderBanner');
+            const text = document.getElementById('reminderText');
+
+            // Find last oil change record
+            const oilRecords = records.filter(r => r.category === 'Масло & Филтри').sort((a,b) => new Date(b.date) - new Date(a.date));
+            if (oilRecords.length > 0) {
+                const lastOil = oilRecords[0];
+                const kmDiff = car.km - Number(lastOil.km || 0);
+                if (kmDiff >= 9000) {
+                    banner.classList.remove('hidden');
+                    text.innerHTML = `Последната смяна на масло е била на <strong>${lastOil.km} км</strong> (преди ${kmDiff.toLocaleString()} км). Време е за обслужване!`;
+                    return;
+                }
+            }
+
+            banner.classList.add('hidden');
+        }
+
+        function dismissReminder() {
+            document.getElementById('reminderBanner').classList.add('hidden');
+        }
+
+        function addToCalendar(title, dateStr, notes) {
+            const startDate = dateStr.replace(/-/g, '');
+            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate}/${startDate}&details=${encodeURIComponent(notes)}`;
+            window.open(googleUrl, '_blank');
+        }
+
         function updateUI() {
             renderCarSelect();
             const car = getCurrentCar();
@@ -374,6 +442,7 @@
             document.getElementById('carFuelBadge').innerText = car.fuel;
             document.getElementById('carTitle').innerText = car.name;
             document.getElementById('carSubTitle').innerText = `${car.year || ''} ${car.engine ? '• ' + car.engine : ''}`;
+            document.getElementById('carKmDisplay').innerText = Number(car.km || 0).toLocaleString();
 
             const plateDisplay = document.getElementById('carPlateDisplay');
             if (car.plate && car.plate.trim() !== '') {
@@ -393,6 +462,7 @@
 
             updateFuelPriceDisplay();
             updateStatistics();
+            checkSmartReminders();
             renderRecords();
         }
 
@@ -538,12 +608,17 @@
                         </div>`;
                 }
 
+                const calendarBtn = r.category === 'Документи & Винетки' ? `
+                    <button onclick="addToCalendar('AutoLog: ${r.title}', '${r.date}', '${r.notes || ''}')" class="text-[10px] text-amber-400 hover:underline flex items-center gap-1 ms-2">
+                        <i class="fa-regular fa-calendar-plus"></i> В Календара
+                    </button>` : '';
+
                 return `
                 <div class="glass rounded-xl p-3 shadow-md space-y-1 relative group">
                     <div class="flex items-start justify-between">
                         <div>
                             <span class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">${r.category}</span>
-                            <h4 class="text-sm font-bold text-slate-100">${r.title}</h4>
+                            <h4 class="text-sm font-bold text-slate-100 flex items-center">${r.title} ${calendarBtn}</h4>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-bold text-emerald-400">€ ${Number(r.cost).toFixed(2)}</span>
@@ -574,7 +649,6 @@
             }
         }
 
-        // BACKUP & RESTORE LOGIC
         function openBackupModal() {
             document.getElementById('backupModal').classList.remove('hidden');
         }
