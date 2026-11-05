@@ -139,15 +139,15 @@
                 <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1 max-w-[170px]">
                     <option value="all">Всички категории</option>
                     <option value="Масло & Филтри">Масло & Филтри</option>
+                    <option value="Гуми & Джанти">Гуми & Джанти</option>
+                    <option value="Спирачна система">Спирачна система</option>
+                    <option value="Ходова част & Окачване">Ходова част & Окачване</option>
+                    <option value="Двигател & Запалителна система">Двигател & Свещи</option>
+                    <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
+                    <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
                     <option value="Газова уредба (LPG/CNG)">Газова уредба (LPG)</option>
                     <option value="Екология & Изпускателна сист.">Екология & Гърнета</option>
-                    <option value="Ходова част & Окачване">Ходова част & Окачване</option>
-                    <option value="Спирачна система">Спирачна система</option>
-                    <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
-                    <option value="Двигател & Запалителна система">Двигател & Свещи</option>
-                    <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
                     <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
-                    <option value="Гуми & Джанти">Гуми & Джанти</option>
                     <option value="Документи & Винетки">Документи & Винетки</option>
                     <option value="Други">Други</option>
                 </select>
@@ -299,18 +299,18 @@
                     <div>
                         <label class="text-xs text-slate-400 block mb-1">Категория</label>
                         <select id="recCategory" onchange="toggleFilterOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
-                            <option value="Масло & Филтри">Масло & Филтри</option>
-                            <option value="Газова уредба (LPG/CNG)">Газова уредба (LPG)</option>
-                            <option value="Екология & Изпускателна сист.">Екология & Гърнета</option>
-                            <option value="Ходова част & Окачване">Ходова част & Окачване</option>
-                            <option value="Спирачна система">Спирачна система</option>
-                            <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
-                            <option value="Двигател & Запалителна система">Двигател & Свещи</option>
-                            <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
-                            <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
-                            <option value="Гуми & Джанти">Гуми & Джанти</option>
-                            <option value="Документи & Винетки">Документи & Винетки</option>
-                            <option value="Други">Други</option>
+                            <option value="Масло & Филтри">1. Масло & Филтри</option>
+                            <option value="Гуми & Джанти">2. Гуми & Джанти</option>
+                            <option value="Спирачна система">3. Спирачна система</option>
+                            <option value="Ходова част & Окачване">4. Ходова част & Окачване</option>
+                            <option value="Двигател & Запалителна система">5. Двигател & Свещи</option>
+                            <option value="Климатик & Охлаждане">6. Климатик & Охлаждане</option>
+                            <option value="Трансмисия & Съединител">7. Трансмисия & Съединител</option>
+                            <option value="Газова уредба (LPG/CNG)">8. Газова уредба (LPG)</option>
+                            <option value="Екология & Изпускателна сист.">9. Екология & Гърнета</option>
+                            <option value="Акумулатор & Електроника">10. Акумулатор & Електроника</option>
+                            <option value="Документи & Винетки">11. Документи & Винетки</option>
+                            <option value="Други">12. Други</option>
                         </select>
                     </div>
                     <div>
@@ -338,10 +338,11 @@
                     <textarea id="recNotes" rows="2" placeholder="Марка части, рециклирани дюзи/турбо, гаранция..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
                 </div>
 
-                <!-- Camera / Image Capture Field -->
+                <!-- Multiple Camera / Image Capture Field (Max 4) -->
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-2">
-                    <label class="text-xs font-semibold text-orange-400 block"><i class="fa-solid fa-camera me-1"></i> Снимка на фактура / документ</label>
-                    <input type="file" id="recImageInput" accept="image/*" capture="environment" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500 cursor-pointer">
+                    <label class="text-xs font-semibold text-orange-400 block"><i class="fa-solid fa-camera me-1"></i> Снимки на фактури / документи (до 4 снимки)</label>
+                    <input type="file" id="recImageInput" accept="image/*" multiple capture="environment" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500 cursor-pointer">
+                    <span class="text-[10px] text-slate-500 block">Можете да изберете или заснемете до 4 снимки наведнъж.</span>
                 </div>
 
                 <div class="flex gap-2 pt-2">
@@ -409,7 +410,6 @@
             const banner = document.getElementById('reminderBanner');
             const text = document.getElementById('reminderText');
 
-            // Find last oil change record
             const oilRecords = records.filter(r => r.category === 'Масло & Филтри').sort((a,b) => new Date(b.date) - new Date(a.date));
             if (oilRecords.length > 0) {
                 const lastOil = oilRecords[0];
@@ -598,13 +598,17 @@
                         </div>`;
                 }
 
-                let imageMarkup = '';
-                if (r.image) {
-                    imageMarkup = `
-                        <div class="mt-2">
-                            <a href="${r.image}" target="_blank" class="block">
-                                <img src="${r.image}" alt="Фактура" class="w-20 h-20 object-cover rounded-lg border border-slate-700 hover:opacity-80 transition">
-                            </a>
+                // Multiple Images Grid Rendering (Supports 1 single string or array up to 4 images)
+                let imagesMarkup = '';
+                const imageArray = Array.isArray(r.images) ? r.images : (r.image ? [r.image] : []);
+                if (imageArray.length > 0) {
+                    imagesMarkup = `
+                        <div class="grid grid-cols-2 gap-1.5 mt-2">
+                            ${imageArray.map(img => `
+                                <a href="${img}" target="_blank" class="block">
+                                    <img src="${img}" alt="Фактура/Документ" class="w-full h-24 object-cover rounded-lg border border-slate-700 hover:opacity-80 transition shadow-sm">
+                                </a>
+                            `).join('')}
                         </div>`;
                 }
 
@@ -629,7 +633,7 @@
                     </div>
                     ${filtersMarkup}
                     ${r.notes ? `<p class="text-xs text-slate-400 bg-slate-900/40 p-2 rounded-lg mt-1">${r.notes}</p>` : ''}
-                    ${imageMarkup}
+                    ${imagesMarkup}
                     <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-800/50 mt-1">
                         <span><i class="fa-regular fa-calendar me-1"></i>${r.date}</span>
                         <span><i class="fa-solid fa-gauge me-1"></i>${Number(r.km).toLocaleString()} км</span>
@@ -832,7 +836,7 @@
             const km = Number(document.getElementById('recKm').value);
             const imageInput = document.getElementById('recImageInput');
 
-            function finishRecord(imageData = null) {
+            function finishRecord(imagesArray = []) {
                 const record = {
                     id: `rec_${Date.now()}`,
                     timestamp: Date.now(),
@@ -843,7 +847,7 @@
                     km: km,
                     cost: Number(document.getElementById('recCost').value),
                     notes: document.getElementById('recNotes').value,
-                    image: imageData
+                    images: imagesArray
                 };
 
                 appData.records[carId].push(record);
@@ -859,14 +863,24 @@
                 updateUI();
             }
 
-            if (imageInput.files && imageInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    finishRecord(evt.target.result);
-                };
-                reader.readAsDataURL(imageInput.files[0]);
+            if (imageInput.files && imageInput.files.length > 0) {
+                const filesArray = Array.from(imageInput.files).slice(0, 4); // Limit to max 4 photos
+                const loadedImages = [];
+                let loadedCount = 0;
+
+                filesArray.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        loadedImages[index] = evt.target.result;
+                        loadedCount++;
+                        if (loadedCount === filesArray.length) {
+                            finishRecord(loadedImages);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
             } else {
-                finishRecord(null);
+                finishRecord([]);
             }
         }
 
