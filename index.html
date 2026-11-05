@@ -286,11 +286,12 @@
         </div>
     </div>
 
-    <!-- Modal: Add Record -->
+    <!-- Modal: Add/Edit Record -->
     <div id="recordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-lg font-bold text-white">Нов запис за обслужване</h3>
+            <h3 id="recordModalTitle" class="text-lg font-bold text-white">Нов запис за обслужване</h3>
             <form id="recordForm" onsubmit="saveRecord(event)" class="space-y-3">
+                <input type="hidden" id="recId">
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Заглавие / Описание</label>
                     <input type="text" id="recTitle" required placeholder="Смяна на части" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
@@ -590,7 +591,7 @@
             }
         }
 
-        function toggleFilterOptions() {
+        function toggleFilterOptions(preselectedFilters = []) {
             const cat = document.getElementById('recCategory').value;
             const container = document.getElementById('dynamicCheckboxesContainer');
             const items = categoryCheckboxes[cat] || [];
@@ -607,7 +608,7 @@
                 <div class="grid grid-cols-2 gap-2 text-xs">
                     ${items.map((item, idx) => `
                         <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                            <input type="checkbox" id="chk_item_${idx}" value="${item}" class="accent-orange-500 rounded">
+                            <input type="checkbox" id="chk_item_${idx}" value="${item}" ${preselectedFilters.includes(item) ? 'checked' : ''} class="accent-orange-500 rounded">
                             <span>${item}</span>
                         </label>
                     `).join('')}
@@ -676,6 +677,9 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-bold text-emerald-400">€ ${Number(r.cost).toFixed(2)}</span>
+                            <button onclick="openRecordModal('${r.id}')" class="text-slate-400 hover:text-orange-400 p-1 rounded transition" title="Редактирай записа">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
                             <button onclick="deleteRecord('${r.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition" title="Изтрий записа">
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                             </button>
@@ -856,15 +860,44 @@
             }
         }
 
-        function openRecordModal() {
-            document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('recKm').value = getCurrentCar().km || '';
-            document.getElementById('recCategory').value = 'Масло & Филтри';
+        function openRecordModal(recordId = null) {
+            const modal = document.getElementById('recordModal');
+            const titleEl = document.getElementById('recordModalTitle');
+            
+            document.getElementById('recId').value = '';
             document.getElementById('recImageInput').value = '';
-            temporaryPhotos = [];
+
+            if (recordId) {
+                // Редакция на съществуващ запис
+                titleEl.innerText = 'Редактирай запис';
+                const carRecords = appData.records[appData.activeCarId] || [];
+                const record = carRecords.find(r => r.id === recordId);
+                
+                if (record) {
+                    document.getElementById('recId').value = record.id;
+                    document.getElementById('recTitle').value = record.title || '';
+                    document.getElementById('recCategory').value = record.category || 'Масло & Филтри';
+                    document.getElementById('recDate').value = record.date || new Date().toISOString().split('T')[0];
+                    document.getElementById('recKm').value = record.km || '';
+                    document.getElementById('recCost').value = record.cost || '';
+                    document.getElementById('recNotes').value = record.notes || '';
+                    
+                    temporaryPhotos = record.images ? [...record.images] : (record.image ? [record.image] : []);
+                    toggleFilterOptions(record.filters || []);
+                }
+            } else {
+                // Нов запис
+                titleEl.innerText = 'Нов запис за обслужване';
+                document.getElementById('recordForm').reset();
+                document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('recKm').value = getCurrentCar().km || '';
+                document.getElementById('recCategory').value = 'Масло & Филтри';
+                temporaryPhotos = [];
+                toggleFilterOptions();
+            }
+
             updateTempPreviews();
-            toggleFilterOptions();
-            document.getElementById('recordModal').classList.remove('hidden');
+            modal.classList.remove('hidden');
         }
 
         function closeRecordModal() {
@@ -876,6 +909,7 @@
             const carId = appData.activeCarId;
             if (!appData.records[carId]) appData.records[carId] = [];
 
+            const recordId = document.getElementById('recId').value;
             const category = document.getElementById('recCategory').value;
             const selectedFilters = [];
             
@@ -887,20 +921,39 @@
 
             const km = Number(document.getElementById('recKm').value);
 
-            const record = {
-                id: `rec_${Date.now()}`,
-                timestamp: Date.now(),
-                title: document.getElementById('recTitle').value,
-                category: category,
-                filters: selectedFilters,
-                date: document.getElementById('recDate').value,
-                km: km,
-                cost: Number(document.getElementById('recCost').value),
-                notes: document.getElementById('recNotes').value,
-                images: [...temporaryPhotos]
-            };
-
-            appData.records[carId].push(record);
+            if (recordId) {
+                // Редакция
+                const carRecords = appData.records[carId];
+                const idx = carRecords.findIndex(r => r.id === recordId);
+                if (idx !== -1) {
+                    carRecords[idx] = {
+                        ...carRecords[idx],
+                        title: document.getElementById('recTitle').value,
+                        category: category,
+                        filters: selectedFilters,
+                        date: document.getElementById('recDate').value,
+                        km: km,
+                        cost: Number(document.getElementById('recCost').value),
+                        notes: document.getElementById('recNotes').value,
+                        images: [...temporaryPhotos]
+                    };
+                }
+            } else {
+                // Нов запис
+                const record = {
+                    id: `rec_${Date.now()}`,
+                    timestamp: Date.now(),
+                    title: document.getElementById('recTitle').value,
+                    category: category,
+                    filters: selectedFilters,
+                    date: document.getElementById('recDate').value,
+                    km: km,
+                    cost: Number(document.getElementById('recCost').value),
+                    notes: document.getElementById('recNotes').value,
+                    images: [...temporaryPhotos]
+                };
+                appData.records[carId].push(record);
+            }
 
             const car = getCurrentCar();
             if (km > car.km) {
@@ -909,9 +962,6 @@
 
             saveData();
             closeRecordModal();
-            document.getElementById('recordForm').reset();
-            temporaryPhotos = [];
-            updateTempPreviews();
             updateUI();
         }
 
