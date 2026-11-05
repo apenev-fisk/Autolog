@@ -61,9 +61,15 @@
         <section class="glass rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
             <div class="flex items-start justify-between">
                 <div>
-                    <span id="carFuelBadge" class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-slate-800 text-orange-400 rounded-md mb-1 border border-slate-700">
-                        --
-                    </span>
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <span id="carFuelBadge" class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-slate-800 text-orange-400 rounded-md border border-slate-700">
+                            --
+                        </span>
+                        <!-- Dynamic EV Charging Button -->
+                        <button id="evChargingBtn" onclick="openEvChargersMap()" class="hidden px-2 py-0.5 text-[10px] font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 rounded-md border border-emerald-500/30 flex items-center gap-1 transition">
+                            <i class="fa-solid fa-charging-station text-emerald-400"></i> Станции
+                        </button>
+                    </div>
                     <h2 id="carTitle" class="text-xl font-bold text-white tracking-tight">Зареждане...</h2>
                     <p id="carSubTitle" class="text-xs text-slate-400 mt-0.5">--</p>
                 </div>
@@ -109,20 +115,54 @@
             </div>
         </section>
 
-        <!-- Quick Statistics Panel -->
-        <section class="glass rounded-2xl p-3.5 space-y-2 border border-slate-800">
-            <div class="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <span><i class="fa-solid fa-chart-pie me-1.5 text-orange-500"></i> Статистика за разходите</span>
-                <span id="currentYearLabel" class="text-orange-400 font-mono">2026</span>
+        <!-- Advanced Statistics Panel -->
+        <section class="glass rounded-2xl p-3.5 space-y-3 border border-slate-800">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <i class="fa-solid fa-chart-pie me-1.5 text-orange-500"></i> Статистика
+                </span>
+                <select id="statsYearSelect" onchange="updateStatistics()" class="glass-input text-xs font-bold text-orange-400 rounded-lg px-2 py-1 border border-orange-500/30">
+                    <option value="2026">2026 година</option>
+                    <option value="all">Всички години</option>
+                </select>
             </div>
+
             <div class="grid grid-cols-2 gap-2 text-xs">
                 <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-400 block text-[10px]">Тази година</span>
+                    <span id="statsPeriodLabel" class="text-slate-400 block text-[10px]">За избраната година</span>
                     <span id="yearSpent" class="font-bold text-base text-orange-400">€ 0.00</span>
                 </div>
                 <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-400 block text-[10px]">Най-много за:</span>
+                    <span class="text-slate-400 block text-[10px]">Най-голям разход за:</span>
                     <span id="topCategory" class="font-bold text-xs text-slate-200 truncate block mt-0.5">Няма данни</span>
+                </div>
+            </div>
+
+            <!-- Custom Period Filter Section -->
+            <div class="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <span class="text-[11px] font-semibold text-slate-300 block flex items-center justify-between">
+                    <span><i class="fa-solid fa-filter me-1 text-orange-400"></i> Справка за период по Категория</span>
+                </span>
+                <div class="grid grid-cols-3 gap-1.5">
+                    <select id="customStatsCat" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 col-span-3">
+                        <!-- Dynamic Categories Injected -->
+                    </select>
+                    <div>
+                        <label class="text-[9px] text-slate-400 block">От година</label>
+                        <select id="customStatsFrom" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-slate-400 block">До година</label>
+                        <select id="customStatsTo" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="calculateCustomStats()" class="w-full bg-orange-600 hover:bg-orange-500 text-white rounded-lg p-1 text-[11px] font-semibold">
+                            Смятай
+                        </button>
+                    </div>
+                </div>
+                <div id="customStatsResult" class="hidden bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px] space-y-0.5 text-slate-300">
+                    <!-- Results injected here -->
                 </div>
             </div>
         </section>
@@ -137,19 +177,7 @@
             <div class="flex items-center justify-between">
                 <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">История</h3>
                 <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1 max-w-[170px]">
-                    <option value="all">Всички категории</option>
-                    <option value="Масло & Филтри">Масло & Филтри</option>
-                    <option value="Гуми & Джанти">Гуми & Джанти</option>
-                    <option value="Спирачна система">Спирачна система</option>
-                    <option value="Ходова част & Окачване">Ходова част & Окачване</option>
-                    <option value="Двигател & Запалителна система">Двигател & Свещи</option>
-                    <option value="Климатик & Охлаждане">Климатик & Охлаждане</option>
-                    <option value="Трансмисия & Съединител">Трансмисия & Съединител</option>
-                    <option value="Газова уредба (LPG/CNG)">Газова уредба (LPG)</option>
-                    <option value="Екология & Изпускателна сист.">Екология & Гърнета</option>
-                    <option value="Акумулатор & Електроника">Акумулатор & Електроника</option>
-                    <option value="Документи & Винетки">Документи & Винетки</option>
-                    <option value="Други">Други</option>
+                    <!-- Dynamic Options -->
                 </select>
             </div>
 
@@ -193,13 +221,24 @@
 
     <!-- Modal: Add/Edit Car -->
     <div id="carModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+        <div class="glass rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 id="carModalTitle" class="text-lg font-bold text-white">Добавяне на автомобил</h3>
             <form id="carForm" onsubmit="saveCar(event)" class="space-y-3">
                 <input type="hidden" id="carId">
+                
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Тип задвижване</label>
+                    <select id="carPowertrainInput" onchange="onPowertrainChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm font-bold text-orange-400">
+                        <option value="ICE">⛽ ДВГ (Бензин / Дизел / Газ)</option>
+                        <option value="EV">⚡ Електрически (EV)</option>
+                        <option value="Hybrid">🔋 Хибрид (HEV / PHEV)</option>
+                    </select>
+                </div>
+
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Марка автомобил</label>
                     <select id="carBrandSelect" onchange="onBrandChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                        <option value="Tesla">Tesla</option>
                         <option value="Alfa Romeo">Alfa Romeo</option>
                         <option value="Audi">Audi</option>
                         <option value="BMW">BMW</option>
@@ -230,22 +269,22 @@
                 
                 <div id="customBrandContainer" class="hidden">
                     <label class="text-xs text-slate-400 block mb-1">Въведете марка и модел</label>
-                    <input type="text" id="carCustomName" placeholder="напр. Subaru Outback" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    <input type="text" id="carCustomName" placeholder="напр. Rivian R1T" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
                 </div>
 
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1">Модел (1995 - 2020)</label>
+                    <label class="text-xs text-slate-400 block mb-1">Модел</label>
                     <select id="carModelSelect" class="w-full glass-input rounded-xl px-3 py-2 text-sm"></select>
                 </div>
 
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">Двигател / Модификация</label>
+                <div id="engineSection">
+                    <label id="engineLabel" class="text-xs text-slate-400 block mb-1">Двигател / Модификация</label>
                     <select id="carEngineSelect" onchange="onEngineChange()" class="w-full glass-input rounded-xl px-3 py-2 text-sm"></select>
                 </div>
 
                 <div id="customEngineContainer" class="hidden">
-                    <label class="text-xs text-slate-400 block mb-1">Въведете двигател (Ръчно)</label>
-                    <input type="text" id="carCustomEngine" placeholder="напр. 2.5 V6 (170 hp)" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    <label id="customEngineLabel" class="text-xs text-slate-400 block mb-1">Въведете спецификация</label>
+                    <input type="text" id="carCustomEngine" placeholder="напр. 2.5 V6 или 75 kWh Dual Motor" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
@@ -255,17 +294,19 @@
                     </div>
                     <div>
                         <label class="text-xs text-slate-400 block mb-1">VIN номер (Рама)</label>
-                        <input type="text" id="carVinInput" placeholder="VF7... / WBA..." class="w-full glass-input rounded-xl px-3 py-2 text-sm uppercase">
+                        <input type="text" id="carVinInput" placeholder="VF7... / 5YJ..." class="w-full glass-input rounded-xl px-3 py-2 text-sm uppercase">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-2">
                     <div>
-                        <label class="text-xs text-slate-400 block mb-1">Гориво</label>
+                        <label class="text-xs text-slate-400 block mb-1">Гориво/Ток</label>
                         <select id="carFuelInput" class="w-full glass-input rounded-xl px-2 py-2 text-xs bg-slate-900/80 text-orange-400 font-bold">
-                            <option value="Бензин">Бензин</option>
                             <option value="Дизел">Дизел</option>
+                            <option value="Бензин">Бензин</option>
                             <option value="Газ">Газ</option>
+                            <option value="Електричество">Електричество</option>
+                            <option value="Хибрид">Хибрид</option>
                         </select>
                     </div>
                     <div>
@@ -294,24 +335,13 @@
                 <input type="hidden" id="recId">
                 <div>
                     <label class="text-xs text-slate-400 block mb-1">Заглавие / Описание</label>
-                    <input type="text" id="recTitle" required placeholder="Смяна на части" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
+                    <input type="text" id="recTitle" required placeholder="Смяна на части / зареждане" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-xs text-slate-400 block mb-1">Категория</label>
                         <select id="recCategory" onchange="toggleFilterOptions()" class="w-full glass-input rounded-xl px-3 py-2 text-sm">
-                            <option value="Масло & Филтри">1. Масло & Филтри</option>
-                            <option value="Гуми & Джанти">2. Гуми & Джанти</option>
-                            <option value="Спирачна система">3. Спирачна система</option>
-                            <option value="Ходова част & Окачване">4. Ходова част & Окачване</option>
-                            <option value="Двигател & Запалителна система">5. Двигател & Свещи</option>
-                            <option value="Климатик & Охлаждане">6. Климатик & Охлаждане</option>
-                            <option value="Трансмисия & Съединител">7. Трансмисия & Съединител</option>
-                            <option value="Газова уредба (LPG/CNG)">8. Газова уредба (LPG)</option>
-                            <option value="Екология & Изпускателна сист.">9. Екология & Гърнета</option>
-                            <option value="Акумулатор & Електроника">10. Акумулатор & Електроника</option>
-                            <option value="Документи & Винетки">11. Документи & Винетки</option>
-                            <option value="Други">12. Други</option>
+                            <!-- Adaptive Categories Injected -->
                         </select>
                     </div>
                     <div>
@@ -335,8 +365,8 @@
                 </div>
 
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1">Бележки / Марка части (Рециклирано/Ново)</label>
-                    <textarea id="recNotes" rows="2" placeholder="Марка части, рециклирани дюзи/турбо, гаранция..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
+                    <label class="text-xs text-slate-400 block mb-1">Бележки / Марка части / kWh заредени</label>
+                    <textarea id="recNotes" rows="2" placeholder="Марка части, SoH %, kWh..." class="w-full glass-input rounded-xl px-3 py-2 text-sm"></textarea>
                 </div>
 
                 <!-- Camera / Photo Capture Field (Up to 4 photos) -->
@@ -367,10 +397,25 @@
         let appData = JSON.parse(localStorage.getItem('autolog_data')) || {
             activeCarId: 'car_1',
             cars: [
-                { id: 'car_1', name: 'Citroen C4', year: '2011', vin: '', plate: 'A 3574 HX', engine: '1.6 HDi', fuel: 'Дизел', km: 185000 }
+                { id: 'car_1', name: 'Citroen C4', year: '2011', vin: '', plate: 'A 3574 HX', engine: '1.6 HDi', fuel: 'Дизел', powertrain: 'ICE', km: 185000 }
             ],
             records: {}
         };
+
+        const iceCategories = [
+            "Масло & Филтри", "Гуми & Джанти", "Спирачна система", 
+            "Ходова част & Окачване", "Двигател & Запалителна система", 
+            "Климатик & Охлаждане", "Трансмисия & Съединител", 
+            "Газова уредба (LPG/CNG)", "Екология & Изпускателна сист.", 
+            "Акумулатор & Електроника", "Документи & Винетки", "Други"
+        ];
+
+        const evCategories = [
+            "Батерия & Софтуер (SoH)", "Зарядно оборудване & Кабели", 
+            "Охладителна система батерия", "Гуми & Окачване (EV)", 
+            "Спирачна система & Регенерация", "Климатик & Термопомпа", 
+            "Акумулатор 12V & Електроника", "Документи & Винетки", "Други"
+        ];
 
         let temporaryPhotos = [];
 
@@ -426,17 +471,31 @@
             return appData.cars.find(c => c.id === appData.activeCarId) || appData.cars[0];
         }
 
+        function openEvChargersMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    window.open(`https://www.google.com/maps/search/EV+charging+station/@${lat},${lon},13z`, '_blank');
+                }, () => {
+                    window.open(`https://www.google.com/maps/search/EV+charging+station`, '_blank');
+                });
+            } else {
+                window.open(`https://www.google.com/maps/search/EV+charging+station`, '_blank');
+            }
+        }
+
         function updateFuelPriceDisplay() {
             const car = getCurrentCar();
             const fuelInfo = fuelPrices[car.fuel] || fuelPrices['Бензин'];
             document.getElementById('fuelLabel').innerText = `${fuelInfo.label}`;
-            document.getElementById('carFuelPrice').innerText = `€ ${fuelInfo.price.toFixed(2)} / л`;
+            document.getElementById('carFuelPrice').innerText = `€ ${fuelInfo.price.toFixed(2)} / ${car.powertrain === 'EV' ? 'kWh' : 'л'}`;
         }
 
         function renderCarSelect() {
             const select = document.getElementById('carSelect');
             select.innerHTML = appData.cars.map(c => 
-                `<option value="${c.id}" ${c.id === appData.activeCarId ? 'selected' : ''}>🚗 ${c.name} ${c.plate ? '[' + c.plate + ']' : ''}</option>`
+                `<option value="${c.id}" ${c.id === appData.activeCarId ? 'selected' : ''}>${c.powertrain === 'EV' ? '⚡' : '🚗'} ${c.name} ${c.plate ? '[' + c.plate + ']' : ''}</option>`
             ).join('');
         }
 
@@ -462,14 +521,16 @@
             const banner = document.getElementById('reminderBanner');
             const text = document.getElementById('reminderText');
 
-            const oilRecords = records.filter(r => r.category === 'Масло & Филтри').sort((a,b) => new Date(b.date) - new Date(a.date));
-            if (oilRecords.length > 0) {
-                const lastOil = oilRecords[0];
-                const kmDiff = car.km - Number(lastOil.km || 0);
-                if (kmDiff >= 9000) {
-                    banner.classList.remove('hidden');
-                    text.innerHTML = `Последната смяна на масло е била на <strong>${lastOil.km} км</strong> (преди ${kmDiff.toLocaleString()} км). Време е за обслужване!`;
-                    return;
+            if (car.powertrain !== 'EV') {
+                const oilRecords = records.filter(r => r.category === 'Масло & Филтри').sort((a,b) => new Date(b.date) - new Date(a.date));
+                if (oilRecords.length > 0) {
+                    const lastOil = oilRecords[0];
+                    const kmDiff = car.km - Number(lastOil.km || 0);
+                    if (kmDiff >= 9000) {
+                        banner.classList.remove('hidden');
+                        text.innerHTML = `Последната смяна на масло е била на <strong>${lastOil.km} км</strong> (преди ${kmDiff.toLocaleString()} км). Време е за обслужване!`;
+                        return;
+                    }
                 }
             }
 
@@ -478,12 +539,6 @@
 
         function dismissReminder() {
             document.getElementById('reminderBanner').classList.add('hidden');
-        }
-
-        function addToCalendar(title, dateStr, notes) {
-            const startDate = dateStr.replace(/-/g, '');
-            const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startDate}/${startDate}&details=${encodeURIComponent(notes)}`;
-            window.open(googleUrl, '_blank');
         }
 
         function updateUI() {
@@ -495,6 +550,13 @@
             document.getElementById('carTitle').innerText = car.name;
             document.getElementById('carSubTitle').innerText = `${car.year || ''} ${car.engine ? '• ' + car.engine : ''}`;
             document.getElementById('carKmDisplay').innerText = Number(car.km || 0).toLocaleString();
+
+            const evBtn = document.getElementById('evChargingBtn');
+            if (car.powertrain === 'EV' || car.powertrain === 'Hybrid') {
+                evBtn.classList.remove('hidden');
+            } else {
+                evBtn.classList.add('hidden');
+            }
 
             const plateDisplay = document.getElementById('carPlateDisplay');
             if (car.plate && car.plate.trim() !== '') {
@@ -512,28 +574,81 @@
                 vinDisplay.classList.add('hidden');
             }
 
+            updateAdaptiveCategories();
             updateFuelPriceDisplay();
+            updateStatisticsOptions();
             updateStatistics();
             checkSmartReminders();
             renderRecords();
         }
 
+        function updateAdaptiveCategories() {
+            const car = getCurrentCar();
+            const categories = car.powertrain === 'EV' ? evCategories : iceCategories;
+            
+            const filterSelect = document.getElementById('filterCategory');
+            const customStatsSelect = document.getElementById('customStatsCat');
+
+            filterSelect.innerHTML = `<option value="all">Всички категории</option>` + 
+                categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            customStatsSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function updateStatisticsOptions() {
+            const carRecords = appData.records[appData.activeCarId] || [];
+            const yearSelect = document.getElementById('statsYearSelect');
+            const fromSelect = document.getElementById('customStatsFrom');
+            const toSelect = document.getElementById('customStatsTo');
+
+            const currentYear = new Date().getFullYear();
+            let years = new Set([currentYear]);
+
+            carRecords.forEach(r => {
+                if (r.date) {
+                    const y = new Date(r.date).getFullYear();
+                    if (!isNaN(y)) years.add(y);
+                }
+            });
+
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+            const selectedYearVal = yearSelect.value;
+            yearSelect.innerHTML = `<option value="all">Всички години</option>` + 
+                sortedYears.map(y => `<option value="${y}">${y} година</option>`).join('');
+            if (sortedYears.includes(Number(selectedYearVal))) {
+                yearSelect.value = selectedYearVal;
+            }
+
+            const sortedYearsAsc = [...sortedYears].reverse();
+            fromSelect.innerHTML = sortedYearsAsc.map(y => `<option value="${y}">${y}</option>`).join('');
+            toSelect.innerHTML = sortedYears.map(y => `<option value="${y}">${y}</option>`).join('');
+            
+            if (sortedYearsAsc.length > 0) fromSelect.value = sortedYearsAsc[0];
+            if (sortedYears.length > 0) toSelect.value = sortedYears[0];
+
+            calculateCustomStats();
+        }
+
         function updateStatistics() {
             const carRecords = appData.records[appData.activeCarId] || [];
-            const currentYear = new Date().getFullYear();
-            document.getElementById('currentYearLabel').innerText = currentYear;
+            const selectedYear = document.getElementById('statsYearSelect').value;
+            const periodLabel = document.getElementById('statsPeriodLabel');
 
             let yearTotal = 0;
             let categoryTotals = {};
 
             carRecords.forEach(r => {
                 const cost = Number(r.cost || 0);
-                if (r.date && r.date.startsWith(String(currentYear))) {
+                const recYear = r.date ? new Date(r.date).getFullYear() : null;
+
+                if (selectedYear === 'all' || (recYear && String(recYear) === String(selectedYear))) {
                     yearTotal += cost;
+                    categoryTotals[r.category] = (categoryTotals[r.category] || 0) + cost;
                 }
-                categoryTotals[r.category] = (categoryTotals[r.category] || 0) + cost;
             });
 
+            periodLabel.innerText = selectedYear === 'all' ? 'За целия период' : `За ${selectedYear} г.`;
             document.getElementById('yearSpent').innerText = `€ ${yearTotal.toFixed(2)}`;
 
             let topCat = 'Няма данни';
@@ -547,18 +662,81 @@
             document.getElementById('topCategory').innerText = topCat;
         }
 
+        function calculateCustomStats() {
+            const carRecords = appData.records[appData.activeCarId] || [];
+            const cat = document.getElementById('customStatsCat').value;
+            const fromYear = Number(document.getElementById('customStatsFrom').value);
+            const toYear = Number(document.getElementById('customStatsTo').value);
+            const resultBox = document.getElementById('customStatsResult');
+
+            if (!fromYear || !toYear || fromYear > toYear) {
+                resultBox.classList.remove('hidden');
+                resultBox.innerHTML = `<span class="text-red-400">Невалиден период (От > До)</span>`;
+                return;
+            }
+
+            let totalSpent = 0;
+            let count = 0;
+
+            carRecords.forEach(r => {
+                if (r.category === cat && r.date) {
+                    const y = new Date(r.date).getFullYear();
+                    if (y >= fromYear && y <= toYear) {
+                        totalSpent += Number(r.cost || 0);
+                        count++;
+                    }
+                }
+            });
+
+            const totalYears = (toYear - fromYear) + 1;
+            const avgPerYear = totalSpent / totalYears;
+
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `
+                <div class="flex justify-between font-bold text-orange-400 border-b border-slate-800 pb-1 mb-1">
+                    <span>${cat} (${fromYear} - ${toYear} г.)</span>
+                    <span>€ ${totalSpent.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Брой обслужвания / ремонти:</span>
+                    <strong class="text-slate-200">${count}</strong>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Средно на година:</span>
+                    <strong class="text-emerald-400">€ ${avgPerYear.toFixed(2)} / г.</strong>
+                </div>
+            `;
+        }
+
+        function onPowertrainChange() {
+            const pt = document.getElementById('carPowertrainInput').value;
+            const fuelSelect = document.getElementById('carFuelInput');
+            const engLabel = document.getElementById('engineLabel');
+
+            if (pt === 'EV') {
+                fuelSelect.value = 'Електричество';
+                engLabel.innerText = 'Капацитет батерия (kWh) / Версия';
+            } else if (pt === 'Hybrid') {
+                fuelSelect.value = 'Хибрид';
+                engLabel.innerText = 'Двигател & Батерия';
+            } else {
+                fuelSelect.value = 'Дизел';
+                engLabel.innerText = 'Двигател / Модификация';
+            }
+            onBrandChange();
+        }
+
         function onBrandChange() {
             const brand = document.getElementById('carBrandSelect').value;
             const customContainer = document.getElementById('customBrandContainer');
             const modelSelect = document.getElementById('carModelSelect');
             const engineSelect = document.getElementById('carEngineSelect');
             const customEngineContainer = document.getElementById('customEngineContainer');
-            const fuelInput = document.getElementById('carFuelInput');
 
             if (brand === 'Друга') {
                 customContainer.classList.remove('hidden');
                 modelSelect.innerHTML = '<option value="Друг модел">Друг модел</option>';
-                engineSelect.innerHTML = '<option value="Друг двигател" data-fuel="Бензин">Друг двигател</option>';
+                engineSelect.innerHTML = '<option value="Собствена спецификация">Собствена спецификация</option>';
                 customEngineContainer.classList.remove('hidden');
             } else {
                 customContainer.classList.add('hidden');
@@ -567,27 +745,17 @@
                 const brandData = carDatabase[brand] || { models: ['Стандартен модел'], engines: universalEngines };
                 
                 modelSelect.innerHTML = (brandData.models || ['Стандартен модел']).map(m => `<option value="${m}">${m}</option>`).join('');
-                engineSelect.innerHTML = (brandData.engines || universalEngines).map(e => `<option value="${e.name}" data-fuel="${e.fuel}">${e.name} (${e.fuel})</option>`).join('') + '<option value="Друг двигател (Ръчно)">Друг двигател (Ръчно)</option>';
-                
-                if (brandData.engines && brandData.engines.length > 0) {
-                    fuelInput.value = brandData.engines[0].fuel;
-                }
+                engineSelect.innerHTML = (brandData.engines || universalEngines).map(e => `<option value="${e.name}">${e.name} (${e.fuel})</option>`).join('') + '<option value="Друга спецификация (Ръчно)">Друга спецификация (Ръчно)</option>';
             }
         }
 
         function onEngineChange() {
             const engineSelect = document.getElementById('carEngineSelect');
             const customEngineContainer = document.getElementById('customEngineContainer');
-            const fuelInput = document.getElementById('carFuelInput');
-
-            if (engineSelect.value === 'Друг двигател (Ръчно)') {
+            if (engineSelect.value.includes('Ръчно')) {
                 customEngineContainer.classList.remove('hidden');
             } else {
                 customEngineContainer.classList.add('hidden');
-                const selectedOption = engineSelect.options[engineSelect.selectedIndex];
-                if (selectedOption && selectedOption.dataset.fuel) {
-                    fuelInput.value = selectedOption.dataset.fuel;
-                }
             }
         }
 
@@ -663,24 +831,19 @@
                         </div>`;
                 }
 
-                const calendarBtn = r.category === 'Документи & Винетки' ? `
-                    <button onclick="addToCalendar('AutoLog: ${r.title}', '${r.date}', '${r.notes || ''}')" class="text-[10px] text-amber-400 hover:underline flex items-center gap-1 ms-2">
-                        <i class="fa-regular fa-calendar-plus"></i> В Календара
-                    </button>` : '';
-
                 return `
                 <div class="glass rounded-xl p-3 shadow-md space-y-1 relative group">
                     <div class="flex items-start justify-between">
                         <div>
                             <span class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">${r.category}</span>
-                            <h4 class="text-sm font-bold text-slate-100 flex items-center">${r.title} ${calendarBtn}</h4>
+                            <h4 class="text-sm font-bold text-slate-100 flex items-center">${r.title}</h4>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-bold text-emerald-400">€ ${Number(r.cost).toFixed(2)}</span>
-                            <button onclick="openRecordModal('${r.id}')" class="text-slate-400 hover:text-orange-400 p-1 rounded transition" title="Редактирай записа">
+                            <button onclick="openRecordModal('${r.id}')" class="text-slate-400 hover:text-orange-400 p-1 rounded transition">
                                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                             </button>
-                            <button onclick="deleteRecord('${r.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition" title="Изтрий записа">
+                            <button onclick="deleteRecord('${r.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition">
                                 <i class="fa-solid fa-trash-can text-xs"></i>
                             </button>
                         </div>
@@ -697,7 +860,7 @@
         }
 
         function deleteRecord(recordId) {
-            if (confirm('Сигурни ли сте, че искате да изтриете този запис от историята?')) {
+            if (confirm('Сигурни ли сте, че искате да изтриете този запис?')) {
                 const carId = appData.activeCarId;
                 if (appData.records[carId]) {
                     appData.records[carId] = appData.records[carId].filter(r => r.id !== recordId);
@@ -707,37 +870,15 @@
             }
         }
 
-        function openBackupModal() {
-            document.getElementById('backupModal').classList.remove('hidden');
-        }
-
-        function closeBackupModal() {
-            document.getElementById('backupModal').classList.add('hidden');
-        }
+        function openBackupModal() { document.getElementById('backupModal').classList.remove('hidden'); }
+        function closeBackupModal() { document.getElementById('backupModal').classList.add('hidden'); }
 
         function sendBackupEmail() {
             const email = document.getElementById('backupEmailInput').value.trim();
-            if (!email) {
-                alert('Моля, въведете валиден имейл адрес!');
-                return;
-            }
-
-            const subject = encodeURIComponent("AutoLog - Архив на сервизна история");
-            const jsonString = JSON.stringify(appData, null, 2);
-            
-            let bodyText = "Здравейте,\n\nЕто пълния архив на вашите автомобили и сервизна история от AutoLog:\n\n";
-            appData.cars.forEach(car => {
-                bodyText += `🚗 ${car.name} (Рег. №: ${car.plate || 'Няма'}, VIN: ${car.vin || 'Няма'})\n`;
-                const carRecs = appData.records[car.id] || [];
-                carRecs.forEach(r => {
-                    bodyText += `  • ${r.date} - ${r.title} (${r.category}) - ${r.km} км - €${r.cost}\n`;
-                });
-                bodyText += "\n";
-            });
-
-            bodyText += "\n--- КОД ЗА ВЪЗСТАНОВЯВАНЕ ---\n" + jsonString;
-
-            window.location.href = `mailto:${email}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
+            if (!email) { alert('Моля, въведете имейл!'); return; }
+            const subject = encodeURIComponent("AutoLog - Архив");
+            const bodyText = encodeURIComponent(JSON.stringify(appData, null, 2));
+            window.location.href = `mailto:${email}?subject=${subject}&body=${bodyText}`;
         }
 
         function downloadBackupFile() {
@@ -753,7 +894,6 @@
         function restoreFromFile(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
@@ -764,12 +904,8 @@
                         updateUI();
                         alert('Архивът беше възстановен успешно!');
                         closeBackupModal();
-                    } else {
-                        alert('Грешка: Невалиден файл с архив!');
                     }
-                } catch (err) {
-                    alert('Грешка при прочитане на файла!');
-                }
+                } catch (err) { alert('Грешка при прочитане на файла!'); }
             };
             reader.readAsText(file);
         }
@@ -781,15 +917,15 @@
             document.getElementById('carModalTitle').innerText = isEdit ? 'Редактирай автомобил' : 'Добави автомобил';
             document.getElementById('carId').value = isEdit ? car.id : '';
             
-            document.getElementById('carBrandSelect').value = 'Citroen';
-            onBrandChange();
+            document.getElementById('carPowertrainInput').value = isEdit ? (car.powertrain || 'ICE') : 'ICE';
+            onPowertrainChange();
 
             if (isEdit) {
                 document.getElementById('carPlateInput').value = car.plate || '';
                 document.getElementById('carYearInput').value = car.year || '';
                 document.getElementById('carVinInput').value = car.vin || '';
                 document.getElementById('carKmInput').value = car.km || '';
-                document.getElementById('carFuelInput').value = car.fuel || 'Бензин';
+                document.getElementById('carFuelInput').value = car.fuel || 'Дизел';
             } else {
                 document.getElementById('carPlateInput').value = '';
                 document.getElementById('carYearInput').value = '';
@@ -800,14 +936,13 @@
             modal.classList.remove('hidden');
         }
 
-        function closeCarModal() {
-            document.getElementById('carModal').classList.add('hidden');
-        }
+        function closeCarModal() { document.getElementById('carModal').classList.add('hidden'); }
 
         function saveCar(e) {
             e.preventDefault();
             const id = document.getElementById('carId').value;
             const brand = document.getElementById('carBrandSelect').value;
+            const powertrain = document.getElementById('carPowertrainInput').value;
             
             let carName = brand;
             if (brand === 'Друга') {
@@ -817,13 +952,14 @@
             }
 
             let engineText = document.getElementById('carEngineSelect').value;
-            if (engineText === 'Друг двигател (Ръчно)') {
-                engineText = document.getElementById('carCustomEngine').value || 'Собствен двигател';
+            if (engineText.includes('Ръчно') || engineText.includes('Собствена')) {
+                engineText = document.getElementById('carCustomEngine').value || 'Спецификация';
             }
 
             const newCar = {
                 id: id || `car_${Date.now()}`,
                 name: carName,
+                powertrain: powertrain,
                 plate: document.getElementById('carPlateInput').value.trim().toUpperCase(),
                 year: document.getElementById('carYearInput').value,
                 vin: document.getElementById('carVinInput').value.trim().toUpperCase(),
@@ -850,7 +986,7 @@
                 alert('Трябва да имате поне един автомобил!');
                 return;
             }
-            if (confirm('Сигурни ли сте, че искате да изтриете този автомобил и цялата му история?')) {
+            if (confirm('Сигурни ли сте, че искате да изтриете този автомобил?')) {
                 const carId = appData.activeCarId;
                 appData.cars = appData.cars.filter(c => c.id !== carId);
                 delete appData.records[carId];
@@ -863,12 +999,16 @@
         function openRecordModal(recordId = null) {
             const modal = document.getElementById('recordModal');
             const titleEl = document.getElementById('recordModalTitle');
-            
+            const catSelect = document.getElementById('recCategory');
+            const car = getCurrentCar();
+            const categories = car.powertrain === 'EV' ? evCategories : iceCategories;
+
+            catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
             document.getElementById('recId').value = '';
             document.getElementById('recImageInput').value = '';
 
             if (recordId) {
-                // Редакция на съществуващ запис
                 titleEl.innerText = 'Редактирай запис';
                 const carRecords = appData.records[appData.activeCarId] || [];
                 const record = carRecords.find(r => r.id === recordId);
@@ -876,7 +1016,7 @@
                 if (record) {
                     document.getElementById('recId').value = record.id;
                     document.getElementById('recTitle').value = record.title || '';
-                    document.getElementById('recCategory').value = record.category || 'Масло & Филтри';
+                    document.getElementById('recCategory').value = record.category || categories[0];
                     document.getElementById('recDate').value = record.date || new Date().toISOString().split('T')[0];
                     document.getElementById('recKm').value = record.km || '';
                     document.getElementById('recCost').value = record.cost || '';
@@ -886,12 +1026,11 @@
                     toggleFilterOptions(record.filters || []);
                 }
             } else {
-                // Нов запис
                 titleEl.innerText = 'Нов запис за обслужване';
                 document.getElementById('recordForm').reset();
                 document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('recKm').value = getCurrentCar().km || '';
-                document.getElementById('recCategory').value = 'Масло & Филтри';
+                document.getElementById('recKm').value = car.km || '';
+                document.getElementById('recCategory').value = categories[0];
                 temporaryPhotos = [];
                 toggleFilterOptions();
             }
@@ -900,9 +1039,7 @@
             modal.classList.remove('hidden');
         }
 
-        function closeRecordModal() {
-            document.getElementById('recordModal').classList.add('hidden');
-        }
+        function closeRecordModal() { document.getElementById('recordModal').classList.add('hidden'); }
 
         function saveRecord(e) {
             e.preventDefault();
@@ -915,14 +1052,11 @@
             
             const container = document.getElementById('dynamicCheckboxesContainer');
             const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(chk => {
-                if (chk.checked) selectedFilters.push(chk.value);
-            });
+            checkboxes.forEach(chk => { if (chk.checked) selectedFilters.push(chk.value); });
 
             const km = Number(document.getElementById('recKm').value);
 
             if (recordId) {
-                // Редакция
                 const carRecords = appData.records[carId];
                 const idx = carRecords.findIndex(r => r.id === recordId);
                 if (idx !== -1) {
@@ -939,7 +1073,6 @@
                     };
                 }
             } else {
-                // Нов запис
                 const record = {
                     id: `rec_${Date.now()}`,
                     timestamp: Date.now(),
@@ -956,9 +1089,7 @@
             }
 
             const car = getCurrentCar();
-            if (km > car.km) {
-                car.km = km;
-            }
+            if (km > car.km) car.km = km;
 
             saveData();
             closeRecordModal();
@@ -966,7 +1097,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            onBrandChange();
+            onPowertrainChange();
             updateUI();
         });
     </script>
