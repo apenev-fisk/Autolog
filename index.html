@@ -690,7 +690,7 @@
 
             if (pt === 'EV') {
                 fuelSelect.value = 'Електричество';
-                engLabel.innerText = 'Батерия & Мощност (kWh)';
+                engLabel.innerText = 'Батерия & Мощност (kWh / hp)';
             } else if (pt === 'Hybrid') {
                 fuelSelect.value = 'Хибрид';
                 engLabel.innerText = 'Хибридна система & Двигател';
@@ -708,11 +708,23 @@
             const allBrands = Object.keys(carDatabase).sort();
             let filteredBrands = [];
 
+            // Филтрираме марките според избрания тип задвижване
             if (pt === 'EV') {
-                filteredBrands = allBrands.filter(b => carDatabase[b].engines.some(e => e.type === 'EV'));
+                filteredBrands = allBrands.filter(b => {
+                    const brandData = carDatabase[b];
+                    return brandData && brandData.engines && brandData.engines.some(e => e.type === 'EV');
+                });
             } else if (pt === 'Hybrid') {
-                filteredBrands = allBrands.filter(b => carDatabase[b].engines.some(e => e.type === 'Hybrid'));
+                filteredBrands = allBrands.filter(b => {
+                    const brandData = carDatabase[b];
+                    return brandData && brandData.engines && brandData.engines.some(e => e.type === 'Hybrid');
+                });
             } else {
+                filteredBrands = allBrands;
+            }
+
+            // Ако по някаква причина списъкът е празен, показваме всички
+            if (filteredBrands.length === 0) {
                 filteredBrands = allBrands;
             }
 
@@ -759,6 +771,7 @@
                 return;
             }
 
+            // Строго филтриране на двигателите/батериите спрямо задвижването
             let filteredEngines = [];
             if (pt === 'EV') {
                 filteredEngines = brandData.engines.filter(e => e.type === 'EV');
@@ -768,6 +781,7 @@
                 filteredEngines = brandData.engines.filter(e => e.type === 'ICE' || !e.type);
             }
 
+            // Защита: ако няма строго съвпадение, показваме всички налични за марката
             if (filteredEngines.length === 0) {
                 filteredEngines = brandData.engines;
             }
