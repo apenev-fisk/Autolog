@@ -1,104 +1,90 @@
-// auth.js - Управление на входа и сигурността в AutoLog
+// auth.js - Вход само с Имейл (Magic Link) за AutoLog
 const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Проверка при зареждане на страницата
+// Проверка за сесия при зареждане
 document.addEventListener("DOMContentLoaded", async () => {
-    const savedUserId = localStorage.getItem('autolog_user_id');
+    // 1. Проверяваме за активна Supabase Auth сесия
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    // 2. Или за запазен ID локално
+    const savedUserId = localStorage.getItem('autolog_user_id') || (session ? session.user.id : null);
+
     const authContainer = document.getElementById('auth-container');
     const appWrapper = document.getElementById('app-wrapper');
 
     if (savedUserId) {
-        // Има влязъл потребител - скриваме входа, показваме приложението
+        // Потребителят е влезнал - показваме приложението
         if (authContainer) authContainer.style.display = 'none';
         if (appWrapper) appWrapper.style.display = 'block';
     } else {
-        // Няма сесия - показваме екрана за вход, скриваме приложението
+        // Потребителят не е влезнал - показваме стилния прозорец за вход
+        if (appWrapper) appWrapper.style.display = 'none';
         if (authContainer) {
-            authContainer.style.display = 'block';
+            authContainer.style.display = 'flex';
             authContainer.style.position = 'fixed';
             authContainer.style.inset = '0';
-            authContainer.style.backgroundColor = '#0f172a';
+            authContainer.style.backgroundColor = '#0b101b';
             authContainer.style.zIndex = '99999';
-            authContainer.style.display = 'flex';
-            authContainer.style.flexDirection = 'column';
             authContainer.style.alignItems = 'center';
             authContainer.style.justifyContent = 'center';
+            authContainer.style.padding = '20px';
         }
-        if (appWrapper) appWrapper.style.display = 'none';
     }
+
+    // Слушаме за промени в auth състоянието (напр. когато кликне на линка от имейла)
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            localStorage.setItem('autolog_user_id', session.user.id);
+            location.reload();
+        }
+    });
 });
 
-// Превключване между табовете (ПИН / Имейл)
-function switchMethod(method) {
-    const pinTab = document.getElementById('btn-pin-tab');
-    const emailTab = document.getElementById('btn-email-tab');
-    
-    if (!pinTab || !emailTab) return;
+// Изпращане на Magic Link по имейл
+async function loginWithEmail() {
+    const emailInput = document.getElementById('user-email');
+    if (!emailInput) return;
 
-    if (method === 'pin') {
-        document.getElementById('pin-form').style.display = 'block';
-        document.getElementById('email-form').style.display = 'none';
-        pinTab.style.background = '#ff7300';
-        pinTab.style.color = '#fff';
-        emailTab.style.background = 'transparent';
-        emailTab.style.color = '#94a3b8';
-    } else {
-        document.getElementById('pin-form').style.display = 'none';
-        document.getElementById('email-form').style.display = 'block';
-        emailTab.style.background = '#ff7300';
-        emailTab.style.color = '#fff';
-        pinTab.style.background = 'transparent';
-        pinTab.style.color = '#94a3b8';
-    }
-}
-
-// Вход с ПИН код
-async function loginWithPin() {
-    const pin = document.getElementById('user-pin').value.trim();
-    if (pin.length < 4) {
-        alert('Моля, въведете 4-цифрен ПИН код!');
+    const email = emailInput.value.trim();
+    if (!email || !email.includes('@')) {
+        alert('Моля, въведете валиден имейл адрес!');
         return;
     }
 
+    const btn = document.getElementById('btn-send-email');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Изпращане...';
+    }
+
     try {
-        let { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('*')
-            .eq('pin_code', pin)
-            .maybeSingle();
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            email: email,
+            options: {
+                emailRedirectTo: window.location.href
+            }
+        });
 
         if (error) {
-            alert("Грешка при връзка с базата: " + error.message);
-            return;
+            alert('Грешка: ' + error.message);
+        } else {
+            alert('Изпратен е Magic Link на ' + email + '!\nПроверете пощата си (включително папка Спам).');
         }
-
-        if (!profile) {
-            const newUserId = 'usr_' + Date.now();
-            const { data: newProfile, error: insertError } = await supabaseClient
-                .from('profiles')
-                .insert([{ id: newUserId, pin_code: pin, auth_provider: 'pin' }])
-                .select()
-                .single();
-
-            if (insertError) {
-                alert("Грешка при създаване на профил: " + insertError.message);
-                return;
-            }
-            profile = newProfile;
-        }
-
-        localStorage.setItem('autolog_user_id', profile.id);
-        location.reload();
-
     } catch (err) {
-        alert("Възникна неочаквана грешка.");
+        alert('Неочаквана грешка при изпращането.');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = 'Изпрати Magic Link';
+        }
     }
 }
 
-// Изход
-function logoutUser() {
+// Изход от профила
+async function logoutUser() {
+    await supabaseClient.auth.signOut();
     localStorage.removeItem('autolog_user_id');
     location.reload();
 }
