@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-   <!-- 1. Зареждаме Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // 2. Явна инициализация с обект за конфигурация
-  const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
-  
-  const { createClient } = supabase;
-  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-  
-  console.log("Supabase клиентът е инициализиран успешно!");
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoLog - Сервизна книга</title>
@@ -33,207 +20,172 @@
 </head>
 <body class="pb-12">
 
-    <!-- Екран за Вход / Регистрация (скрива се автоматично при наличие на активна сесия) -->
-    <div id="auth-container" style="display: none; max-width: 400px; margin: 40px auto; padding: 24px; background-color: #151b2b; border: 1px solid #222d44; border-radius: 16px; font-family: system-ui, -apple-system, sans-serif; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; position: relative;">
-      <h2 style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600; color: #fff;">Добре дошли в AutoLog</h2>
-      
-      <!-- Динамични табове за превключване -->
-      <div style="display: flex; background: #0b101b; padding: 4px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #1e293b;">
-        <button id="btn-pin-tab" onclick="switchMethod('pin')" style="flex: 1; padding: 10px; border: none; background: #ff7300; color: white; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С ПИН код</button>
-        <button id="btn-email-tab" onclick="switchMethod('email')" style="flex: 1; padding: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С Имейл</button>
-      </div>
-
-      <!-- Форма за ПИН код -->
-      <div id="pin-form">
-        <div style="margin-bottom: 15px;">
-          <input type="password" id="user-pin" placeholder="••••" maxlength="4" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 24px; text-align: center; letter-spacing: 8px;" />
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="watermarked_img_16635183195398438804.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-cover border border-orange-500/30 shadow">
+                <span class="font-bold text-lg tracking-tight text-white">Auto<span class="text-orange-500">Log</span></span>
+            </div>
+            <button onclick="openBackupModal()" class="text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-shield-halved text-orange-400"></i> Архив
+            </button>
         </div>
-        <button onclick="loginWithPin()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Вход</button>
-      </div>
+    </header>
 
-      <!-- Форма за Имейл -->
-      <div id="email-form" style="display: none;">
-        <div style="margin-bottom: 15px;">
-          <input type="email" id="user-email" placeholder="vashia@email.com" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 16px; text-align: center;" />
+    <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
+
+        <!-- Car Selection Bar -->
+        <div class="flex items-center justify-between gap-2 glass p-2 rounded-xl">
+            <div class="flex items-center gap-2 flex-1">
+                <i class="fa-solid fa-garage text-slate-400 text-xs ms-1"></i>
+                <select id="carSelect" onchange="switchCar(this.value)" class="glass-input text-xs font-semibold rounded-lg px-2 py-1.5 w-full">
+                    <!-- Dynamic Cars -->
+                </select>
+            </div>
+            <button onclick="openCarModal()" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow">
+                <i class="fa-solid fa-plus"></i> Кола
+            </button>
         </div>
-        <button onclick="loginWithEmail()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Изпрати Magic Link</button>
-      </div>
-    </div>
 
-    <!-- Основно съдържание на приложението (скрито, докато не се влезе) -->
-    <div id="app-wrapper" style="display: none;">
-        <!-- Header Navigation -->
-        <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
-            <div class="max-w-md mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <img src="watermarked_img_16635183195398438804.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-cover border border-orange-500/30 shadow">
-                    <span class="font-bold text-lg tracking-tight text-white">Auto<span class="text-orange-500">Log</span></span>
+        <!-- Smart Reminder Banner -->
+        <div id="reminderBanner" class="hidden glass border-l-4 border-amber-500 rounded-xl p-3 text-xs space-y-1">
+            <div class="flex items-center justify-between font-bold text-amber-400">
+                <span><i class="fa-solid fa-bell me-1.5"></i> Напомняне за автомобила</span>
+                <button onclick="dismissReminder()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p id="reminderText" class="text-slate-300">--</p>
+        </div>
+
+        <!-- Vehicle Profile Card -->
+        <section class="glass rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <span id="carFuelBadge" class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-slate-800 text-orange-400 rounded-md border border-slate-700">
+                            --
+                        </span>
+                        <!-- Dynamic EV Charging Button -->
+                        <button id="evChargingBtn" onclick="openEvChargersMap()" class="hidden px-2 py-0.5 text-[10px] font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 rounded-md border border-emerald-500/30 flex items-center gap-1 transition">
+                            <i class="fa-solid fa-charging-station text-emerald-400"></i> Станции
+                        </button>
+                    </div>
+                    <h2 id="carTitle" class="text-xl font-bold text-white tracking-tight">Зареждане...</h2>
+                    <p id="carSubTitle" class="text-xs text-slate-400 mt-0.5">--</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="logoutUser()" class="text-xs font-semibold text-red-400 bg-red-950/40 hover:bg-red-900/60 px-2.5 py-1.5 rounded-lg border border-red-500/30 transition">
-                        <i class="fa-solid fa-right-from-bracket"></i> Изход
+                <div class="flex gap-1">
+                    <button onclick="openCarModal(true)" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-pen-to-square text-sm"></i>
                     </button>
-                    <button onclick="openBackupModal()" class="text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-shield-halved text-orange-400"></i> Архив
+                    <button onclick="deleteCurrentCar()" class="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-trash text-sm"></i>
                     </button>
                 </div>
             </div>
-        </header>
 
-        <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
-
-            <!-- Car Selection Bar -->
-            <div class="flex items-center justify-between gap-2 glass p-2 rounded-xl">
-                <div class="flex items-center gap-2 flex-1">
-                    <i class="fa-solid fa-garage text-slate-400 text-xs ms-1"></i>
-                    <select id="carSelect" onchange="switchCar(this.value)" class="glass-input text-xs font-semibold rounded-lg px-2 py-1.5 w-full">
-                        <!-- Dynamic Cars -->
-                    </select>
-                </div>
-                <button onclick="openCarModal()" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow">
-                    <i class="fa-solid fa-plus"></i> Кола
+            <!-- Quick Mileage Update Bar -->
+            <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-xs">
+                <span class="text-slate-400 flex items-center gap-1">
+                    <i class="fa-solid fa-gauge text-orange-400"></i> Пробег: <strong id="carKmDisplay" class="text-white">0</strong> км
+                </span>
+                <button onclick="promptUpdateKm()" class="text-[10px] font-semibold bg-orange-600/80 hover:bg-orange-500 text-white px-2 py-1 rounded-lg transition">
+                    <i class="fa-solid fa-arrows-rotate"></i> Обнови км
                 </button>
             </div>
 
-            <!-- Smart Reminder Banner -->
-            <div id="reminderBanner" class="hidden glass border-l-4 border-amber-500 rounded-xl p-3 text-xs space-y-1">
-                <div class="flex items-center justify-between font-bold text-amber-400">
-                    <span><i class="fa-solid fa-bell me-1.5"></i> Напомняне за автомобила</span>
-                    <button onclick="dismissReminder()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <!-- Plate & VIN Display -->
+            <div class="flex flex-wrap gap-2 pt-1">
+                <div id="carPlateDisplay" class="text-[11px] text-slate-300 font-mono bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-700 hidden">
+                    <i class="fa-solid fa-car-side me-1 text-orange-400"></i> Рег. №: <span id="carPlateText" class="font-bold text-white">--</span>
                 </div>
-                <p id="reminderText" class="text-slate-300">--</p>
+                <div id="carVinDisplay" class="text-[11px] text-slate-400 font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-800/60 hidden">
+                    <i class="fa-solid fa-fingerprint me-1 text-orange-400"></i> VIN: <span id="carVinText" class="text-slate-300">--</span>
+                </div>
             </div>
 
-            <!-- Vehicle Profile Card -->
-            <section class="glass rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
-                <div class="flex items-start justify-between">
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+                <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
+                    <span id="fuelLabel" class="text-[11px] text-slate-400 block font-medium">Цена гориво (днес)</span>
+                    <span id="carFuelPrice" class="text-base font-bold text-orange-400">€ 0.00 / л</span>
+                </div>
+                <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
+                    <span class="text-[11px] text-slate-400 block font-medium">Общо разходи</span>
+                    <span id="totalSpent" class="text-base font-bold text-emerald-400">€ 0.00</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Statistics Panel -->
+        <section class="glass rounded-2xl p-3.5 space-y-3 border border-slate-800">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <i class="fa-solid fa-chart-pie me-1.5 text-orange-500"></i> Статистика
+                </span>
+                <select id="statsYearSelect" onchange="updateStatistics()" class="glass-input text-xs font-bold text-orange-400 rounded-lg px-2 py-1 border border-orange-500/30">
+                    <option value="2026">2026 година</option>
+                    <option value="all">Всички години</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
+                    <span id="statsPeriodLabel" class="text-slate-400 block text-[10px]">За избраната година</span>
+                    <span id="yearSpent" class="font-bold text-base text-orange-400">€ 0.00</span>
+                </div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
+                    <span class="text-slate-400 block text-[10px]">Най-голям разход за:</span>
+                    <span id="topCategory" class="font-bold text-xs text-slate-200 truncate block mt-0.5">Няма данни</span>
+                </div>
+            </div>
+
+            <!-- Custom Period Filter Section -->
+            <div class="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800 space-y-2 text-xs">
+                <span class="text-[11px] font-semibold text-slate-300 block flex items-center justify-between">
+                    <span><i class="fa-solid fa-filter me-1 text-orange-400"></i> Справка за период по Категория</span>
+                </span>
+                <div class="grid grid-cols-3 gap-1.5">
+                    <select id="customStatsCat" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 col-span-3">
+                        <!-- Dynamic Categories Injected -->
+                    </select>
                     <div>
-                        <div class="flex items-center gap-1.5 mb-1">
-                            <span id="carFuelBadge" class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-slate-800 text-orange-400 rounded-md border border-slate-700">
-                                --
-                            </span>
-                            <!-- Dynamic EV Charging Button -->
-                            <button id="evChargingBtn" onclick="openEvChargersMap()" class="hidden px-2 py-0.5 text-[10px] font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 rounded-md border border-emerald-500/30 flex items-center gap-1 transition">
-                                <i class="fa-solid fa-charging-station text-emerald-400"></i> Станции
-                            </button>
-                        </div>
-                        <h2 id="carTitle" class="text-xl font-bold text-white tracking-tight">Зареждане...</h2>
-                        <p id="carSubTitle" class="text-xs text-slate-400 mt-0.5">--</p>
+                        <label class="text-[9px] text-slate-400 block">От година</label>
+                        <select id="customStatsFrom" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
                     </div>
-                    <div class="flex gap-1">
-                        <button onclick="openCarModal(true)" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
-                            <i class="fa-solid fa-pen-to-square text-sm"></i>
-                        </button>
-                        <button onclick="deleteCurrentCar()" class="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition">
-                            <i class="fa-solid fa-trash text-sm"></i>
+                    <div>
+                        <label class="text-[9px] text-slate-400 block">До година</label>
+                        <select id="customStatsTo" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="calculateCustomStats()" class="w-full bg-orange-600 hover:bg-orange-500 text-white rounded-lg p-1 text-[11px] font-semibold">
+                            Смятай
                         </button>
                     </div>
                 </div>
-
-                <!-- Quick Mileage Update Bar -->
-                <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-xs">
-                    <span class="text-slate-400 flex items-center gap-1">
-                        <i class="fa-solid fa-gauge text-orange-400"></i> Пробег: <strong id="carKmDisplay" class="text-white">0</strong> км
-                    </span>
-                    <button onclick="promptUpdateKm()" class="text-[10px] font-semibold bg-orange-600/80 hover:bg-orange-500 text-white px-2 py-1 rounded-lg transition">
-                        <i class="fa-solid fa-arrows-rotate"></i> Обнови км
-                    </button>
+                <div id="customStatsResult" class="hidden bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px] space-y-0.5 text-slate-300">
+                    <!-- Results injected here -->
                 </div>
+            </div>
+        </section>
 
-                <!-- Plate & VIN Display -->
-                <div class="flex flex-wrap gap-2 pt-1">
-                    <div id="carPlateDisplay" class="text-[11px] text-slate-300 font-mono bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-700 hidden">
-                        <i class="fa-solid fa-car-side me-1 text-orange-400"></i> Рег. №: <span id="carPlateText" class="font-bold text-white">--</span>
-                    </div>
-                    <div id="carVinDisplay" class="text-[11px] text-slate-400 font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-800/60 hidden">
-                        <i class="fa-solid fa-fingerprint me-1 text-orange-400"></i> VIN: <span id="carVinText" class="text-slate-300">--</span>
-                    </div>
-                </div>
+        <!-- Quick Add Record Action -->
+        <button onclick="openRecordModal()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
+            <i class="fa-solid fa-plus-circle"></i> Добави обслужване / ремонт
+        </button>
 
-                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
-                    <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
-                        <span id="fuelLabel" class="text-[11px] text-slate-400 block font-medium">Цена гориво (днес)</span>
-                        <span id="carFuelPrice" class="text-base font-bold text-orange-400">€ 0.00 / л</span>
-                    </div>
-                    <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
-                        <span class="text-[11px] text-slate-400 block font-medium">Общо разходи</span>
-                        <span id="totalSpent" class="text-base font-bold text-emerald-400">€ 0.00</span>
-                    </div>
-                </div>
-            </section>
+        <!-- Filter & Service History -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">История</h3>
+                <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1 max-w-[170px]">
+                    <!-- Dynamic Options -->
+                </select>
+            </div>
 
-            <!-- Advanced Statistics Panel -->
-            <section class="glass rounded-2xl p-3.5 space-y-3 border border-slate-800">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                        <i class="fa-solid fa-chart-pie me-1.5 text-orange-500"></i> Статистика
-                    </span>
-                    <select id="statsYearSelect" onchange="updateStatistics()" class="glass-input text-xs font-bold text-orange-400 rounded-lg px-2 py-1 border border-orange-500/30">
-                        <option value="2026">2026 година</option>
-                        <option value="all">Всички години</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
-                        <span id="statsPeriodLabel" class="text-slate-400 block text-[10px]">За избраната година</span>
-                        <span id="yearSpent" class="font-bold text-base text-orange-400">€ 0.00</span>
-                    </div>
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
-                        <span class="text-slate-400 block text-[10px]">Най-голям разход за:</span>
-                        <span id="topCategory" class="font-bold text-xs text-slate-200 truncate block mt-0.5">Няма данни</span>
-                    </div>
-                </div>
-
-                <!-- Custom Period Filter Section -->
-                <div class="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800 space-y-2 text-xs">
-                    <span class="text-[11px] font-semibold text-slate-300 block flex items-center justify-between">
-                        <span><i class="fa-solid fa-filter me-1 text-orange-400"></i> Справка за период по Категория</span>
-                    </span>
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <select id="customStatsCat" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 col-span-3">
-                            <!-- Dynamic Categories Injected -->
-                        </select>
-                        <div>
-                            <label class="text-[9px] text-slate-400 block">От година</label>
-                            <select id="customStatsFrom" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
-                        </div>
-                        <div>
-                            <label class="text-[9px] text-slate-400 block">До година</label>
-                            <select id="customStatsTo" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
-                        </div>
-                        <div class="flex items-end">
-                            <button onclick="calculateCustomStats()" class="w-full bg-orange-600 hover:bg-orange-500 text-white rounded-lg p-1 text-[11px] font-semibold">
-                                Смятай
-                            </button>
-                        </div>
-                    </div>
-                    <div id="customStatsResult" class="hidden bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px] space-y-0.5 text-slate-300">
-                        <!-- Results injected here -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- Quick Add Record Action -->
-            <button onclick="openRecordModal()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
-                <i class="fa-solid fa-plus-circle"></i> Добави обслужване / ремонт
-            </button>
-
-            <!-- Filter & Service History -->
-            <section class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">История</h3>
-                    <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1 max-w-[170px]">
-                        <!-- Dynamic Options -->
-                    </select>
-                </div>
-
-                <div id="recordsList" class="space-y-2.5">
-                    <!-- Records injected here -->
-                </div>
-            </section>
-        </main>
-    </div>
+            <div id="recordsList" class="space-y-2.5">
+                <!-- Records injected here -->
+            </div>
+        </section>
+    </main>
 
     <!-- Modal: Backup & Restore -->
     <div id="backupModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -415,127 +367,8 @@
     <!-- Load Database Script First -->
     <script src="carData.js"></script>
 
-    <!-- Main App Logic & Auth Handling -->
+    <!-- Main App Logic -->
     <script>
-        // Проверка при зареждане на страницата за активна сесия
-        document.addEventListener("DOMContentLoaded", async () => {
-            const savedUserId = localStorage.getItem('autolog_user_id');
-            
-            if (savedUserId) {
-                // Има активна сесия - скриваме панела за вход и показваме приложението
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('app-wrapper').style.display = 'block';
-                console.log("Активна сесия намерена за ID:", savedUserId);
-            } else {
-                // Няма сесия - показваме панела за вход и скриваме приложението
-                document.getElementById('auth-container').style.display = 'block';
-                document.getElementById('app-wrapper').style.display = 'none';
-            }
-        });
-
-        // Динамично превключване между ПИН и Имейл табове с оцветяване
-        function switchMethod(method) {
-            const pinTab = document.getElementById('btn-pin-tab');
-            const emailTab = document.getElementById('btn-email-tab');
-            
-            if (method === 'pin') {
-                document.getElementById('pin-form').style.display = 'block';
-                document.getElementById('email-form').style.display = 'none';
-                pinTab.style.background = '#ff7300';
-                pinTab.style.color = '#fff';
-                emailTab.style.background = 'transparent';
-                emailTab.style.color = '#94a3b8';
-            } else {
-                document.getElementById('pin-form').style.display = 'none';
-                document.getElementById('email-form').style.display = 'block';
-                emailTab.style.background = '#ff7300';
-                emailTab.style.color = '#fff';
-                pinTab.style.background = 'transparent';
-                pinTab.style.color = '#94a3b8';
-            }
-        }
-
-        // Логика за вход с ПИН код (ползва изправния supabaseClient)
-        async function loginWithPin() {
-            const pin = document.getElementById('user-pin').value.trim();
-            if (pin.length < 4) {
-                alert('Моля, въведете 4-цифрен ПИН код!');
-                return;
-            }
-
-            try {
-                let { data: profile, error } = await supabaseClient
-                    .from('profiles')
-                    .select('*')
-                    .eq('pin_code', pin)
-                    .maybeSingle();
-
-                if (error) {
-                    console.error("Грешка при заявка:", error);
-                    alert("Грешка при връзка с базата данни: " + error.message);
-                    return;
-                }
-
-                if (!profile) {
-                    const newUserId = 'usr_' + Date.now();
-                    const { data: newProfile, error: insertError } = await supabaseClient
-                        .from('profiles')
-                        .insert([{ id: newUserId, pin_code: pin, auth_provider: 'pin' }])
-                        .select()
-                        .single();
-
-                    if (insertError) {
-                        console.error("Грешка при създаване:", insertError);
-                        alert("Грешка при създаване на профил: " + insertError.message);
-                        return;
-                    }
-
-                    profile = newProfile;
-                    alert('Новият ПИН е регистриран успешно в системата!');
-                } else {
-                    alert('Успешен вход!');
-                }
-
-                localStorage.setItem('autolog_user_id', profile.id);
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('app-wrapper').style.display = 'block';
-                location.reload();
-
-            } catch (err) {
-                console.error("Непредвидена грешка:", err);
-                alert("Възникна неочаквана грешка.");
-            }
-        }
-
-        // Логика за Magic Link с Имейл (обновена с supabaseClient.auth)
-        async function loginWithEmail() {
-            const email = document.getElementById('user-email').value.trim();
-            if (!email) {
-                alert('Въведете имейл адрес!');
-                return;
-            }
-
-            const { error } = await supabaseClient.auth.signInWithOtp({
-                email: email,
-                options: {
-                    emailRedirectTo: window.location.href
-                }
-            });
-
-            if (error) {
-                alert('Грешка: ' + error.message);
-            } else {
-                alert('Изпратен е линк за вход на ' + email + '! Проверете пощата си (и папка Спам).');
-            }
-        }
-
-        // Функция за Изход (Logout)
-        function logoutUser() {
-            localStorage.removeItem('autolog_user_id');
-            location.reload();
-        }
-
-        // --- Същински функционалности на AutoLog ---
         let rawData = localStorage.getItem('autolog_data');
         let appData;
         try {
