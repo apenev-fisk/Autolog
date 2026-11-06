@@ -1,130 +1,242 @@
-// auth.js - Zashitena inicializatsiya i vhod s Imeil (Magic Link) za AutoLog
+
+// AUTOLOG - SECURE SUPABASE AUTH
+// Magic Link Authentication
+
 const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
 
 let supabaseClient = null;
+let authInitialized = false;
 
-// Bezopasna inicializatsiya na Supabase SDK
-if (window.supabase && typeof window.supabase.createClient === 'function') {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// ----------------------------------
+// SUPABASE INITIALIZATION
+// ----------------------------------
+
+if (
+    window.supabase &&
+    typeof window.supabase.createClient === 'function'
+) {
+    supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 } else {
-    console.error("Supabase SDK vse oshte ne e zareden!");
+    console.error('AutoLog: Supabase SDK не е зареден!');
 }
 
-// Proverka za sesiya i zakachane na butoncheto sled zarejdane na DOM
-document.addEventListener("DOMContentLoaded", async () => {
+// ----------------------------------
+// AUTH UI
+// ----------------------------------
+
+function setAuthUI(session) {
     const authContainer = document.getElementById('auth-container');
     const appWrapper = document.getElementById('app-wrapper');
+    const userBadge = document.getElementById('user-profile-badge');
+    const emailSpan = document.getElementById('logged-user-email');
+
+    const authenticated = !!(
+        session &&
+        session.user &&
+        session.user.id
+    );
+
+    if (appWrapper) {
+        appWrapper.style.display = authenticated ? 'block' : 'none';
+    }
+
+    if (authContainer) {
+        authContainer.style.display = authenticated ? 'none' : 'flex';
+    }
+
+    if (userBadge) {
+        userBadge.style.display =
+            authenticated && session.user.email ? 'flex' : 'none';
+    }
+
+    if (emailSpan) {
+        emailSpan.textContent =
+            authenticated ? (session.user.email || '') : '';
+    }
+
+    if (authenticated) {
+        localStorage.setItem(
+            'autolog_user_id',
+            session.user.id
+        );
+    } else {
+        localStorage.removeItem('autolog_user_id');
+    }
+}
+
+// ----------------------------------
+// INITIALIZATION
+// ----------------------------------
+
+document.addEventListener('DOMContentLoaded', async () => {
+
     const sendBtn = document.getElementById('btn-send-email');
 
-// Когато потребителят е влязъл успешно, взимаме имейла му и го показваме на екрана
-const userBadge = document.getElementById('user-profile-badge');
-const emailSpan = document.getElementById('logged-user-email');
-
-if (session && session.user && session.user.email) {
-    if (emailSpan) emailSpan.innerText = session.user.email;
-    if (userBadge) userBadge.style.display = 'flex'; // Показва баджовете горе
-}
-    
-    // Zakachvame lissener-a kam butona dinamichno (bez inline onclick)
     if (sendBtn) {
         sendBtn.addEventListener('click', loginWithEmail);
     }
 
     if (!supabaseClient) {
-        console.error("Greshka: Supabase klientut ne e inicializiran!");
+        console.error('AutoLog: Няма Supabase клиент.');
         return;
     }
 
     try {
-        // 1. Proverqvame za aktivna sesiya v Supabase Auth
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-        
-        // 2. Proverka i na lokalniya zapis
-        const savedUserId = localStorage.getItem('autolog_user_id') || (session ? session.user.id : null);
 
-        if (savedUserId) {
-            // Potrebitelyat e vlyazal - skrivame vhoda, pokazvame prilojenieto
-            if (authContainer) authContainer.style.display = 'none';
-            if (appWrapper) appWrapper.style.display = 'block';
-        } else {
-            // Nyama sesiya - pokazvame ekrana za vhod
-            if (appWrapper) appWrapper.style.display = 'none';
-            if (authContainer) {
-                authContainer.style.display = 'flex';
-                authContainer.style.position = 'fixed';
-                authContainer.style.inset = '0';
-                authContainer.style.backgroundColor = '#0b101b';
-                authContainer.style.zIndex = '99999';
-                authContainer.style.alignItems = 'center';
-                authContainer.style.justifyContent = 'center';
-                authContainer.style.padding = '20px';
-            }
+        // First check the real Supabase session
+        const {
+            data: { session },
+            error
+        } = await supabaseClient.auth.getSession();
+
+        if (error) {
+            throw error;
         }
 
-        // Slushame za promeni v sustoyanieto na vhoda
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                localStorage.setItem('autolog_user_id', session.user.id);
-                location.reload();
+        // Display the correct application state
+        setAuthUI(session);
+
+        authInitialized = true;
+
+        // Listen for authentication changes
+        supabaseClient.auth.onAuthStateChange(
+            (event, newSession) => {
+
+                if (!authInitialized) return;
+
+                setAuthUI(newSession);
+
+                if (event === 'SIGNED_IN') {
+                    console.log('AutoLog: Успешен вход.');
+                }
+
+                if (event === 'SIGNED_OUT') {
+                    console.log('AutoLog: Изход от профила.');
+                }
+
+                if (event === 'TOKEN_REFRESHED') {
+                    console.log('AutoLog: Сесията е обновена.');
+                }
             }
-        });
+        );
 
     } catch (err) {
-        console.error("Greshka pri proverka na sesiyata:", err);
+
+        console.error(
+            'AutoLog: Грешка при проверка на сесията:',
+            err
+        );
+
+        setAuthUI(null);
     }
 });
 
-// Izprashtane na Magic Link po imeil
+// ----------------------------------
+// MAGIC LINK LOGIN
+// ----------------------------------
+
 async function loginWithEmail() {
+
     if (!supabaseClient) {
-        alert('Greshka: Supabase klientut ne e gotov.');
+        alert('Грешка: Supabase не е инициализиран.');
         return;
     }
 
     const emailInput = document.getElementById('user-email');
+    const btn = document.getElementById('btn-send-email');
+
     if (!emailInput) return;
 
     const email = emailInput.value.trim();
-    if (!email || !email.includes('@')) {
-        alert('Molya, vavedete validen imeil adres!');
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(email)) {
+        alert('Моля, въведете валиден имейл адрес!');
+        emailInput.focus();
         return;
     }
 
-    const btn = document.getElementById('btn-send-email');
     if (btn) {
         btn.disabled = true;
-        btn.innerText = 'Izprashtane...';
+        btn.innerHTML = 'Изпращане...';
     }
 
     try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            email: email,
-            options: {
-                emailRedirectTo: window.location.href
-            }
-        });
+
+        const redirectUrl =
+            window.location.origin + window.location.pathname;
+
+        const { error } =
+            await supabaseClient.auth.signInWithOtp({
+
+                email: email,
+
+                options: {
+                    emailRedirectTo: redirectUrl
+                }
+
+            });
 
         if (error) {
-            alert('Greshka: ' + error.message);
-        } else {
-            alert('Izpraten e Magic Link na ' + email + '!\nProverete poshtata si.');
+            throw error;
         }
+
+        alert(
+            'Magic Link е изпратен успешно на:\n' +
+            email +
+            '\n\nПроверете пощата си.'
+        );
+
     } catch (err) {
-        alert('Neochakvana greshka pri izprashtaneto.');
+
+        console.error('AutoLog Login Error:', err);
+
+        alert(
+            'Грешка при изпращане на Magic Link:\n' +
+            (err.message || 'Неочаквана грешка.')
+        );
+
     } finally {
+
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = '<span>Izprati Magic Link</span> <i class="fa-solid fa-arrow-right" style="font-size: 13px;"></i>';
+
+            btn.innerHTML =
+                '<span>Изпрати Magic Link</span>' +
+                '<i class="fa-solid fa-arrow-right" style="font-size:13px;"></i>';
         }
     }
 }
 
-// Izhod ot sistemata
+// ----------------------------------
+// LOGOUT
+// ----------------------------------
+
 async function logoutUser() {
-    if (supabaseClient) {
-        await supabaseClient.auth.signOut();
+
+    if (!supabaseClient) return;
+
+    try {
+
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+            throw error;
+        }
+
+        localStorage.removeItem('autolog_user_id');
+
+        setAuthUI(null);
+
+    } catch (err) {
+
+        console.error('AutoLog Logout Error:', err);
+
+        alert('Грешка при изход: ' + err.message);
     }
-    localStorage.removeItem('autolog_user_id');
-    location.reload();
 }
