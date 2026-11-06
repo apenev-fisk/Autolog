@@ -12,39 +12,191 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glass-input { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; }
-        .glass-input:focus { border-color: #ea580c; outline: none; }
+      <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+    .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-input { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; }
+    .glass-input:focus { border-color: #ea580c; outline: none; }
+
+    /* --- Тук добавяш новите стилове за входа --- */
+    #auth-container {
+        background: radial-gradient(circle at center, #1e293b 0%, #0b101b 100%) !important;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 400px;
+        padding: 36px 28px;
+        background: rgba(21, 27, 43, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(234, 88, 12, 0.08);
+        color: #fff;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .auth-logo-wrapper {
+        margin-bottom: 18px;
+        display: inline-block;
+        position: relative;
+    }
+
+    .auth-logo {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        border-radius: 22px;
+        border: 2px solid rgba(234, 88, 12, 0.5);
+        box-shadow: 0 10px 25px rgba(234, 88, 12, 0.3);
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .auth-card:hover .auth-logo {
+        transform: scale(1.03);
+    }
+
+    .auth-title {
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        letter-spacing: -0.5px;
+    }
+
+    .auth-title-accent {
+        color: #ea580c;
+    }
+
+    .auth-subtitle {
+        font-size: 13px;
+        color: #94a3b8;
+        margin-bottom: 28px;
+        font-weight: 500;
+    }
+
+    .auth-input-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .auth-input-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 14px;
+        transition: color 0.2s ease;
+    }
+
+    .auth-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 14px 16px 14px 44px;
+        background: rgba(11, 16, 27, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        color: #fff;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.25s ease;
+    }
+
+    .auth-input:focus {
+        border-color: #ea580c;
+        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2);
+        background: rgba(11, 16, 27, 0.95);
+    }
+
+    .auth-input-group:focus-within .auth-input-icon {
+        color: #ea580c;
+    }
+
+    .auth-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(234, 88, 12, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .auth-btn:hover {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        box-shadow: 0 8px 25px rgba(234, 88, 12, 0.5);
+        transform: translateY(-1px);
+    }
+
+    .auth-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+    }
+
+    .auth-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .auth-footer-note {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 22px;
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="pb-12">
 
-    <!-- Екран за Вход само с Имейл -->
+   <!-- Екран за Вход само с Имейл (Оптимизиран за компютър и телефон) -->
 <div id="auth-container" style="display: none;">
-  <div style="width: 100%; max-width: 380px; padding: 32px 24px; background: rgba(21, 27, 43, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); color: #fff; text-align: center;">
+  <div class="auth-card">
     
-    <!-- Лого картинка най-горе -->
-    <div style="margin-bottom: 20px;">
-      <img src="watermarked_img_16635183195398438804.jpg" alt="AutoLog Logo" style="width: 72px; h-72px; margin: 0 auto; rounded-2xl: 18px; border: 2px solid rgba(234, 88, 12, 0.4); border-radius: 18px; box-shadow: 0 8px 20px rgba(234, 88, 12, 0.25); object-fit: cover;">
+    <!-- Лого с мека оранжева светлина -->
+    <div class="auth-logo-wrapper">
+      <img src="watermarked_img_16635183195398438804.jpg" alt="AutoLog Logo" class="auth-logo">
     </div>
 
-    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px;">Auto<span style="color: #ea580c;">Log</span></h2>
-    <p style="font-size: 13px; color: #94a3b8; margin-bottom: 24px;">Влезте в твоята сервизна книга</p>
+    <h2 class="auth-title">Auto<span class="auth-title-accent">Log</span></h2>
+    <p class="auth-subtitle">Вашата дигитална сервизна книга</p>
 
-    <!-- Форма за Имейл -->
-    <div style="margin-bottom: 16px;">
-      <input type="email" id="user-email" placeholder="vashia@email.com" style="width: 100%; box-sizing: border-box; padding: 14px; background: #0b101b; border: 1px solid #2a3958; border-radius: 14px; color: #fff; font-size: 15px; text-align: center; outline: none; transition: 0.2s;" onfocus="this.style.borderColor='#ea580c'" onblur="this.style.borderColor='#2a3958'" />
+    <!-- Поле за Имейл -->
+    <div class="auth-input-group">
+      <i class="fa-solid fa-envelope auth-input-icon"></i>
+      <input type="email" id="user-email" placeholder="vashia@email.com" class="auth-input" autocomplete="email" />
     </div>
 
-    <button id="btn-send-email" onclick="loginWithEmail()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #ea580c, #d97706); color: white; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(234, 88, 12, 0.35); transition: 0.2s;">
-      Изпрати Magic Link
+    <!-- Модерен Бутон -->
+    <button id="btn-send-email" onclick="loginWithEmail()" class="auth-btn">
+      <span>Изпрати Magic Link</span>
+      <i class="fa-solid fa-arrow-right" style="font-size: 13px;"></i>
     </button>
 
-    <p style="font-size: 11px; color: #64748b; margin-top: 20px; line-height: 1.4;">
-      Ще получите защитен линк за вход на посочения имейл адрес.
-    </p>
+    <!-- Информационна бележка -->
+    <div class="auth-footer-note">
+      <i class="fa-solid fa-shield-halved text-orange-500/80 me-1"></i>
+      <span>Ще получите защитен линк за вход без нужда от парола.</span>
+    </div>
+
   </div>
 </div>
 
