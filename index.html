@@ -31,6 +31,27 @@
     </style>
 </head>
 <body class="pb-12">
+    <!-- ДОБАВИ ТОВА НА МЯСТОТО, КЪДЕТО ИКАШ ДА СЕ ВИЖДА ФОРМАТА ЗА ВХОД: -->
+  <div id="auth-container" style="max-width: 320px; margin: 40px auto; text-align: center; font-family: sans-serif;">
+    <h2>Добре дошли в AutoLog</h2>
+    
+    <div style="margin-bottom: 20px;">
+      <button onclick="switchMethod('pin')" style="padding: 8px 16px; margin-right: 5px;">С ПИН код</button>
+      <button onclick="switchMethod('email')" style="padding: 8px 16px;">С Имейл</button>
+    </div>
+
+    <div id="pin-form">
+      <input type="password" id="user-pin" placeholder="Въведи 4-цифрен ПИН" maxlength="4" style="padding: 10px; font-size: 18px; width: 80%; text-align: center;" />
+      <br/><br/>
+      <button onclick="loginWithPin()" style="padding: 10px 20px; font-size: 16px;">Вход / Регистрация</button>
+    </div>
+
+    <div id="email-form" style="display: none;">
+      <input type="email" id="user-email" placeholder="твоят@email.com" style="padding: 10px; font-size: 16px; width: 80%;" />
+      <br/><br/>
+      <button onclick="loginWithEmail()" style="padding: 10px 20px; font-size: 16px;">Изпрати Magic Link</button>
+    </div>
+  </div>
 
     <!-- Header Navigation -->
     <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
@@ -1162,5 +1183,61 @@
             updateUI();
         });
     </script>
+  <!-- ДОБАВИ ТОВА НАЙ-ОТДОЛУ ПРЕДИ </body>: -->
+  <script>
+    function switchMethod(method) {
+      if (method === 'pin') {
+        document.getElementById('pin-form').style.display = 'block';
+        document.getElementById('email-form').style.display = 'none';
+      } else {
+        document.getElementById('pin-form').style.display = 'none';
+        document.getElementById('email-form').style.display = 'block';
+      }
+    }
+
+    async function loginWithPin() {
+      const pin = document.getElementById('user-pin').value;
+      if (pin.length < 4) {
+        alert('Моля, въведете 4-цифрен ПИН код!');
+        return;
+      }
+
+      let { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('pin_code', pin)
+        .maybeSingle();
+
+      if (!profile) {
+        const userId = 'usr_' + Date.now();
+        const { data, error: errInsert } = await supabase
+          .from('profiles')
+          .insert([{ id: userId, pin_code: pin, auth_provider: 'pin' }])
+          .select()
+          .single();
+        
+        profile = data;
+      }
+
+      localStorage.setItem('autolog_user_id', profile.id);
+      alert('Успешен вход!');
+      // Тук след време ще скриваме екрана за вход и ще зареждаме колите
+    }
+
+    async function loginWithEmail() {
+      const email = document.getElementById('user-email').value;
+      if (!email) {
+        alert('Въведете имейл адрес!');
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithOtp({ email });
+      if (error) {
+        alert('Грешка: ' + error.message);
+      } else {
+        alert('Изпратихме линк за вход на твоя имейл!');
+      }
+    }
+  </script>
 </body>
 </html>
