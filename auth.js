@@ -17,6 +17,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const appWrapper = document.getElementById('app-wrapper');
     const sendBtn = document.getElementById('btn-send-email');
 
+// Когато потребителят е влязъл успешно, взимаме имейла му и го показваме на екрана
+const userBadge = document.getElementById('user-profile-badge');
+const emailSpan = document.getElementById('logged-user-email');
+
+if (session && session.user && session.user.email) {
+    if (emailSpan) emailSpan.innerText = session.user.email;
+    if (userBadge) userBadge.style.display = 'flex'; // Показва баджовете горе
+}
+    
     // Zakachvame lissener-a kam butona dinamichno (bez inline onclick)
     if (sendBtn) {
         sendBtn.addEventListener('click', loginWithEmail);
