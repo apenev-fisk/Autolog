@@ -31,27 +31,54 @@
     </style>
 </head>
 <body class="pb-12">
-    <!-- ДОБАВИ ТОВА НА МЯСТОТО, КЪДЕТО ИКАШ ДА СЕ ВИЖДА ФОРМАТА ЗА ВХОД: -->
-  <div id="auth-container" style="max-width: 320px; margin: 40px auto; text-align: center; font-family: sans-serif;">
-    <h2>Добре дошли в AutoLog</h2>
-    
-    <div style="margin-bottom: 20px;">
-      <button onclick="switchMethod('pin')" style="padding: 8px 16px; margin-right: 5px;">С ПИН код</button>
-      <button onclick="switchMethod('email')" style="padding: 8px 16px;">С Имейл</button>
-    </div>
-
-    <div id="pin-form">
-      <input type="password" id="user-pin" placeholder="Въведи 4-цифрен ПИН" maxlength="4" style="padding: 10px; font-size: 18px; width: 80%; text-align: center;" />
-      <br/><br/>
-      <button onclick="loginWithPin()" style="padding: 10px 20px; font-size: 16px;">Вход / Регистрация</button>
-    </div>
-
-    <div id="email-form" style="display: none;">
-      <input type="email" id="user-email" placeholder="твоят@email.com" style="padding: 10px; font-size: 16px; width: 80%;" />
-      <br/><br/>
-      <button onclick="loginWithEmail()" style="padding: 10px 20px; font-size: 16px;">Изпрати Magic Link</button>
-    </div>
+   <div id="auth-container" style="max-width: 400px; margin: 20px auto; padding: 24px; background-color: #151b2b; border: 1px solid #222d44; border-radius: 16px; font-family: system-ui, -apple-system, sans-serif; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+  <h2 style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600; color: #fff;">Добре дошли в AutoLog</h2>
+  
+  <!-- Превключвател (Табове) -->
+  <div style="display: flex; background: #0b101b; padding: 4px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #1e293b;">
+    <button id="btn-pin-tab" onclick="switchMethod('pin')" style="flex: 1; padding: 10px; border: none; background: #ff7300; color: white; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С ПИН код</button>
+    <button id="btn-email-tab" onclick="switchMethod('email')" style="flex: 1; padding: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С Имейл</button>
   </div>
+
+  <!-- Форма за ПИН код -->
+  <div id="pin-form">
+    <div style="margin-bottom: 15px;">
+      <input type="password" id="user-pin" placeholder="••••" maxlength="4" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 24px; text-align: center; letter-spacing: 8px;" />
+    </div>
+    <button onclick="loginWithPin()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Вход</button>
+  </div>
+
+  <!-- Форма за Имейл -->
+  <div id="email-form" style="display: none;">
+    <div style="margin-bottom: 15px;">
+      <input type="email" id="user-email" placeholder="vashia@email.com" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 16px; text-align: center;" />
+    </div>
+    <button onclick="loginWithEmail()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Изпрати Magic Link</button>
+  </div>
+</div>
+
+<script>
+  function switchMethod(method) {
+    const pinTab = document.getElementById('btn-pin-tab');
+    const emailTab = document.getElementById('btn-email-tab');
+    
+    if (method === 'pin') {
+      document.getElementById('pin-form').style.display = 'block';
+      document.getElementById('email-form').style.display = 'none';
+      pinTab.style.background = '#ff7300';
+      pinTab.style.color = '#fff';
+      emailTab.style.background = 'transparent';
+      emailTab.style.color = '#94a3b8';
+    } else {
+      document.getElementById('pin-form').style.display = 'none';
+      document.getElementById('email-form').style.display = 'block';
+      emailTab.style.background = '#ff7300';
+      emailTab.style.color = '#fff';
+      pinTab.style.background = 'transparent';
+      pinTab.style.color = '#94a3b8';
+    }
+  }
+</script>
 
     <!-- Header Navigation -->
     <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
