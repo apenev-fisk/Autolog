@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-    
-    <!-- Зареждаме Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
-  
-  // Създаваме глобален клиент с името supabaseClient за сигурност
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  console.log("Supabase е успешно свързан!");
-</script>
-    
+    <!-- 1. Зареждаме Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // 2. Инициализация на Supabase с правилно име на клиента
+      const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log("Supabase е успешно свързан!");
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoLog - Сервизна книга</title>
@@ -60,7 +58,7 @@
     </div>
 
     <!-- Основно съдържание на приложението (скрито, докато не се влезе) -->
-    <div id="app-wrapper">
+    <div id="app-wrapper" style="display: none;">
         <!-- Header Navigation -->
         <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
             <div class="max-w-md mx-auto flex items-center justify-between">
@@ -454,60 +452,59 @@
             }
         }
 
-        // Логика за вход с ПИН код (запис в Supabase таблица profiles)
-       async function loginWithPin() {
-    const pin = document.getElementById('user-pin').value.trim();
-    if (pin.length < 4) {
-        alert('Моля, въведете 4-цифрен ПИН код!');
-        return;
-    }
-
-    try {
-        // Използваме supabaseClient вместо supabase
-        let { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('*')
-            .eq('pin_code', pin)
-            .maybeSingle();
-
-        if (error) {
-            console.error("Грешка при заявка:", error);
-            alert("Грешка при връзка с базата данни: " + error.message);
-            return;
-        }
-
-        if (!profile) {
-            const newUserId = 'usr_' + Date.now();
-            const { data: newProfile, error: insertError } = await supabaseClient
-                .from('profiles')
-                .insert([{ id: newUserId, pin_code: pin, auth_provider: 'pin' }])
-                .select()
-                .single();
-
-            if (insertError) {
-                console.error("Грешка при създаване:", insertError);
-                alert("Грешка при създаване на профил: " + insertError.message);
+        // Логика за вход с ПИН код (ползва изправния supabaseClient)
+        async function loginWithPin() {
+            const pin = document.getElementById('user-pin').value.trim();
+            if (pin.length < 4) {
+                alert('Моля, въведете 4-цифрен ПИН код!');
                 return;
             }
 
-            profile = newProfile;
-            alert('Новият ПИН е регистриран успешно в системата!');
-        } else {
-            alert('Успешен вход!');
+            try {
+                let { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('pin_code', pin)
+                    .maybeSingle();
+
+                if (error) {
+                    console.error("Грешка при заявка:", error);
+                    alert("Грешка при връзка с базата данни: " + error.message);
+                    return;
+                }
+
+                if (!profile) {
+                    const newUserId = 'usr_' + Date.now();
+                    const { data: newProfile, error: insertError } = await supabaseClient
+                        .from('profiles')
+                        .insert([{ id: newUserId, pin_code: pin, auth_provider: 'pin' }])
+                        .select()
+                        .single();
+
+                    if (insertError) {
+                        console.error("Грешка при създаване:", insertError);
+                        alert("Грешка при създаване на профил: " + insertError.message);
+                        return;
+                    }
+
+                    profile = newProfile;
+                    alert('Новият ПИН е регистриран успешно в системата!');
+                } else {
+                    alert('Успешен вход!');
+                }
+
+                localStorage.setItem('autolog_user_id', profile.id);
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('app-wrapper').style.display = 'block';
+                location.reload();
+
+            } catch (err) {
+                console.error("Непредвидена грешка:", err);
+                alert("Възникна неочаквана грешка.");
+            }
         }
 
-        localStorage.setItem('autolog_user_id', profile.id);
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('app-wrapper').style.display = 'block';
-        location.reload();
-
-    } catch (err) {
-        console.error("Непредвидена грешка:", err);
-        alert("Възникна неочаквана грешка.");
-    }
-}
-
-        // Логика за Magic Link с Имейл
+        // Логика за Magic Link с Имейл (обновена с supabaseClient.auth)
         async function loginWithEmail() {
             const email = document.getElementById('user-email').value.trim();
             if (!email) {
@@ -515,7 +512,7 @@
                 return;
             }
 
-            const { error } = await supabase.auth.signInWithOtp({
+            const { error } = await supabaseClient.auth.signInWithOtp({
                 email: email,
                 options: {
                     emailRedirectTo: window.location.href
