@@ -15,6 +15,13 @@ if (window.supabase && typeof window.supabase.createClient === 'function') {
 document.addEventListener("DOMContentLoaded", async () => {
     const authContainer = document.getElementById('auth-container');
     const appWrapper = document.getElementById('app-wrapper');
+    // Закачаме клика към бутона безопасно, без инлайн скриптове
+document.addEventListener("DOMContentLoaded", () => {
+    const sendBtn = document.getElementById('btn-send-email');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', loginWithEmail);
+    }
+});
 
     if (!supabaseClient) {
         console.error("Грешка: Supabase клиентът не е инициализиран!");
