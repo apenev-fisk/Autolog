@@ -2,17 +2,15 @@
 <html lang="bg">
 <head>
     <!-- 1. Зареждаме Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // 2. Инициализация на Supabase с твоите данни
+      const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
+      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log("Supabase е успешно свързан!");
+    </script>
 
-<script>
-  // 2. Инициализация на Supabase с твоите данни
-  const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
-  
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  console.log("Supabase е успешно свързан!");
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoLog - Сервизна книга</title>
@@ -31,221 +29,208 @@
     </style>
 </head>
 <body class="pb-12">
-   <div id="auth-container" style="max-width: 400px; margin: 20px auto; padding: 24px; background-color: #151b2b; border: 1px solid #222d44; border-radius: 16px; font-family: system-ui, -apple-system, sans-serif; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
-  <h2 style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600; color: #fff;">Добре дошли в AutoLog</h2>
-  
-  <!-- Превключвател (Табове) -->
-  <div style="display: flex; background: #0b101b; padding: 4px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #1e293b;">
-    <button id="btn-pin-tab" onclick="switchMethod('pin')" style="flex: 1; padding: 10px; border: none; background: #ff7300; color: white; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С ПИН код</button>
-    <button id="btn-email-tab" onclick="switchMethod('email')" style="flex: 1; padding: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С Имейл</button>
-  </div>
 
-  <!-- Форма за ПИН код -->
-  <div id="pin-form">
-    <div style="margin-bottom: 15px;">
-      <input type="password" id="user-pin" placeholder="••••" maxlength="4" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 24px; text-align: center; letter-spacing: 8px;" />
+    <!-- Екран за Вход / Регистрация (скрива се автоматично при наличие на активна сесия) -->
+    <div id="auth-container" style="display: none; max-width: 400px; margin: 40px auto; padding: 24px; background-color: #151b2b; border: 1px solid #222d44; border-radius: 16px; font-family: system-ui, -apple-system, sans-serif; color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; position: relative;">
+      <h2 style="text-align: center; margin-bottom: 20px; font-size: 20px; font-weight: 600; color: #fff;">Добре дошли в AutoLog</h2>
+      
+      <!-- Динамични табове за превключване -->
+      <div style="display: flex; background: #0b101b; padding: 4px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #1e293b;">
+        <button id="btn-pin-tab" onclick="switchMethod('pin')" style="flex: 1; padding: 10px; border: none; background: #ff7300; color: white; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С ПИН код</button>
+        <button id="btn-email-tab" onclick="switchMethod('email')" style="flex: 1; padding: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 600; border-radius: 9px; cursor: pointer; transition: 0.2s;">С Имейл</button>
+      </div>
+
+      <!-- Форма за ПИН код -->
+      <div id="pin-form">
+        <div style="margin-bottom: 15px;">
+          <input type="password" id="user-pin" placeholder="••••" maxlength="4" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 24px; text-align: center; letter-spacing: 8px;" />
+        </div>
+        <button onclick="loginWithPin()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Вход</button>
+      </div>
+
+      <!-- Форма за Имейл -->
+      <div id="email-form" style="display: none;">
+        <div style="margin-bottom: 15px;">
+          <input type="email" id="user-email" placeholder="vashia@email.com" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 16px; text-align: center;" />
+        </div>
+        <button onclick="loginWithEmail()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Изпрати Magic Link</button>
+      </div>
     </div>
-    <button onclick="loginWithPin()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Вход</button>
-  </div>
 
-  <!-- Форма за Имейл -->
-  <div id="email-form" style="display: none;">
-    <div style="margin-bottom: 15px;">
-      <input type="email" id="user-email" placeholder="vashia@email.com" style="width: 100%; box-sizing: border-box; padding: 12px; background: #0b101b; border: 1px solid #2a3958; border-radius: 12px; color: #fff; font-size: 16px; text-align: center;" />
-    </div>
-    <button onclick="loginWithEmail()" style="width: 100%; padding: 12px; background: #ff7300; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(255,115,0,0.3);">Изпрати Magic Link</button>
-  </div>
-</div>
-
-<script>
-  function switchMethod(method) {
-    const pinTab = document.getElementById('btn-pin-tab');
-    const emailTab = document.getElementById('btn-email-tab');
-    
-    if (method === 'pin') {
-      document.getElementById('pin-form').style.display = 'block';
-      document.getElementById('email-form').style.display = 'none';
-      pinTab.style.background = '#ff7300';
-      pinTab.style.color = '#fff';
-      emailTab.style.background = 'transparent';
-      emailTab.style.color = '#94a3b8';
-    } else {
-      document.getElementById('pin-form').style.display = 'none';
-      document.getElementById('email-form').style.display = 'block';
-      emailTab.style.background = '#ff7300';
-      emailTab.style.color = '#fff';
-      pinTab.style.background = 'transparent';
-      pinTab.style.color = '#94a3b8';
-    }
-  }
-</script>
-
-    <!-- Header Navigation -->
-    <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
-        <div class="max-w-md mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <img src="watermarked_img_16635183195398438804.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-cover border border-orange-500/30 shadow">
-                <span class="font-bold text-lg tracking-tight text-white">Auto<span class="text-orange-500">Log</span></span>
-            </div>
-            <button onclick="openBackupModal()" class="text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-shield-halved text-orange-400"></i> Архив
-            </button>
-        </div>
-    </header>
-
-    <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
-
-        <!-- Car Selection Bar -->
-        <div class="flex items-center justify-between gap-2 glass p-2 rounded-xl">
-            <div class="flex items-center gap-2 flex-1">
-                <i class="fa-solid fa-garage text-slate-400 text-xs ms-1"></i>
-                <select id="carSelect" onchange="switchCar(this.value)" class="glass-input text-xs font-semibold rounded-lg px-2 py-1.5 w-full">
-                    <!-- Dynamic Cars -->
-                </select>
-            </div>
-            <button onclick="openCarModal()" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow">
-                <i class="fa-solid fa-plus"></i> Кола
-            </button>
-        </div>
-
-        <!-- Smart Reminder Banner -->
-        <div id="reminderBanner" class="hidden glass border-l-4 border-amber-500 rounded-xl p-3 text-xs space-y-1">
-            <div class="flex items-center justify-between font-bold text-amber-400">
-                <span><i class="fa-solid fa-bell me-1.5"></i> Напомняне за автомобила</span>
-                <button onclick="dismissReminder()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p id="reminderText" class="text-slate-300">--</p>
-        </div>
-
-        <!-- Vehicle Profile Card -->
-        <section class="glass rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
-            <div class="flex items-start justify-between">
-                <div>
-                    <div class="flex items-center gap-1.5 mb-1">
-                        <span id="carFuelBadge" class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-slate-800 text-orange-400 rounded-md border border-slate-700">
-                            --
-                        </span>
-                        <!-- Dynamic EV Charging Button -->
-                        <button id="evChargingBtn" onclick="openEvChargersMap()" class="hidden px-2 py-0.5 text-[10px] font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 rounded-md border border-emerald-500/30 flex items-center gap-1 transition">
-                            <i class="fa-solid fa-charging-station text-emerald-400"></i> Станции
-                        </button>
-                    </div>
-                    <h2 id="carTitle" class="text-xl font-bold text-white tracking-tight">Зареждане...</h2>
-                    <p id="carSubTitle" class="text-xs text-slate-400 mt-0.5">--</p>
+    <!-- Основно съдържание на приложението (скрито, докато не се влезе) -->
+    <div id="app-wrapper">
+        <!-- Header Navigation -->
+        <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
+            <div class="max-w-md mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <img src="watermarked_img_16635183195398438804.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-cover border border-orange-500/30 shadow">
+                    <span class="font-bold text-lg tracking-tight text-white">Auto<span class="text-orange-500">Log</span></span>
                 </div>
-                <div class="flex gap-1">
-                    <button onclick="openCarModal(true)" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-pen-to-square text-sm"></i>
+                <div class="flex items-center gap-2">
+                    <button onclick="logoutUser()" class="text-xs font-semibold text-red-400 bg-red-950/40 hover:bg-red-900/60 px-2.5 py-1.5 rounded-lg border border-red-500/30 transition">
+                        <i class="fa-solid fa-right-from-bracket"></i> Изход
                     </button>
-                    <button onclick="deleteCurrentCar()" class="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-trash text-sm"></i>
+                    <button onclick="openBackupModal()" class="text-xs font-semibold text-slate-300 bg-slate-800/80 hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-shield-halved text-orange-400"></i> Архив
                     </button>
                 </div>
             </div>
+        </header>
 
-            <!-- Quick Mileage Update Bar -->
-            <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-xs">
-                <span class="text-slate-400 flex items-center gap-1">
-                    <i class="fa-solid fa-gauge text-orange-400"></i> Пробег: <strong id="carKmDisplay" class="text-white">0</strong> км
-                </span>
-                <button onclick="promptUpdateKm()" class="text-[10px] font-semibold bg-orange-600/80 hover:bg-orange-500 text-white px-2 py-1 rounded-lg transition">
-                    <i class="fa-solid fa-arrows-rotate"></i> Обнови км
+        <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
+
+            <!-- Car Selection Bar -->
+            <div class="flex items-center justify-between gap-2 glass p-2 rounded-xl">
+                <div class="flex items-center gap-2 flex-1">
+                    <i class="fa-solid fa-garage text-slate-400 text-xs ms-1"></i>
+                    <select id="carSelect" onchange="switchCar(this.value)" class="glass-input text-xs font-semibold rounded-lg px-2 py-1.5 w-full">
+                        <!-- Dynamic Cars -->
+                    </select>
+                </div>
+                <button onclick="openCarModal()" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 transition shadow">
+                    <i class="fa-solid fa-plus"></i> Кола
                 </button>
             </div>
 
-            <!-- Plate & VIN Display -->
-            <div class="flex flex-wrap gap-2 pt-1">
-                <div id="carPlateDisplay" class="text-[11px] text-slate-300 font-mono bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-700 hidden">
-                    <i class="fa-solid fa-car-side me-1 text-orange-400"></i> Рег. №: <span id="carPlateText" class="font-bold text-white">--</span>
+            <!-- Smart Reminder Banner -->
+            <div id="reminderBanner" class="hidden glass border-l-4 border-amber-500 rounded-xl p-3 text-xs space-y-1">
+                <div class="flex items-center justify-between font-bold text-amber-400">
+                    <span><i class="fa-solid fa-bell me-1.5"></i> Напомняне за автомобила</span>
+                    <button onclick="dismissReminder()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div id="carVinDisplay" class="text-[11px] text-slate-400 font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-800/60 hidden">
-                    <i class="fa-solid fa-fingerprint me-1 text-orange-400"></i> VIN: <span id="carVinText" class="text-slate-300">--</span>
-                </div>
+                <p id="reminderText" class="text-slate-300">--</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
-                <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
-                    <span id="fuelLabel" class="text-[11px] text-slate-400 block font-medium">Цена гориво (днес)</span>
-                    <span id="carFuelPrice" class="text-base font-bold text-orange-400">€ 0.00 / л</span>
-                </div>
-                <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
-                    <span class="text-[11px] text-slate-400 block font-medium">Общо разходи</span>
-                    <span id="totalSpent" class="text-base font-bold text-emerald-400">€ 0.00</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Advanced Statistics Panel -->
-        <section class="glass rounded-2xl p-3.5 space-y-3 border border-slate-800">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    <i class="fa-solid fa-chart-pie me-1.5 text-orange-500"></i> Статистика
-                </span>
-                <select id="statsYearSelect" onchange="updateStatistics()" class="glass-input text-xs font-bold text-orange-400 rounded-lg px-2 py-1 border border-orange-500/30">
-                    <option value="2026">2026 година</option>
-                    <option value="all">Всички години</option>
-                </select>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
-                    <span id="statsPeriodLabel" class="text-slate-400 block text-[10px]">За избраната година</span>
-                    <span id="yearSpent" class="font-bold text-base text-orange-400">€ 0.00</span>
-                </div>
-                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
-                    <span class="text-slate-400 block text-[10px]">Най-голям разход за:</span>
-                    <span id="topCategory" class="font-bold text-xs text-slate-200 truncate block mt-0.5">Няма данни</span>
-                </div>
-            </div>
-
-            <!-- Custom Period Filter Section -->
-            <div class="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800 space-y-2 text-xs">
-                <span class="text-[11px] font-semibold text-slate-300 block flex items-center justify-between">
-                    <span><i class="fa-solid fa-filter me-1 text-orange-400"></i> Справка за период по Категория</span>
-                </span>
-                <div class="grid grid-cols-3 gap-1.5">
-                    <select id="customStatsCat" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 col-span-3">
-                        <!-- Dynamic Categories Injected -->
-                    </select>
+            <!-- Vehicle Profile Card -->
+            <section class="glass rounded-2xl p-4 shadow-xl relative overflow-hidden space-y-2">
+                <div class="flex items-start justify-between">
                     <div>
-                        <label class="text-[9px] text-slate-400 block">От година</label>
-                        <select id="customStatsFrom" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span id="carFuelBadge" class="inline-block px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-slate-800 text-orange-400 rounded-md border border-slate-700">
+                                --
+                            </span>
+                            <!-- Dynamic EV Charging Button -->
+                            <button id="evChargingBtn" onclick="openEvChargersMap()" class="hidden px-2 py-0.5 text-[10px] font-bold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 rounded-md border border-emerald-500/30 flex items-center gap-1 transition">
+                                <i class="fa-solid fa-charging-station text-emerald-400"></i> Станции
+                            </button>
+                        </div>
+                        <h2 id="carTitle" class="text-xl font-bold text-white tracking-tight">Зареждане...</h2>
+                        <p id="carSubTitle" class="text-xs text-slate-400 mt-0.5">--</p>
                     </div>
-                    <div>
-                        <label class="text-[9px] text-slate-400 block">До година</label>
-                        <select id="customStatsTo" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
-                    </div>
-                    <div class="flex items-end">
-                        <button onclick="calculateCustomStats()" class="w-full bg-orange-600 hover:bg-orange-500 text-white rounded-lg p-1 text-[11px] font-semibold">
-                            Смятай
+                    <div class="flex gap-1">
+                        <button onclick="openCarModal(true)" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-pen-to-square text-sm"></i>
+                        </button>
+                        <button onclick="deleteCurrentCar()" class="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-trash text-sm"></i>
                         </button>
                     </div>
                 </div>
-                <div id="customStatsResult" class="hidden bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px] space-y-0.5 text-slate-300">
-                    <!-- Results injected here -->
+
+                <!-- Quick Mileage Update Bar -->
+                <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-xl border border-slate-800 text-xs">
+                    <span class="text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-gauge text-orange-400"></i> Пробег: <strong id="carKmDisplay" class="text-white">0</strong> км
+                    </span>
+                    <button onclick="promptUpdateKm()" class="text-[10px] font-semibold bg-orange-600/80 hover:bg-orange-500 text-white px-2 py-1 rounded-lg transition">
+                        <i class="fa-solid fa-arrows-rotate"></i> Обнови км
+                    </button>
                 </div>
-            </div>
-        </section>
 
-        <!-- Quick Add Record Action -->
-        <button onclick="openRecordModal()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
-            <i class="fa-solid fa-plus-circle"></i> Добави обслужване / ремонт
-        </button>
+                <!-- Plate & VIN Display -->
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <div id="carPlateDisplay" class="text-[11px] text-slate-300 font-mono bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-700 hidden">
+                        <i class="fa-solid fa-car-side me-1 text-orange-400"></i> Рег. №: <span id="carPlateText" class="font-bold text-white">--</span>
+                    </div>
+                    <div id="carVinDisplay" class="text-[11px] text-slate-400 font-mono bg-slate-900/40 px-2.5 py-1 rounded-lg border border-slate-800/60 hidden">
+                        <i class="fa-solid fa-fingerprint me-1 text-orange-400"></i> VIN: <span id="carVinText" class="text-slate-300">--</span>
+                    </div>
+                </div>
 
-        <!-- Filter & Service History -->
-        <section class="space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">История</h3>
-                <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1 max-w-[170px]">
-                    <!-- Dynamic Options -->
-                </select>
-            </div>
+                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+                    <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
+                        <span id="fuelLabel" class="text-[11px] text-slate-400 block font-medium">Цена гориво (днес)</span>
+                        <span id="carFuelPrice" class="text-base font-bold text-orange-400">€ 0.00 / л</span>
+                    </div>
+                    <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/50">
+                        <span class="text-[11px] text-slate-400 block font-medium">Общо разходи</span>
+                        <span id="totalSpent" class="text-base font-bold text-emerald-400">€ 0.00</span>
+                    </div>
+                </div>
+            </section>
 
-            <div id="recordsList" class="space-y-2.5">
-                <!-- Records injected here -->
-            </div>
-        </section>
-    </main>
+            <!-- Advanced Statistics Panel -->
+            <section class="glass rounded-2xl p-3.5 space-y-3 border border-slate-800">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-chart-pie me-1.5 text-orange-500"></i> Статистика
+                    </span>
+                    <select id="statsYearSelect" onchange="updateStatistics()" class="glass-input text-xs font-bold text-orange-400 rounded-lg px-2 py-1 border border-orange-500/30">
+                        <option value="2026">2026 година</option>
+                        <option value="all">Всички години</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
+                        <span id="statsPeriodLabel" class="text-slate-400 block text-[10px]">За избраната година</span>
+                        <span id="yearSpent" class="font-bold text-base text-orange-400">€ 0.00</span>
+                    </div>
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800/60">
+                        <span class="text-slate-400 block text-[10px]">Най-голям разход за:</span>
+                        <span id="topCategory" class="font-bold text-xs text-slate-200 truncate block mt-0.5">Няма данни</span>
+                    </div>
+                </div>
+
+                <!-- Custom Period Filter Section -->
+                <div class="bg-slate-900/40 p-2.5 rounded-xl border border-slate-800 space-y-2 text-xs">
+                    <span class="text-[11px] font-semibold text-slate-300 block flex items-center justify-between">
+                        <span><i class="fa-solid fa-filter me-1 text-orange-400"></i> Справка за период по Категория</span>
+                    </span>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <select id="customStatsCat" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 col-span-3">
+                            <!-- Dynamic Categories Injected -->
+                        </select>
+                        <div>
+                            <label class="text-[9px] text-slate-400 block">От година</label>
+                            <select id="customStatsFrom" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-slate-400 block">До година</label>
+                            <select id="customStatsTo" onchange="calculateCustomStats()" class="glass-input text-[11px] rounded-lg p-1 w-full"></select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="calculateCustomStats()" class="w-full bg-orange-600 hover:bg-orange-500 text-white rounded-lg p-1 text-[11px] font-semibold">
+                                Смятай
+                            </button>
+                        </div>
+                    </div>
+                    <div id="customStatsResult" class="hidden bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px] space-y-0.5 text-slate-300">
+                        <!-- Results injected here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Add Record Action -->
+            <button onclick="openRecordModal()" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99]">
+                <i class="fa-solid fa-plus-circle"></i> Добави обслужване / ремонт
+            </button>
+
+            <!-- Filter & Service History -->
+            <section class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">История</h3>
+                    <select id="filterCategory" onchange="renderRecords()" class="glass-input text-xs rounded-lg px-2 py-1 max-w-[170px]">
+                        <!-- Dynamic Options -->
+                    </select>
+                </div>
+
+                <div id="recordsList" class="space-y-2.5">
+                    <!-- Records injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
 
     <!-- Modal: Backup & Restore -->
     <div id="backupModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -427,8 +412,127 @@
     <!-- Load Database Script First -->
     <script src="carData.js"></script>
 
-    <!-- Main App Logic -->
+    <!-- Main App Logic & Auth Handling -->
     <script>
+        // Проверка при зареждане на страницата за активна сесия
+        document.addEventListener("DOMContentLoaded", async () => {
+            const savedUserId = localStorage.getItem('autolog_user_id');
+            
+            if (savedUserId) {
+                // Има активна сесия - скриваме панела за вход и показваме приложението
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('app-wrapper').style.display = 'block';
+                console.log("Активна сесия намерена за ID:", savedUserId);
+            } else {
+                // Няма сесия - показваме панела за вход и скриваме приложението
+                document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('app-wrapper').style.display = 'none';
+            }
+        });
+
+        // Динамично превключване между ПИН и Имейл табове с оцветяване
+        function switchMethod(method) {
+            const pinTab = document.getElementById('btn-pin-tab');
+            const emailTab = document.getElementById('btn-email-tab');
+            
+            if (method === 'pin') {
+                document.getElementById('pin-form').style.display = 'block';
+                document.getElementById('email-form').style.display = 'none';
+                pinTab.style.background = '#ff7300';
+                pinTab.style.color = '#fff';
+                emailTab.style.background = 'transparent';
+                emailTab.style.color = '#94a3b8';
+            } else {
+                document.getElementById('pin-form').style.display = 'none';
+                document.getElementById('email-form').style.display = 'block';
+                emailTab.style.background = '#ff7300';
+                emailTab.style.color = '#fff';
+                pinTab.style.background = 'transparent';
+                pinTab.style.color = '#94a3b8';
+            }
+        }
+
+        // Логика за вход с ПИН код (запис в Supabase таблица profiles)
+        async function loginWithPin() {
+            const pin = document.getElementById('user-pin').value.trim();
+            if (pin.length < 4) {
+                alert('Моля, въведете 4-цифрен ПИН код!');
+                return;
+            }
+
+            try {
+                let { data: profile, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('pin_code', pin)
+                    .maybeSingle();
+
+                if (error) {
+                    console.error("Грешка при заявка:", error);
+                    alert("Грешка при връзка с базата данни: " + error.message);
+                    return;
+                }
+
+                if (!profile) {
+                    const newUserId = 'usr_' + Date.now();
+                    const { data: newProfile, error: insertError } = await supabase
+                        .from('profiles')
+                        .insert([{ id: newUserId, pin_code: pin, auth_provider: 'pin' }])
+                        .select()
+                        .single();
+
+                    if (insertError) {
+                        console.error("Грешка при създаване:", insertError);
+                        alert("Грешка при създаване на профил: " + insertError.message);
+                        return;
+                    }
+
+                    profile = newProfile;
+                    alert('Новият ПИН е регистриран успешно в системата!');
+                } else {
+                    alert('Успешен вход!');
+                }
+
+                localStorage.setItem('autolog_user_id', profile.id);
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('app-wrapper').style.display = 'block';
+                location.reload();
+
+            } catch (err) {
+                console.error("Непредвидена грешка:", err);
+                alert("Възникна неочаквана грешка.");
+            }
+        }
+
+        // Логика за Magic Link с Имейл
+        async function loginWithEmail() {
+            const email = document.getElementById('user-email').value.trim();
+            if (!email) {
+                alert('Въведете имейл адрес!');
+                return;
+            }
+
+            const { error } = await supabase.auth.signInWithOtp({
+                email: email,
+                options: {
+                    emailRedirectTo: window.location.href
+                }
+            });
+
+            if (error) {
+                alert('Грешка: ' + error.message);
+            } else {
+                alert('Изпратен е линк за вход на ' + email + '! Проверете пощата си (и папка Спам).');
+            }
+        }
+
+        // Функция за Изход (Logout)
+        function logoutUser() {
+            localStorage.removeItem('autolog_user_id');
+            location.reload();
+        }
+
+        // --- Същински функционалности на AutoLog ---
         let rawData = localStorage.getItem('autolog_data');
         let appData;
         try {
@@ -532,739 +636,6 @@
                 window.open(`https://www.google.com/maps/search/EV+charging+station`, '_blank');
             }
         }
-
-        function updateFuelPriceDisplay() {
-            const car = getCurrentCar();
-            if (!car) return;
-            const fuelInfo = (typeof fuelPrices !== 'undefined' ? fuelPrices[car.fuel] : null) || { label: 'Цена гориво', price: 1.40 };
-            document.getElementById('fuelLabel').innerText = `${fuelInfo.label}`;
-            document.getElementById('carFuelPrice').innerText = `€ ${fuelInfo.price.toFixed(2)} / ${car.powertrain === 'EV' ? 'kWh' : 'л'}`;
-        }
-
-        function renderCarSelect() {
-            const select = document.getElementById('carSelect');
-            if (!select || !appData || !appData.cars) return;
-            select.innerHTML = appData.cars.map(c => 
-                `<option value="${c.id}" ${c.id === appData.activeCarId ? 'selected' : ''}>${c.powertrain === 'EV' ? '⚡' : '🚗'} ${c.name} ${c.plate ? '[' + c.plate + ']' : ''}</option>`
-            ).join('');
-        }
-
-        function switchCar(carId) {
-            appData.activeCarId = carId;
-            saveData();
-            updateUI();
-        }
-
-        function promptUpdateKm() {
-            const car = getCurrentCar();
-            if (!car) return;
-            const newKm = prompt(`Въведете нов актуален километраж за ${car.name}:`, car.km || 0);
-            if (newKm !== null && !isNaN(newKm) && Number(newKm) >= 0) {
-                car.km = Number(newKm);
-                saveData();
-                updateUI();
-            }
-        }
-
-        function checkSmartReminders() {
-            const car = getCurrentCar();
-            if (!car) return;
-            const records = appData.records[car.id] || [];
-            const banner = document.getElementById('reminderBanner');
-            const text = document.getElementById('reminderText');
-
-            if (car.powertrain !== 'EV') {
-                const oilRecords = records.filter(r => r.category === 'Масло & Филтри').sort((a,b) => new Date(b.date) - new Date(a.date));
-                if (oilRecords.length > 0) {
-                    const lastOil = oilRecords[0];
-                    const kmDiff = car.km - Number(lastOil.km || 0);
-                    if (kmDiff >= 9000) {
-                        banner.classList.remove('hidden');
-                        text.innerHTML = `Последната смяна на масло е била на <strong>${lastOil.km} км</strong> (преди ${kmDiff.toLocaleString()} км). Време е за обслужване!`;
-                        return;
-                    }
-                }
-            }
-
-            banner.classList.add('hidden');
-        }
-
-        function dismissReminder() {
-            document.getElementById('reminderBanner').classList.add('hidden');
-        }
-
-        function updateUI() {
-            renderCarSelect();
-            const car = getCurrentCar();
-            if (!car) return;
-
-            document.getElementById('carFuelBadge').innerText = car.fuel || 'Дизел';
-            document.getElementById('carTitle').innerText = car.name || 'Автомобил';
-            document.getElementById('carSubTitle').innerText = `${car.year || ''} ${car.engine ? '• ' + car.engine : ''}`;
-            document.getElementById('carKmDisplay').innerText = Number(car.km || 0).toLocaleString();
-
-            const evBtn = document.getElementById('evChargingBtn');
-            if (car.powertrain === 'EV' || car.powertrain === 'Hybrid') {
-                evBtn.classList.remove('hidden');
-            } else {
-                evBtn.classList.add('hidden');
-            }
-
-            const plateDisplay = document.getElementById('carPlateDisplay');
-            if (car.plate && car.plate.trim() !== '') {
-                document.getElementById('carPlateText').innerText = car.plate;
-                plateDisplay.classList.remove('hidden');
-            } else {
-                plateDisplay.classList.add('hidden');
-            }
-
-            const vinDisplay = document.getElementById('carVinDisplay');
-            if (car.vin && car.vin.trim() !== '') {
-                document.getElementById('carVinText').innerText = car.vin;
-                vinDisplay.classList.remove('hidden');
-            } else {
-                vinDisplay.classList.add('hidden');
-            }
-
-            updateAdaptiveCategories();
-            updateFuelPriceDisplay();
-            updateStatisticsOptions();
-            updateStatistics();
-            checkSmartReminders();
-            renderRecords();
-        }
-
-        function updateAdaptiveCategories() {
-            const car = getCurrentCar();
-            if (!car) return;
-            const categories = car.powertrain === 'EV' ? evCategories : iceCategories;
-            
-            const filterSelect = document.getElementById('filterCategory');
-            const customStatsSelect = document.getElementById('customStatsCat');
-
-            filterSelect.innerHTML = `<option value="all">Всички категории</option>` + 
-                categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-            customStatsSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-        }
-
-        function updateStatisticsOptions() {
-            const carRecords = appData.records[appData.activeCarId] || [];
-            const yearSelect = document.getElementById('statsYearSelect');
-            const fromSelect = document.getElementById('customStatsFrom');
-            const toSelect = document.getElementById('customStatsTo');
-
-            const currentYear = new Date().getFullYear();
-            let years = new Set([currentYear]);
-
-            carRecords.forEach(r => {
-                if (r.date) {
-                    const y = new Date(r.date).getFullYear();
-                    if (!isNaN(y)) years.add(y);
-                }
-            });
-
-            const sortedYears = Array.from(years).sort((a, b) => b - a);
-
-            const selectedYearVal = yearSelect.value;
-            yearSelect.innerHTML = `<option value="all">Всички години</option>` + 
-                sortedYears.map(y => `<option value="${y}">${y} година</option>`).join('');
-            if (sortedYears.includes(Number(selectedYearVal))) {
-                yearSelect.value = selectedYearVal;
-            }
-
-            const sortedYearsAsc = [...sortedYears].reverse();
-            fromSelect.innerHTML = sortedYearsAsc.map(y => `<option value="${y}">${y}</option>`).join('');
-            toSelect.innerHTML = sortedYears.map(y => `<option value="${y}">${y}</option>`).join('');
-            
-            if (sortedYearsAsc.length > 0) fromSelect.value = sortedYearsAsc[0];
-            if (sortedYears.length > 0) toSelect.value = sortedYears[0];
-
-            calculateCustomStats();
-        }
-
-        function updateStatistics() {
-            const carRecords = appData.records[appData.activeCarId] || [];
-            const selectedYear = document.getElementById('statsYearSelect').value;
-            const periodLabel = document.getElementById('statsPeriodLabel');
-
-            let yearTotal = 0;
-            let categoryTotals = {};
-
-            carRecords.forEach(r => {
-                const cost = Number(r.cost || 0);
-                const recYear = r.date ? new Date(r.date).getFullYear() : null;
-
-                if (selectedYear === 'all' || (recYear && String(recYear) === String(selectedYear))) {
-                    yearTotal += cost;
-                    categoryTotals[r.category] = (categoryTotals[r.category] || 0) + cost;
-                }
-            });
-
-            periodLabel.innerText = selectedYear === 'all' ? 'За целия период' : `За ${selectedYear} г.`;
-            document.getElementById('yearSpent').innerText = `€ ${yearTotal.toFixed(2)}`;
-
-            let topCat = 'Няма данни';
-            let maxCost = 0;
-            for (let cat in categoryTotals) {
-                if (categoryTotals[cat] > maxCost) {
-                    maxCost = categoryTotals[cat];
-                    topCat = cat;
-                }
-            }
-            document.getElementById('topCategory').innerText = topCat;
-        }
-
-        function calculateCustomStats() {
-            const carRecords = appData.records[appData.activeCarId] || [];
-            const cat = document.getElementById('customStatsCat').value;
-            const fromYear = Number(document.getElementById('customStatsFrom').value);
-            const toYear = Number(document.getElementById('customStatsTo').value);
-            const resultBox = document.getElementById('customStatsResult');
-
-            if (!fromYear || !toYear || fromYear > toYear) {
-                resultBox.classList.remove('hidden');
-                resultBox.innerHTML = `<span class="text-red-400">Невалиден период (От > До)</span>`;
-                return;
-            }
-
-            let totalSpent = 0;
-            let count = 0;
-
-            carRecords.forEach(r => {
-                if (r.category === cat && r.date) {
-                    const y = new Date(r.date).getFullYear();
-                    if (y >= fromYear && y <= toYear) {
-                        totalSpent += Number(r.cost || 0);
-                        count++;
-                    }
-                }
-            });
-
-            const totalYears = (toYear - fromYear) + 1;
-            const avgPerYear = totalSpent / totalYears;
-
-            resultBox.classList.remove('hidden');
-            resultBox.innerHTML = `
-                <div class="flex justify-between font-bold text-orange-400 border-b border-slate-800 pb-1 mb-1">
-                    <span>${cat} (${fromYear} - ${toYear} г.)</span>
-                    <span>€ ${totalSpent.toFixed(2)}</span>
-                </div>
-                <div class="flex justify-between text-slate-400">
-                    <span>Брой обслужвания / ремонти:</span>
-                    <strong class="text-slate-200">${count}</strong>
-                </div>
-                <div class="flex justify-between text-slate-400">
-                    <span>Средно на година:</span>
-                    <strong class="text-emerald-400">€ ${avgPerYear.toFixed(2)} / г.</strong>
-                </div>
-            `;
-        }
-
-        function onPowertrainChange() {
-            const pt = document.getElementById('carPowertrainInput').value;
-            const fuelSelect = document.getElementById('carFuelInput');
-            const specsContainer = document.getElementById('specsContainer');
-
-            if (pt === 'EV') {
-                fuelSelect.value = 'Електричество';
-                specsContainer.innerHTML = `
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[11px] text-slate-400 block mb-1">Батерия (kWh)</label>
-                            <input type="number" step="0.1" id="carBatteryKwh" placeholder="напр. 64" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs">
-                        </div>
-                        <div>
-                            <label class="text-[11px] text-slate-400 block mb-1">Мощност (к.с.)</label>
-                            <input type="number" id="carHorsePower" placeholder="напр. 204" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs">
-                        </div>
-                    </div>
-                `;
-            } else if (pt === 'Hybrid') {
-                fuelSelect.value = 'Хибрид';
-                specsContainer.innerHTML = `
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">ДВГ Обем (л)</label>
-                            <input type="number" step="0.1" id="carDisplacement" placeholder="1.8" class="w-full glass-input rounded-xl px-2 py-1.5 text-xs">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">Батерия (kWh)</label>
-                            <input type="number" step="0.1" id="carBatteryKwh" placeholder="1.4" class="w-full glass-input rounded-xl px-2 py-1.5 text-xs">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-400 block mb-1">Мощност (к.с.)</label>
-                            <input type="number" id="carHorsePower" placeholder="122" class="w-full glass-input rounded-xl px-2 py-1.5 text-xs">
-                        </div>
-                    </div>
-                `;
-            } else {
-                fuelSelect.value = 'Дизел';
-                specsContainer.innerHTML = `
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[11px] text-slate-400 block mb-1">Обем двигател (л)</label>
-                            <input type="number" step="0.1" id="carDisplacement" placeholder="напр. 1.6" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs">
-                        </div>
-                        <div>
-                            <label class="text-[11px] text-slate-400 block mb-1">Мощност (к.с.)</label>
-                            <input type="number" id="carHorsePower" placeholder="напр. 112" class="w-full glass-input rounded-xl px-3 py-1.5 text-xs">
-                        </div>
-                    </div>
-                `;
-            }
-            populateBrandDropdown();
-        }
-
-        function populateBrandDropdown() {
-            const brandSelect = document.getElementById('carBrandSelect');
-            if (!brandSelect) return;
-            const allBrands = typeof carDatabase !== 'undefined' ? Object.keys(carDatabase).sort() : ['Citroën', 'Volkswagen'];
-
-            brandSelect.innerHTML = allBrands.map(b => `<option value="${b}">${b}</option>`).join('') + 
-                `<option value="Друга">Друга марка (Ръчно)</option>`;
-
-            onBrandChange();
-        }
-
-        function onBrandChange() {
-            const brand = document.getElementById('carBrandSelect').value;
-            const customContainer = document.getElementById('customBrandContainer');
-            const modelSelect = document.getElementById('carModelSelect');
-
-            if (brand === 'Друга') {
-                customContainer.classList.remove('hidden');
-                modelSelect.innerHTML = '<option value="Друг модел">Друг модел (Ръчно)</option>';
-                onModelChange();
-            } else {
-                customContainer.classList.add('hidden');
-                const models = (typeof carDatabase !== 'undefined' && carDatabase[brand]) ? carDatabase[brand] : ['Стандартен модел'];
-                modelSelect.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('') + 
-                    '<option value="Друг модел">Друг модел (Ръчно)</option>';
-                onModelChange();
-            }
-        }
-
-        function onModelChange() {
-            const modelSelect = document.getElementById('carModelSelect');
-            const customModelContainer = document.getElementById('customModelContainer');
-
-            if (modelSelect && modelSelect.value === 'Друг модел') {
-                customModelContainer.classList.remove('hidden');
-            } else if (customModelContainer) {
-                customModelContainer.classList.add('hidden');
-            }
-        }
-
-        function toggleFilterOptions(preselectedFilters = []) {
-            const cat = document.getElementById('recCategory').value;
-            const container = document.getElementById('dynamicCheckboxesContainer');
-            const items = (typeof categoryCheckboxes !== 'undefined' ? categoryCheckboxes[cat] : null) || [];
-
-            if (items.length === 0) {
-                container.classList.add('hidden');
-                container.innerHTML = '';
-                return;
-            }
-
-            container.classList.remove('hidden');
-            container.innerHTML = `
-                <label class="text-xs font-semibold text-orange-400 block mb-1">Детайли за ${cat}:</label>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    ${items.map((item, idx) => `
-                        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                            <input type="checkbox" id="chk_item_${idx}" value="${item}" ${preselectedFilters.includes(item) ? 'checked' : ''} class="accent-orange-500 rounded">
-                            <span>${item}</span>
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        function renderRecords() {
-            const container = document.getElementById('recordsList');
-            const carRecords = appData.records[appData.activeCarId] || [];
-            const categoryFilter = document.getElementById('filterCategory').value;
-
-            const filtered = carRecords.filter(r => categoryFilter === 'all' || r.category === categoryFilter);
-            
-            const total = carRecords.reduce((sum, r) => sum + Number(r.cost || 0), 0);
-            document.getElementById('totalSpent').innerText = `€ ${total.toFixed(2)}`;
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8 glass rounded-xl text-slate-500 text-xs">
-                        Няма намерени записи за този автомобил.
-                    </div>`;
-                return;
-            }
-
-            const sortedRecords = [...filtered].sort((a, b) => {
-                if (b.date === a.date) {
-                    return (b.timestamp || 0) - (a.timestamp || 0);
-                }
-                return new Date(b.date) - new Date(a.date);
-            });
-
-            container.innerHTML = sortedRecords.map((r) => {
-                let filtersMarkup = '';
-                if (r.filters && r.filters.length > 0) {
-                    filtersMarkup = `
-                        <div class="flex flex-wrap gap-1 mt-1.5">
-                            ${r.filters.map(f => `<span class="bg-orange-950/70 text-orange-300 border border-orange-500/30 text-[10px] px-2 py-0.5 rounded-md">✓ ${f}</span>`).join('')}
-                        </div>`;
-                }
-
-                let imagesMarkup = '';
-                const imageArray = Array.isArray(r.images) ? r.images : (r.image ? [r.image] : []);
-                if (imageArray.length > 0) {
-                    imagesMarkup = `
-                        <div class="grid grid-cols-2 gap-1.5 mt-2">
-                            ${imageArray.map(img => `
-                                <a href="${img}" target="_blank" class="block">
-                                    <img src="${img}" alt="Фактура/Документ" class="w-full h-24 object-cover rounded-lg border border-slate-700 hover:opacity-80 transition shadow-sm">
-                                </a>
-                            `).join('')}
-                        </div>`;
-                }
-
-                return `
-                <div class="glass rounded-xl p-3 shadow-md space-y-1 relative group">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <span class="text-[10px] font-bold text-orange-400 uppercase tracking-wider">${r.category}</span>
-                            <h4 class="text-sm font-bold text-slate-100 flex items-center">${r.title}</h4>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-bold text-emerald-400">€ ${Number(r.cost).toFixed(2)}</span>
-                            <button onclick="openRecordModal('${r.id}')" class="text-slate-400 hover:text-orange-400 p-1 rounded transition">
-                                <i class="fa-solid fa-pen-to-square text-xs"></i>
-                            </button>
-                            <button onclick="deleteRecord('${r.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                    ${filtersMarkup}
-                    ${r.notes ? `<p class="text-xs text-slate-400 bg-slate-900/40 p-2 rounded-lg mt-1">${r.notes}</p>` : ''}
-                    ${imagesMarkup}
-                    <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-800/50 mt-1">
-                        <span><i class="fa-regular fa-calendar me-1"></i>${r.date}</span>
-                        <span><i class="fa-solid fa-gauge me-1"></i>${Number(r.km).toLocaleString()} км</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function deleteRecord(recordId) {
-            if (confirm('Сигурни ли сте, че искате да изтриете този запис?')) {
-                const carId = appData.activeCarId;
-                if (appData.records[carId]) {
-                    appData.records[carId] = appData.records[carId].filter(r => r.id !== recordId);
-                    saveData();
-                    updateUI();
-                }
-            }
-        }
-
-        function openBackupModal() { document.getElementById('backupModal').classList.remove('hidden'); }
-        function closeBackupModal() { document.getElementById('backupModal').classList.add('hidden'); }
-
-        function sendBackupEmail() {
-            const email = document.getElementById('backupEmailInput').value.trim();
-            if (!email) { alert('Моля, въведете имейл!'); return; }
-            const subject = encodeURIComponent("AutoLog - Архив");
-            const bodyText = encodeURIComponent(JSON.stringify(appData, null, 2));
-            window.location.href = `mailto:${email}?subject=${subject}&body=${bodyText}`;
-        }
-
-        function downloadBackupFile() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `autolog_backup_${new Date().toISOString().split('T')[0]}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function restoreFromFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    if (parsed && parsed.cars) {
-                        appData = parsed;
-                        saveData();
-                        updateUI();
-                        alert('Архивът беше възстановен успешно!');
-                        closeBackupModal();
-                    }
-                } catch (err) { alert('Грешка при прочитане на файла!'); }
-            };
-            reader.readAsText(file);
-        }
-
-        function openCarModal(isEdit = false) {
-            const modal = document.getElementById('carModal');
-            const car = isEdit ? getCurrentCar() : null;
-
-            document.getElementById('carModalTitle').innerText = isEdit ? 'Редактирай автомобил' : 'Добави автомобил';
-            document.getElementById('carId').value = isEdit ? car.id : '';
-            
-            document.getElementById('carPowertrainInput').value = isEdit ? (car.powertrain || 'ICE') : 'ICE';
-            onPowertrainChange();
-
-            if (isEdit && car) {
-                document.getElementById('carPlateInput').value = car.plate || '';
-                document.getElementById('carYearInput').value = car.year || '';
-                document.getElementById('carVinInput').value = car.vin || '';
-                document.getElementById('carKmInput').value = car.km || '';
-                document.getElementById('carFuelInput').value = car.fuel || 'Дизел';
-            } else {
-                document.getElementById('carPlateInput').value = '';
-                document.getElementById('carYearInput').value = '';
-                document.getElementById('carVinInput').value = '';
-                document.getElementById('carKmInput').value = '';
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeCarModal() { document.getElementById('carModal').classList.add('hidden'); }
-
-        function saveCar(e) {
-            e.preventDefault();
-            const id = document.getElementById('carId').value;
-            const brand = document.getElementById('carBrandSelect').value;
-            const modelSelect = document.getElementById('carModelSelect').value;
-            const powertrain = document.getElementById('carPowertrainInput').value;
-            
-            let carName = brand;
-            if (brand === 'Друга') {
-                carName = document.getElementById('carCustomName').value || 'Автомобил';
-            } else {
-                const modelName = modelSelect === 'Друг модел' ? (document.getElementById('carCustomModel').value || '') : modelSelect;
-                carName = `${brand} ${modelName}`.trim();
-            }
-
-            let engineText = '';
-            const disp = document.getElementById('carDisplacement') ? document.getElementById('carDisplacement').value : '';
-            const kwh = document.getElementById('carBatteryKwh') ? document.getElementById('carBatteryKwh').value : '';
-            const hp = document.getElementById('carHorsePower') ? document.getElementById('carHorsePower').value : '';
-
-            if (powertrain === 'EV') {
-                engineText = `${kwh ? kwh + ' kWh' : ''} ${hp ? '• ' + hp + ' hp' : ''}`.trim();
-            } else if (powertrain === 'Hybrid') {
-                engineText = `${disp ? disp + 'L' : ''} ${kwh ? '• ' + kwh + ' kWh' : ''} ${hp ? '• ' + hp + ' hp' : ''}`.trim();
-            } else {
-                engineText = `${disp ? disp + 'L' : ''} ${hp ? '• ' + hp + ' hp' : ''}`.trim();
-            }
-
-            const newCar = {
-                id: id || `car_${Date.now()}`,
-                name: carName,
-                powertrain: powertrain,
-                plate: document.getElementById('carPlateInput').value.trim().toUpperCase(),
-                year: document.getElementById('carYearInput').value,
-                vin: document.getElementById('carVinInput').value.trim().toUpperCase(),
-                engine: engineText || 'Спецификация',
-                fuel: document.getElementById('carFuelInput').value,
-                km: Number(document.getElementById('carKmInput').value || 0)
-            };
-
-            if (id) {
-                const idx = appData.cars.findIndex(c => c.id === id);
-                if (idx !== -1) appData.cars[idx] = newCar;
-            } else {
-                appData.cars.push(newCar);
-                appData.activeCarId = newCar.id;
-            }
-
-            saveData();
-            closeCarModal();
-            updateUI();
-        }
-
-        function deleteCurrentCar() {
-            if (appData.cars.length <= 1) {
-                alert('Трябва да имате поне един автомобил!');
-                return;
-            }
-            if (confirm('Сигурни ли сте, че искате да изтриете този автомобил?')) {
-                const carId = appData.activeCarId;
-                appData.cars = appData.cars.filter(c => c.id !== carId);
-                delete appData.records[carId];
-                appData.activeCarId = appData.cars[0].id;
-                saveData();
-                updateUI();
-            }
-        }
-
-        function openRecordModal(recordId = null) {
-            const modal = document.getElementById('recordModal');
-            const titleEl = document.getElementById('recordModalTitle');
-            const catSelect = document.getElementById('recCategory');
-            const car = getCurrentCar();
-            const categories = (car && car.powertrain === 'EV') ? evCategories : iceCategories;
-
-            catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-            document.getElementById('recId').value = '';
-            document.getElementById('recImageInput').value = '';
-
-            if (recordId) {
-                titleEl.innerText = 'Редактирай запис';
-                const carRecords = appData.records[appData.activeCarId] || [];
-                const record = carRecords.find(r => r.id === recordId);
-                
-                if (record) {
-                    document.getElementById('recId').value = record.id;
-                    document.getElementById('recTitle').value = record.title || '';
-                    document.getElementById('recCategory').value = record.category || categories[0];
-                    document.getElementById('recDate').value = record.date || new Date().toISOString().split('T')[0];
-                    document.getElementById('recKm').value = record.km || '';
-                    document.getElementById('recCost').value = record.cost || '';
-                    document.getElementById('recNotes').value = record.notes || '';
-                    
-                    temporaryPhotos = record.images ? [...record.images] : (record.image ? [record.image] : []);
-                    toggleFilterOptions(record.filters || []);
-                }
-            } else {
-                titleEl.innerText = 'Нов запис за обслужване';
-                document.getElementById('recordForm').reset();
-                document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('recKm').value = car ? car.km : '';
-                document.getElementById('recCategory').value = categories[0];
-                temporaryPhotos = [];
-                toggleFilterOptions();
-            }
-
-            updateTempPreviews();
-            modal.classList.remove('hidden');
-        }
-
-        function closeRecordModal() { document.getElementById('recordModal').classList.add('hidden'); }
-
-        function saveRecord(e) {
-            e.preventDefault();
-            const carId = appData.activeCarId;
-            if (!appData.records[carId]) appData.records[carId] = [];
-
-            const recordId = document.getElementById('recId').value;
-            const category = document.getElementById('recCategory').value;
-            const selectedFilters = [];
-            
-            const container = document.getElementById('dynamicCheckboxesContainer');
-            if (container) {
-                const checkboxes = container.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(chk => { if (chk.checked) selectedFilters.push(chk.value); });
-            }
-
-            const km = Number(document.getElementById('recKm').value);
-
-            if (recordId) {
-                const carRecords = appData.records[carId];
-                const idx = carRecords.findIndex(r => r.id === recordId);
-                if (idx !== -1) {
-                    carRecords[idx] = {
-                        ...carRecords[idx],
-                        title: document.getElementById('recTitle').value,
-                        category: category,
-                        filters: selectedFilters,
-                        date: document.getElementById('recDate').value,
-                        km: km,
-                        cost: Number(document.getElementById('recCost').value),
-                        notes: document.getElementById('recNotes').value,
-                        images: [...temporaryPhotos]
-                    };
-                }
-            } else {
-                const record = {
-                    id: `rec_${Date.now()}`,
-                    timestamp: Date.now(),
-                    title: document.getElementById('recTitle').value,
-                    category: category,
-                    filters: selectedFilters,
-                    date: document.getElementById('recDate').value,
-                    km: km,
-                    cost: Number(document.getElementById('recCost').value),
-                    notes: document.getElementById('recNotes').value,
-                    images: [...temporaryPhotos]
-                };
-                appData.records[carId].push(record);
-            }
-
-            const car = getCurrentCar();
-            if (car && km > car.km) car.km = km;
-
-            saveData();
-            closeRecordModal();
-            updateUI();
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            onPowertrainChange();
-            updateUI();
-        });
     </script>
-  <!-- ДОБАВИ ТОВА НАЙ-ОТДОЛУ ПРЕДИ </body>: -->
-  <script>
-    function switchMethod(method) {
-      if (method === 'pin') {
-        document.getElementById('pin-form').style.display = 'block';
-        document.getElementById('email-form').style.display = 'none';
-      } else {
-        document.getElementById('pin-form').style.display = 'none';
-        document.getElementById('email-form').style.display = 'block';
-      }
-    }
-
-    async function loginWithPin() {
-      const pin = document.getElementById('user-pin').value;
-      if (pin.length < 4) {
-        alert('Моля, въведете 4-цифрен ПИН код!');
-        return;
-      }
-
-      let { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('pin_code', pin)
-        .maybeSingle();
-
-      if (!profile) {
-        const userId = 'usr_' + Date.now();
-        const { data, error: errInsert } = await supabase
-          .from('profiles')
-          .insert([{ id: userId, pin_code: pin, auth_provider: 'pin' }])
-          .select()
-          .single();
-        
-        profile = data;
-      }
-
-      localStorage.setItem('autolog_user_id', profile.id);
-      alert('Успешен вход!');
-      // Тук след време ще скриваме екрана за вход и ще зареждаме колите
-    }
-
-    async function loginWithEmail() {
-      const email = document.getElementById('user-email').value;
-      if (!email) {
-        alert('Въведете имейл адрес!');
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithOtp({ email });
-      if (error) {
-        alert('Грешка: ' + error.message);
-      } else {
-        alert('Изпратихме линк за вход на твоя имейл!');
-      }
-    }
-  </script>
 </body>
 </html>
