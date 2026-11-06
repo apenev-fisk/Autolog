@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-    <!-- 1. Зареждаме Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-      // 2. Инициализация на Supabase с правилно име на клиента
-      const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
-      const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
-      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      console.log("Supabase е успешно свързан!");
-    </script>
+   <!-- 1. Зареждаме Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // 2. Явна инициализация с обект за конфигурация
+  const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
+  
+  const { createClient } = supabase;
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+  
+  console.log("Supabase клиентът е инициализиран успешно!");
+</script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
