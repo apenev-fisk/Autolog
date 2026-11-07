@@ -63,14 +63,13 @@ async function loginWithGoogle() {
         return;
     }
 
-    try {
-       const { data, error } = await supabase.auth.signInWithOAuth({
-  provider: 'google',
-  options: {
-    redirectTo: 'https://apenev-fisk.github.io/Autolog/' // Сложи твоя реален GitHub Pages линк тук
-  }
-})
-        });
+   try {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://apenev-fisk.github.io/Autolog/'
+    }
+  });
 
         if (error) {
             alert('Грешка при Google вход: ' + error.message);
