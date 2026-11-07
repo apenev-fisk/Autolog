@@ -75,7 +75,7 @@ async function loginWithGoogle() {
             alert('Грешка при Google вход: ' + error.message);
         }
     } catch (err) {
-        alert('Възникна неочаквана грешка при връзката с Google.');
+        alert('Грешка: ' + (error.message || JSON.stringify(error)));
     }
 }
 
