@@ -64,11 +64,12 @@ async function loginWithGoogle() {
     }
 
     try {
-        const { error } = await supabaseClient.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.href.split('#')[0]
-            }
+       const { data, error } = await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: {
+    redirectTo: 'https://apenev-fisk.github.io/Autolog/' // Сложи твоя реален GitHub Pages линк тук
+  }
+})
         });
 
         if (error) {
