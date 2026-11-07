@@ -3,6 +3,9 @@
 const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
 
+// Инициализираме го точно като 'supabase' (за да пасва на останалия код):
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let supabaseClient = null;
 
 if (window.supabase && typeof window.supabase.createClient === 'function') {
