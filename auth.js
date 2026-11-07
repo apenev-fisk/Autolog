@@ -66,22 +66,21 @@ async function loginWithGoogle() {
         return;
     }
 
-   try {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: 'https://apenev-fisk.github.io/Autolog/'
-    }
-  });
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: 'https://apenev-fisk.github.io/Autolog/'
+            }
+        });
 
         if (error) {
             alert('Грешка при Google вход: ' + error.message);
         }
     } catch (err) {
-        alert('Грешка: ' + (error.message || JSON.stringify(error)));
+        alert('Грешка: ' + (err.message || JSON.stringify(err)));
     }
 }
-
 // Изход от профила
 async function logoutUser() {
     if (supabaseClient) {
