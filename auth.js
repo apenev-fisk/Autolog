@@ -5,7 +5,7 @@ const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
 
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-// Създаване и инжектиране на визуалните елементи (без да пипаме index.html)
+// Създаване и инжектиране на визуалните елементи
 function injectAuthUI() {
     // 1. Екран за вход с оригиналния дизайн, лого и светещ ефект
     if (!document.getElementById('dynamicLoginOverlay')) {
@@ -28,11 +28,11 @@ function injectAuthUI() {
         document.body.appendChild(overlay);
     }
 
-    // 2. Стилен банер за потребителя горе вдясно
+    // 2. Стилен банер за потребителя горе вдясно (със задебелен z-index, за да е най-отгоре)
     if (!document.getElementById('dynamicUserBadge')) {
         const badge = document.createElement('div');
         badge.id = 'dynamicUserBadge';
-        badge.style.cssText = 'position: fixed; top: 12px; right: 12px; z-index: 99998; display: none; align-items: center; gap: 12px; background: rgba(26, 26, 26, 0.95); border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-size: 12px; color: #fff; font-family: sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.5);';
+        badge.style.cssText = 'position: fixed; top: 12px; right: 12px; z-index: 100000; display: none; align-items: center; gap: 12px; background: rgba(26, 26, 26, 0.95); border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; font-size: 12px; color: #fff; font-family: sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.5);';
         
         badge.innerHTML = `
             <span id="dynamicUserEmail" style="color: #bbb;"></span>
@@ -75,6 +75,7 @@ async function logoutUser() {
 async function checkUserSession() {
     if (!supabaseClient) return;
 
+    // Първо изграждаме елементите в DOM дървото
     injectAuthUI();
 
     const overlay = document.getElementById('dynamicLoginOverlay');
@@ -84,12 +85,12 @@ async function checkUserSession() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
 
     if (session && session.user) {
-        // Има вход -> Скриваме екрана за вход, показваме имейла и бутона Изход горе вдясно
+        // Има активна сесия: скриваме входа, ПОКАЗВАМЕ банера с имейла и бутона за изход
         if (overlay) overlay.style.display = 'none';
         if (badge) badge.style.display = 'flex';
         if (emailSpan) emailSpan.innerText = session.user.email;
     } else {
-        // Няма вход -> Показваме изцяло екрана за вход, скриваме банера
+        // Няма активна сесия: показваме входа, скриваме банера
         if (overlay) overlay.style.display = 'flex';
         if (badge) badge.style.display = 'none';
     }
