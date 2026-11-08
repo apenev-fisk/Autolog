@@ -44,22 +44,6 @@ function injectAuthUI() {
     }
 }
 
-    // 2. Създаваме лентичката с имейла и бутона за изход горе вдясно
-    if (!document.getElementById('dynamicUserBadge')) {
-        const badge = document.createElement('div');
-        badge.id = 'dynamicUserBadge';
-        badge.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 99998; display: none; align-items: center; gap: 10px; background: rgba(30, 30, 30, 0.9); padding: 6px 12px; border-radius: 6px; font-size: 12px; color: #fff; font-family: sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
-        
-        badge.innerHTML = `
-            <span id="dynamicUserEmail" style="color: #ddd;"></span>
-            <button onclick="logoutUser()" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">
-                Изход
-            </button>
-        `;
-        document.body.appendChild(badge);
-    }
-}
-
 // Вход с Google
 async function loginWithGoogle() {
     if (!supabaseClient) return;
