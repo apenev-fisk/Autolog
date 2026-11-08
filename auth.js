@@ -1,90 +1,96 @@
-// auth.js - Интегрирана оторизация с Google OAuth за AutoLog
+// auth.js - Автономно управление на входа, логото, имейла и изхода
 
 const SUPABASE_URL = 'https://tferaxmcahxalhmihubg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
 
-// Инициализираме го точно като 'supabase' (за да пасва на останалия код):
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-let supabaseClient = null;
+// Създаване и инжектиране на визуалните елементи (без да пипаме index.html)
+function injectAuthUI() {
+    // 1. Създаваме целия екран за вход (скрит по подразбиране)
+    if (!document.getElementById('dynamicLoginOverlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'dynamicLoginOverlay';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; font-family: sans-serif;';
+        
+        overlay.innerHTML = `
+            <div style="text-align: center; padding: 30px; background: #1e1e1e; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); max-width: 350px; width: 90%;">
+                <h2 style="margin-bottom: 10px; color: #fff;">Добре дошли в AutoLog</h2>
+                <p style="color: #aaa; font-size: 14px; margin-bottom: 25px;">Влезте с вашия Google акаунт, за да продължите.</p>
+                <button onclick="loginWithGoogle()" style="background: #4285F4; color: white; border: none; padding: 12px 20px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    Вход с Google акаунт
+                </button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
 
-if (window.supabase && typeof window.supabase.createClient === 'function') {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} else {
-    console.error("Supabase SDK не е зареден!");
+    // 2. Създаваме лентичката с имейла и бутона за изход горе вдясно
+    if (!document.getElementById('dynamicUserBadge')) {
+        const badge = document.createElement('div');
+        badge.id = 'dynamicUserBadge';
+        badge.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 99998; display: none; align-items: center; gap: 10px; background: rgba(30, 30, 30, 0.9); padding: 6px 12px; border-radius: 6px; font-size: 12px; color: #fff; font-family: sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
+        
+        badge.innerHTML = `
+            <span id="dynamicUserEmail" style="color: #ddd;"></span>
+            <button onclick="logoutUser()" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">
+                Изход
+            </button>
+        `;
+        document.body.appendChild(badge);
+    }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const authContainer = document.getElementById('auth-container');
-    const userProfileBadge = document.getElementById('user-profile-badge');
-    const loggedUserEmail = document.getElementById('logged-user-email');
-    const googleBtn = document.getElementById('btn-google-login');
-
-    if (googleBtn) {
-        googleBtn.addEventListener('click', loginWithGoogle);
-    }
-
-    if (!supabaseClient) {
-        console.error("Грешка: Supabase клиентът не е инициализиран.");
-        return;
-    }
-
-    try {
-        // Проверяваме дали има активна сесия
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-
-        if (session && session.user) {
-            // Влязъл е – скриваме входа и показваме имейла му горе в хедъра
-            if (authContainer) authContainer.style.display = 'none';
-            if (loggedUserEmail) loggedUserEmail.innerText = session.user.email;
-            if (userProfileBadge) userProfileBadge.style.display = 'flex';
-        } else {
-            // Няма сесия – показваме екрана за вход
-            if (authContainer) authContainer.style.display = 'flex';
-            if (userProfileBadge) userProfileBadge.style.display = 'none';
-        }
-
-        // Слушаме за промени в състоянието
-        supabaseClient.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                if (authContainer) authContainer.style.display = 'none';
-                if (loggedUserEmail) loggedUserEmail.innerText = session.user.email;
-                if (userProfileBadge) userProfileBadge.style.display = 'flex';
-                window.location.reload();
-            }
-        });
-
-    } catch (err) {
-        console.error("Грешка при проверка на сесията:", err);
-    }
-});
-
-// Функция за вход с Google акаунт през Supabase
+// Вход с Google
 async function loginWithGoogle() {
-    if (!supabaseClient) {
-        alert('Грешка: Supabase клиентът не е готов.');
-        return;
-    }
-
+    if (!supabaseClient) return;
     try {
-        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+        const { error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: 'https://apenev-fisk.github.io/Autolog/'
             }
         });
-
-        if (error) {
-            alert('Грешка при Google вход: ' + error.message);
-        }
+        if (error) throw error;
     } catch (err) {
-        alert('Грешка: ' + (err.message || JSON.stringify(err)));
+        alert('Грешка при Google вход: ' + (err.message || JSON.stringify(err)));
     }
 }
-// Изход от профила
+
+// Изход от акаунта
 async function logoutUser() {
-    if (supabaseClient) {
-        await supabaseClient.auth.signOut();
+    if (!supabaseClient) return;
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+        alert('Грешка при изход: ' + error.message);
+    } else {
+        window.location.reload();
     }
-    window.location.reload();
 }
+
+// Проверка на сесията
+async function checkUserSession() {
+    if (!supabaseClient) return;
+
+    injectAuthUI();
+
+    const overlay = document.getElementById('dynamicLoginOverlay');
+    const badge = document.getElementById('dynamicUserBadge');
+    const emailSpan = document.getElementById('dynamicUserEmail');
+
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+    if (session && session.user) {
+        // Има вход -> Скриваме екрана за вход, показваме имейла и бутона Изход горе вдясно
+        if (overlay) overlay.style.display = 'none';
+        if (badge) badge.style.display = 'flex';
+        if (emailSpan) emailSpan.innerText = session.user.email;
+    } else {
+        // Няма вход -> Показваме изцяло екрана за вход, скриваме банера
+        if (overlay) overlay.style.display = 'flex';
+        if (badge) badge.style.display = 'none';
+    }
+}
+
+// Стартираме проверката при зареждане на страницата
+window.addEventListener('DOMContentLoaded', checkUserSession);
