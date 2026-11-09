@@ -15,7 +15,7 @@ function injectAuthUI() {
         
         overlay.innerHTML = `
             <div style="text-align: center; padding: 45px 35px; background: #161616; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.9), 0 0 25px rgba(230, 126, 34, 0.12); max-width: 400px; width: 90%;">
-                <img src="logo.png" alt="AutoLog Logo" style="width: 130px; height: auto; margin-bottom: 25px; filter: drop-shadow(0 0 16px rgba(230, 126, 34, 0.35));">
+                <img src="logo.jpg" alt="AutoLog Logo" style="width: 130px; height: auto; margin-bottom: 25px; filter: drop-shadow(0 0 16px rgba(230, 126, 34, 0.35));">
                 <h2 style="margin-bottom: 8px; color: #fff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">AutoLog</h2>
                 <p style="color: #888; font-size: 13px; margin-bottom: 35px;">Професионална система за сервизна история</p>
                 
