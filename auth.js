@@ -5,7 +5,7 @@ const SUPABASE_KEY = 'sb_publishable_Rd-WYS-Rwy-_b6l_ob73uw_DRuJjN-n';
 
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-// Създаване и инжектиране на визуалните елементи (с перфектния дизайн и оранжев бутон)
+// Създаване и инжектиране на визуалните елементи
 function injectAuthUI() {
     // 1. Стилен екран за вход с оранжев бутон и светещо лого
     if (!document.getElementById('dynamicLoginOverlay')) {
@@ -28,15 +28,15 @@ function injectAuthUI() {
         document.body.appendChild(overlay);
     }
 
-    // 2. Стилен банер за потребителя горе вдясно (Имейл + Бутон Изход)
+    // 2. Перфектно подравнен банер горе вдясно (Имейл + Бутон Изход)
     if (!document.getElementById('dynamicUserBadge')) {
         const badge = document.createElement('div');
         badge.id = 'dynamicUserBadge';
-        badge.style.cssText = 'position: fixed; top: 14px; right: 14px; z-index: 100000; display: none; align-items: center; gap: 12px; background: rgba(22, 22, 22, 0.95); border: 1px solid rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px; font-size: 12px; color: #fff; font-family: sans-serif; box-shadow: 0 4px 20px rgba(0,0,0,0.6); backdrop-filter: blur(5px);';
+        badge.style.cssText = 'position: fixed; top: 12px; right: 12px; z-index: 100000; display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(22, 22, 22, 0.95); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; font-size: 12px; color: #fff; font-family: sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.6); backdrop-filter: blur(5px); max-width: calc(100vw - 24px); box-sizing: border-box;';
         
         badge.innerHTML = `
-            <span id="dynamicUserEmail" style="color: #ccc; font-weight: 500;"></span>
-            <button onclick="logoutUser()" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4); transition: background 0.2s;">
+            <span id="dynamicUserEmail" style="color: #ccc; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;"></span>
+            <button onclick="logoutUser()" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; flex-shrink: 0; box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);">
                 Изход
             </button>
         `;
@@ -84,12 +84,10 @@ async function checkUserSession() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
 
     if (session && session.user) {
-        // Има вход -> Скриваме екрана за вход, показваме банера с имейла и бутона за изход горе вдясно
         if (overlay) overlay.style.display = 'none';
         if (badge) badge.style.display = 'flex';
         if (emailSpan) emailSpan.innerText = session.user.email;
     } else {
-        // Няма вход -> Показваме луксозния екран за вход, скриваме банера
         if (overlay) overlay.style.display = 'flex';
         if (badge) badge.style.display = 'none';
     }
