@@ -8,6 +8,9 @@ const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_U
 // Създаване и инжектиране на визуалните елементи
 function injectAuthUI() {
     // 1. Стилен екран за вход с оранжев бутон и светещо лого
+   // 2. Перфектно подравнен банер горе вдясно (Имейл + Бутон Изход) БЕЗ излишни бутони
+function injectAuthUI() {
+    // 1. Стилен екран за вход с оранжев бутон и цветно лого
     if (!document.getElementById('dynamicLoginOverlay')) {
         const overlay = document.createElement('div');
         overlay.id = 'dynamicLoginOverlay';
@@ -28,7 +31,7 @@ function injectAuthUI() {
         document.body.appendChild(overlay);
     }
 
-    // 2. Перфектно подравнен банер горе вдясно (Имейл + Бутон Изход)
+    // 2. Перфектно подравнен банер горе вдясно (Само имейл + Бутон Изход)
     if (!document.getElementById('dynamicUserBadge')) {
         const badge = document.createElement('div');
         badge.id = 'dynamicUserBadge';
