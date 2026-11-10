@@ -202,21 +202,25 @@
 
 
 
-    <!-- Header Navigation -->
-    
+  <!-- Header Navigation -->
     <header class="sticky top-0 z-50 glass border-b border-slate-800 px-4 py-3 shadow-lg">
         <div class="max-w-md mx-auto flex items-center justify-between">
+            <!-- Лого и име на приложението (отляво) -->
             <div class="flex items-center gap-2">
                 <img src="Logo.jpg" alt="Logo" class="w-8 h-8 rounded-lg object-cover border border-orange-500/30 shadow">
                 <span class="font-bold text-lg tracking-tight text-white">Auto<span class="text-orange-500">Log</span></span>
-                <!-- Индикатор за влязъл профил (сложи го горе в дясно на екрана) -->
-<div id="user-profile-badge" style="display: none; align-items: center; gap: 10px; background: rgba(30, 41, 59, 0.8); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 13px; color: #f8fafc;">
-  <i class="fa-solid fa-user-circle text-orange-500" style="font-size: 16px;"></i>
-  <span id="logged-user-email" style="font-weight: 500; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
-  <button onclick="logoutUser()" title="Изход" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 2px 6px;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-    <i class="fa-solid fa-right-from-bracket"></i>
-  </button>
-</div>
+            </div>
+
+            <!-- Индикатор за влязъл профил и бутон Изход (отдясно) -->
+            <div id="user-profile-badge" style="display: none; align-items: center; gap: 10px; background: rgba(30, 41, 59, 0.8); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 13px; color: #f8fafc;">
+              <i class="fa-solid fa-user-circle text-orange-500" style="font-size: 16px;"></i>
+              <span id="logged-user-email" style="font-weight: 500; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+              <button onclick="logoutUser()" title="Изход" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 2px 6px;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                <i class="fa-solid fa-right-from-bracket"></i>
+              </button>
+            </div>
+        </div>
+    </header>
 
     <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
 
